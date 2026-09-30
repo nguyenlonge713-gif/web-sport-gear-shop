@@ -1,0 +1,51 @@
+﻿@{
+    ViewBag.Title = "Danh Mục Sản Phẩm - Gear Sport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="products-page" style="display: flex; gap: 30px; margin-top: 20px;">
+    <!-- Sidebar bộ lọc -->
+    <aside class="sidebar" style="width: 250px; background: white; padding: 20px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <h3 style="margin-bottom: 15px; font-size: 18px; border-bottom: 2px solid #ff4500; padding-bottom: 5px;">Bộ Lọc</h3>
+
+        <div class="filter-group" style="margin-bottom: 20px;">
+            <h4 style="margin-bottom: 10px; font-size: 16px;">Danh Mục</h4>
+            <label style="display: block; margin-bottom: 5px;"><input type="checkbox"> Áo Thể Thao</label>
+            <label style="display: block; margin-bottom: 5px;"><input type="checkbox"> Giày Đá Bóng</label>
+            <label style="display: block; margin-bottom: 5px;"><input type="checkbox"> Phụ Kiện</label>
+        </div>
+
+        <div class="filter-group">
+            <h4 style="margin-bottom: 10px; font-size: 16px;">Khoảng Giá</h4>
+            <label style="display: block; margin-bottom: 5px;"><input type="radio" name="price"> Dưới 500k</label>
+            <label style="display: block; margin-bottom: 5px;"><input type="radio" name="price"> 500k - 2 triệu</label>
+            <label style="display: block; margin-bottom: 5px;"><input type="radio" name="price"> Trên 2 triệu</label>
+        </div>
+    </aside>
+
+    <!-- Danh sách sản phẩm bên phải -->
+    <main class="product-content" style="flex: 1;">
+        <h2 style="margin-bottom: 20px; font-size: 24px;">Tất Cả Sản Phẩm Thể Thao</h2>
+        <div class="product-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
+
+            <div class="product-card" style="background: white; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff" alt="Giày" style="width: 100%; height: 180px; object-fit: cover;">
+                <div style="padding: 15px;">
+                    <h4 style="font-size: 16px; margin-bottom: 8px;">Giày Chạy Bộ Nike</h4>
+                    <p style="color: #ff4500; font-weight: bold; margin-bottom: 10px;">1.500.000 đ</p>
+                    <button class="btn" style="width: 100%;">Thêm vào giỏ</button>
+                </div>
+            </div>
+
+            <div class="product-card" style="background: white; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <img src="https://images.unsplash.com/photo-1517649763962-0c6232660102" alt="Áo" style="width: 100%; height: 180px; object-fit: cover;">
+                <div style="padding: 15px;">
+                    <h4 style="font-size: 16px; margin-bottom: 8px;">Áo Thun Thể Thao</h4>
+                    <p style="color: #ff4500; font-weight: bold; margin-bottom: 10px;">350.000 đ</p>
+                    <button class="btn" style="width: 100%;">Thêm vào giỏ</button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>

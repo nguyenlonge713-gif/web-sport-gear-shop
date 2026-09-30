@@ -1,0 +1,389 @@
+﻿@{
+    ViewBag.Title = "Trang Chủ - Gear Sport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Phần Banner -->
+<section class="banner">
+    <div class="banner-content">
+        <h2>Đỉnh Cao Thể Thao - Bứt Phá Giới Hạn</h2>
+        <p>Khám phá bộ sưu tập quần áo và dụng cụ thể thao chính hãng mới nhất tại Gear Sport.</p>
+        <a href="#product-list" class="btn">Bắt đầu mua sắm</a>
+    </div>
+</section>
+
+<!-- Phần Tìm Kiếm -->
+<section class="search-section" style="margin: 30px 0; text-align: center;">
+    <h2>Tìm Kiếm Sản Phẩm</h2>
+    <div class="search-container" style="display: inline-flex; gap: 10px; margin-top: 10px;">
+        <input type="text" id="search-input" placeholder="Nhập tên sản phẩm thể thao..." style="padding: 10px; width: 300px; border: 1px solid #ccc; border-radius: 4px;">
+        <button id="search-button" class="btn" style="padding: 10px 20px;">Tìm kiếm</button>
+    </div>
+</section>
+
+<!-- Phần Danh Sách Sản Phẩm -->
+<section id="product-list" class="featured-products">
+    <h2>Danh Sách Sản Phẩm Gear Sport</h2>
+    <div class="product-container product-grid" style="margin-top: 20px;">
+
+        <!-- Sản phẩm giày chạy bộ -->
+        <div class="product-item product-card" style="cursor: pointer;">
+            <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff" alt="Giày chạy bộ" class="product-img" />
+            <div class="product-info">
+                <h3 class="product-title">Giày Chạy Bộ Nike Air</h3>
+                <p class="product-price">1.500.000 đ</p>
+                <button class="btn add-to-cart-btn"
+                        data-id="1"
+                        data-name="Giày Chạy Bộ Nike Air"
+                        data-price="1500000"
+                        data-image="https://images.unsplash.com/photo-1542291026-7eec264c27ff"
+                        data-images="https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSPEjw90YY95eiI484xc88z09OQxq0TnlkafUyk3QE2QK9sUZqZ27pVpPdVcNvfneatC36-AjhnWLeT-pB6xLUUiia-yqOaPff0la4RmnoztQpywpT6wppWfnY&usqp=CAc,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTn7wH4K45bgylS3LdFpratBdpHyx-OoIQjON3X1kZPbg&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzgkgfqEl6RgS3gmCbSw9eWD1HLee3_GLzCwbB9Uto7Q&s=10"
+                        data-desc="Giày chạy bộ chuyên dụng với công nghệ đệm khí Air êm ái, thân giày làm từ vải dệt nguyên khối thoáng khí, đế cao su chống mài mòn cao, giúp tối ưu hóa tốc độ và bảo vệ cổ chân tối đa.">
+                    Thêm vào giỏ
+                </button>
+            </div>
+        </div>
+
+        <!-- Sản phẩm áo thun thể thao -->
+        <div class="product-item product-card" style="cursor: pointer;">
+            <img src="https://images.unsplash.com/photo-1581655353564-df123a1eb820" alt="Áo thun thể thao" class="product-img" />
+            <div class="product-info">
+                <h3 class="product-title">Áo Thun Thể Thao Nam</h3>
+                <p class="product-price">350.000 đ</p>
+                <button class="btn add-to-cart-btn"
+                        data-id="2"
+                        data-name="Áo Thun Thể Thao Nam"
+                        data-price="350000"
+                        data-image="https://images.unsplash.com/photo-1581655353564-df123a1eb820"
+                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5hBohtBydXq7TDi68pqvFa_Bzqq05z3f3DkIYKxT24g&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3PHfkBqHWzSppmD4Ms6U9XRz1reZjE1MY7-mRWdL8vQ&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSva8FZ6h9Rw_yESLZPhuyVoXVRPZWCiI02uJX1hEpkOA&s"
+                        data-desc="Áo thun thể thao nam chất liệu thun mè cao cấp, siêu nhẹ, khả năng thấm hút mồ hôi cực tốt với công nghệ Dry-Fit, giữ cơ thể luôn khô thoáng trong suốt buổi tập luyện cường độ cao.">
+                    Thêm vào giỏ
+                </button>
+            </div>
+        </div>
+
+        <!-- Sản phẩm quần short chạy bộ nam -->
+        <div class="product-item product-card" style="cursor: pointer;">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjR66nsXvXLznIZNzEBB_PQyOSWPCtgY0vi7ulX7vIqA&s" alt="Quần short" class="product-img" />
+            <div class="product-info">
+                <h3 class="product-title">Quần Short Chạy Bộ Nam</h3>
+                <p class="product-price">250.000 đ</p>
+                <button class="btn add-to-cart-btn"
+                        data-id="3"
+                        data-name="Quần Short Chạy Bộ Nam"
+                        data-price="250000"
+                        data-image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8y_-DeRsf7SFV9wdcilm1l6us35GmrhC9ek_3D8KXVA&s=10"
+                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-jk_72xVAvr2gDf_wdbkcqQQKXBw_eYgdjZfODpj9fA&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTti0YfasSv9EpIr-nhowPtONGuHou9Yvaj-FK5wqKokg&s,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8y_-DeRsf7SFV9wdcilm1l6us35GmrhC9ek_3D8KXVA&s=10"
+                        data-desc="Quần short thể thao nam thiết kế năng động, chất liệu thun co giãn 4 chiều kết hợp lớp lót bên trong thoáng khí, mang lại cảm giác thoải mái tuyệt đối trong mọi chuyển động.">
+                    Thêm vào giỏ
+                </button>
+            </div>
+        </div>
+
+        <!-- Sản phẩm Bình nước thể thao -->
+        <div class="product-item product-card" style="cursor: pointer;">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAGUpYJ2Ku5V5PTmkxORRupZR_j80f8watABIBqPY6JQ&s=10" alt="Bình nước" class="product-img" />
+            <div class="product-info">
+                <h3 class="product-title">Bình Nước Thể Thao 1L</h3>
+                <p class="product-price">180.000 đ</p>
+                <button class="btn add-to-cart-btn"
+                        data-id="4"
+                        data-name="Bình Nước Thể Thao 1L"
+                        data-price="180000"
+                        data-image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThNVuK--CpFU7c-HNCzeX9OU1_zABcfurndnCeNxQPfQ&s=10"
+                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUW6w07_YGzDQphFxfQgjimkEMuQup1WEkKnGZY-wOEw&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSz4lrr8elRFEzefoMv_9-NtJK0AvjJDRxWi4VChLkJEg&s=10"
+                        data-desc="Bình nước thể thao dung tích 1 lít làm từ chất liệu nhựa Tritan cao cấp an toàn không chứa BPA, thiết kế chống rò rỉ nước hoàn hảo, tiện lợi mang theo khi tập gym hoặc chạy bộ ngoài trời.">
+                    Thêm vào giỏ
+                </button>
+            </div>
+        </div>
+
+        <!-- Sản phẩm Bóng đá tiêu chuẩn FIFA -->
+        <div class="product-item product-card" style="cursor: pointer;">
+            <img src="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?q=80&w=1331&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Bóng đá" class="product-img" />
+            <div class="product-info">
+                <h3 class="product-title">Bóng Đá Tiêu Chuẩn FIFA</h3>
+                <p class="product-price">650.000 đ</p>
+                <button class="btn add-to-cart-btn"
+                        data-id="5"
+                        data-name="Bóng Đá Tiêu Chuẩn FIFA"
+                        data-price="650000"
+                        data-image="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?q=80&w=1331&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7Grnpjut_DJ35NkEg0MRQgKeLWh5CEj-ANCkhCQFirg&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcauKC12QNrCYO2e206Y16jZ9gD0bJfq7Z3GmCkpqNGA&s,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzd5qs4Qdq2wH6KGIHjtS3v05G7oB03IL0JL2U0YrfHQ&s=10"
+                        data-desc="Bóng đá đạt tiêu chuẩn chất lượng FIFA, cấu trúc khâu tay chắc chắn từ chất liệu da PU cao cấp giúp chống thấm nước, độ nảy ổn định và giữ hơi cực tốt trên mọi mặt sân.">
+                    Thêm vào giỏ
+                </button>
+            </div>
+        </div>
+
+        <!-- Sản phẩm Găng tay thủ môn Pro -->
+        <div class="product-item product-card" style="cursor: pointer;">
+            <img src="https://plus.unsplash.com/premium_photo-1781205755096-6caab3faf2a1?q=80&w=986&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Găng Tay Thủ Môn Pro" class="product-img" />
+            <div class="product-info">
+                <h3 class="product-title">Găng Tay Thủ Môn Pro</h3>
+                <p class="product-price">450.000 đ</p>
+                <button class="btn add-to-cart-btn"
+                        data-id="6"
+                        data-name="Găng Tay Thủ Môn Pro"
+                        data-price="450000"
+                        data-image="https://plus.unsplash.com/premium_photo-1781205755096-6caab3faf2a1?q=80&w=986&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXoFYD-CADIQbApOk6JdqUtDSNu0QKolOBxtO_bbFCBQ&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTilajshVZLhSHoYtXqTBuJLWPSamsABdjcdxCBBxeBqg&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5GY02Pk3HonuL-pMJNugYGuYnETDINdicWKipMMa4sw&s=10"
+                        data-desc="Găng tay thủ môn chuyên nghiệp với lớp mút cao su Đức bám dính siêu hạng, khung xương bảo vệ ngón tay chống lật hiệu quả, giúp bắt dính bóng chắc chắn trong mọi tình huống.">
+                    Thêm vào giỏ
+                </button>
+            </div>
+        </div>
+
+        <!-- Sản phẩm mẫu: Áo khoác gió thể thao -->
+        <div class="product-item product-card" style="cursor: pointer;">
+            <img src="https://images.unsplash.com/photo-1611308725032-74f0a551d018?q=80&w=722&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Áo khoác gió thể thao" class="product-img" />
+            <div class="product-info">
+                <h3 class="product-title">Áo Khoác Gió Thể Thao Nam</h3>
+                <p class="product-price">550.000 đ</p>
+                <button class="btn add-to-cart-btn"
+                        data-id="9"
+                        data-name="Áo Khoác Gió Thể Thao Nam"
+                        data-price="550000"
+                        data-image="https://images.unsplash.com/photo-1611308725032-74f0a551d018?q=80&w=722&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtAWTi7ZjXDR3s1vhZ6WR7oNW8WjDGd0ZUAnMu7Z6myg&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJi3qp3urnF3oRB7F64vbBvVzWqI5rn_RbR9RY4pXWyg&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpjqRMkWmV4PIuYRyQfU_LefTUDiShlZoE701C7VBYCw&s=10"
+                        data-desc="Áo khoác gió thể thao siêu nhẹ chống gió và kháng nước nhẹ hiệu quả, thiết kế trẻ trung kèm túi khóa kéo tiện lợi, bảo vệ cơ thể khi tập luyện vào những ngày thời tiết lạnh hoặc se gió.">
+                    Thêm vào giỏ
+                </button>
+            </div>
+        </div>
+
+        <!-- Sản phẩm mẫu: Túi xách thể thao -->
+        <div class="product-item product-card" style="cursor: pointer;">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-fdLrc-RYII4SkEqHwIM3o4vUzhL29zRSuGHFV3YkgQ&s=10" alt="Balo thể thao" class="product-img" />
+
+            <div class="product-info">
+                <h3 class="product-title">Túi Trống Thể Thao Đa Năng</h3>
+                <p class="product-price">390.000 đ</p>
+                <button class="btn add-to-cart-btn"
+                        data-id="10"
+                        data-name="Túi Trống Thể Thao Đa Năng"
+                        data-price="390000"
+                        data-image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPxPLJ5eMWpwYsokzFtUdNLgoJOdh4THYz-jPUXy_wtQ&s=10"
+                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQKjfaulnO3brz6X0-QQ-pjVH-m-LIDBRcidTKusdfS7w&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQh44Ed9K-TrtPPLYUd9j-pXzriCm5F5yANKjbfto9fUw&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbW04XR0-yWnKEWKcnXtE2BTERhvYb45Se2f6VsW0y3A&s=10"
+                        data-desc="Túi trống thể thao dung tích lớn với ngăn đựng giày riêng biệt và ngăn chống thấm nước, chất liệu vải dù bền bỉ, là người bạn đồng hành lý tưởng cho những chuyến đi tập gym hoặc du lịch ngắn ngày.">
+                    Thêm vào giỏ
+                </button>
+            </div>
+        </div>
+
+        <!-- Sản phẩm mẫu: Vợt cầu lông -->
+        <div class="product-item product-card" style="cursor: pointer;">
+            <img src="https://images.unsplash.com/photo-1687597778602-624a9438fe0b?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Vợt cầu lông" class="product-img" />
+            <div class="product-info">
+                <h3 class="product-title">Vợt Cầu Lông Chuyên Nghiệp</h3>
+                <p class="product-price">850.000 đ</p>
+                <button class="btn add-to-cart-btn"
+                        data-id="11"
+                        data-name="Vợt Cầu Lông Chuyên Nghiệp"
+                        data-price="850000"
+                        data-image="https://images.unsplash.com/photo-1687597778602-624a9438fe0b?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQr4meTs0_J0g4ynNXIt0iA1AS1MAtptUOwfB8yukCngQ&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzyjIw8hSGCm6URR54EcXAIL-e4BvhpHMyW0evWN5PGw&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5uO7px1v6uRIdI1aoMn4liV3p0LazJDenOgl24OE0_Q&s=10"
+                        data-desc="Vợt cầu lông làm từ carbon nguyên khối siêu nhẹ, trợ lực tốt, khung vợt chịu lực căng cao giúp những cú smash (đập cầu) trở nên uy lực và chuẩn xác hơn.">
+                    Thêm vào giỏ
+                </button>
+            </div>
+        </div>
+
+        <!-- Sản phẩm mẫu: Giày bóng rổ -->
+        <div class="product-item product-card" style="cursor: pointer;">
+            <img src="https://images.unsplash.com/photo-1579338559194-a162d19bf842" alt="Giày bóng rổ" class="product-img" />
+            <div class="product-info">
+                <h3 class="product-title">Giày Bóng Rổ Nam Cao Cấp</h3>
+                <p class="product-price">1.650.000 đ</p>
+                <button class="btn add-to-cart-btn"
+                        data-id="15"
+                        data-name="Giày Bóng Rổ Nam Cao Cấp"
+                        data-price="1650000"
+                        data-image="https://images.unsplash.com/photo-1579338559194-a162d19bf842"
+                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNPbusm_Cj4kP7Do9b_XmViGLxExqUSgvcyH2T0mRMFw&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYfBUC2HUfSEKvESA7MQGuWYqgZOUI3mGhI_7kyOCghw&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWsRGQjZwKy0SWPqb7tMGLZvb1HOwtfsmyyj-4QMG9zw&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGZ045Gt5h0CXLphlPNvvmR0lPNEyPxmxduKgpxWcHIA&s=10"
+                        data-desc="Giày bóng rổ cao cổ thiết kế chuyên dụng ôm sát cổ chân, đế giày bám sân cực tốt chống trơn trượt, hệ thống đệm giảm chấn tối ưu giúp bảo vệ khớp gối khi bật nhảy cao và tiếp đất.">
+                    Thêm vào giỏ
+                </button>
+            </div>
+        </div>
+
+        <!-- Sản phẩm mẫu: Áo polo thể thao -->
+        <div class="product-item product-card" style="cursor: pointer;">
+            <img src="https://plus.unsplash.com/premium_photo-1747861981617-1512bc2c06e8?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Áo polo thể thao" class="product-img" />
+            <div class="product-info">
+                <h3 class="product-title">Áo Polo Thể Thao Nam</h3>
+                <p class="product-price">290.000 đ</p>
+                <button class="btn add-to-cart-btn"
+                        data-id="16"
+                        data-name="Áo Polo Thể Thao Nam"
+                        data-price="290000"
+                        data-image="https://plus.unsplash.com/premium_photo-1747861981617-1512bc2c06e8?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTc3uIQCzodnSd-ryNXxCYrAdU-ptMg3k38UrU1CPSgqQ&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSE1MsfF25DZtdBQ3smxUzSlOIS5f7oxdBQ3c3zxYCr5w&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_015ehbjy2yLWjJoSKa_zrx5OWdB67zmZVXjTyDok9g&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQp62bYT59pRsFCAmQrxFs1u9wN_WYG7f5Cuszu0wMBlw&s=10"
+                        data-desc="Áo polo thể thao lịch lãm nhưng vẫn đảm bảo độ thoáng mát, chất vải cá sấu mè co giãn tốt, thấm hút mồ hôi nhanh, phù hợp mặc đi chơi thể thao, đánh golf hoặc dạo phố.">
+                    Thêm vào giỏ
+                </button>
+            </div>
+        </div>
+
+        <!-- Sản phẩm mẫu: Giày đá banh đinh -->
+        <div class="product-item product-card" style="cursor: pointer;">
+            <img src="https://images.unsplash.com/photo-1511886929837-354d827aae26?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Giày đá banh" class="product-img" />
+            <div class="product-info">
+                <h3 class="product-title">Giày Đá Banh Sân Cỏ Nhân Tạo</h3>
+                <p class="product-price">890.000 đ</p>
+                <button class="btn add-to-cart-btn"
+                        data-id="17"
+                        data-name="Giày Đá Banh Sân Cỏ Nhân Tạo"
+                        data-price="890000"
+                        data-image="https://images.unsplash.com/photo-1511886929837-354d827aae26?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSaVvBiPXG7M7aNwlz5E5ydxhP2beiwmwDXIhAclPheA&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDDTtFk8rmrb_7pfVHfK7MCviUTULTaRdfPyi_yXPQsA&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpnu39CAbJySxFeIjCl7vXENar5dkIdkllzHcNZafkHA&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOXyLn02pL9pMjgFYgXyXcE7MNe20kfVvInsU53w4V2Q&s=10"
+                        data-desc="Giày đá banh sân cỏ nhân tạo đinh dăm TF bám sân tuyệt vời, bề mặt da tổng hợp mềm mại hỗ trợ cảm giác bóng tốt nhất và những đường chuyền bóng chính xác.">
+                    Thêm vào giỏ
+                </button>
+            </div>
+        </div>
+
+        <!-- Sản phẩm mẫu: Giày chạy bộ cao cấp -->
+        <div class="product-item product-card" style="cursor: pointer;">
+            <img src="https://images.unsplash.com/photo-1562183241-b937e95585b6?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGdpJUMzJUEweSUyMGNoJUUxJUJBJUExeSUyMGIlRTElQkIlOTl8ZW58MHx8MHx8fDA%3D" alt="Giày chạy bộ nam" class="product-img" />
+            <div class="product-info">
+                <h3 class="product-title">Giày Chạy Bộ Nam Lightweight</h3>
+                <p class="product-price">1.350.000 đ</p>
+                <button class="btn add-to-cart-btn"
+                        data-id="18"
+                        data-name="Giày Chạy Bộ Nam Lightweight"
+                        data-price="1350000"
+                        data-image="https://images.unsplash.com/photo-1562183241-b937e95585b6?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGdpJUMzJUEweSUyMGNoJUUxJUJBJUExeSUyMGIlRTElQkIlOTl8ZW58MHx8MHx8fDA%3D"
+                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNYe9VNGgu1qlltc05ZzAIhXQa_xT4cTYgWg9cnzsQ4w&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQueuUcfEUNQlySNZojKtc847783-Cg9gqetEw20kQ5AQ&s,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFaXRvulmry2_l0xzzU6sc-hMW53MDc-iVAZz2G0zkQw&s,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQI9t_acyqzQheIa0-RKj9PonPZHPQfSLz84ms1nN7aaA&s=10"
+                        data-desc="Giày chạy bộ siêu nhẹ Lightweight công nghệ mới giúp giảm tối đa trọng lượng đôi giày, đế đệm đàn hồi cao cấp giúp từng bước chạy nhẹ nhàng và bứt phá tốc độ dễ dàng.">
+                    Thêm vào giỏ
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= KHUNG MODAL CHI TIẾT SẢN PHẨM ================= -->
+<div id="productDetailModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
+    <div class="modal-content" style="background: #fff; padding: 40px; border-radius: 20px; max-width: 1000px; width: 90%; position: relative; display: flex; gap: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); box-sizing: border-box;">
+
+        <!-- Nút đóng (dấu X) -->
+        <button id="closeModalBtn" style="position: absolute; top: 20px; right: 25px; background: #f1f5f9; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #333; transition: all 0.2s; z-index: 10;">&times;</button>
+
+        <!-- CỘT TRÁI: Ảnh chính + Mũi tên chuyển ảnh + Danh sách ảnh nhỏ -->
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 15px; align-items: center; justify-content: center; background: #f8fafc; border-radius: 14px; padding: 20px; position: relative; box-sizing: border-box;">
+            <span style="position: absolute; top: 15px; left: 15px; background: #22c55e; color: white; padding: 4px 10px; font-size: 12px; font-weight: bold; border-radius: 6px; z-index: 2;">Chính Hãng 100%</span>
+
+            <!-- Vùng chứa ảnh chính và nút mũi tên trái/phải -->
+            <div style="position: relative; width: 100%; display: flex; align-items: center; justify-content: center;">
+                <!-- Nút mũi tên trái -->
+                <button id="prevImgBtn" style="position: absolute; left: 10px; z-index: 5; background: rgba(0,0,0,0.5); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">&#10094;</button>
+
+                <!-- Ảnh chính lớn -->
+                <img id="modalImg" src="" alt="Ảnh sản phẩm" style="width: 100%; max-height: 320px; border-radius: 10px; object-fit: contain;" />
+
+                <!-- Nút mũi tên phải -->
+                <button id="nextImgBtn" style="position: absolute; right: 10px; z-index: 5; background: rgba(0,0,0,0.5); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">&#10095;</button>
+            </div>
+
+            <!-- Danh sách ảnh thu nhỏ liên quan -->
+            <div id="modalThumbnailList" style="display: flex; gap: 8px; overflow-x: auto; width: 100%; padding-bottom: 5px; justify-content: flex-start;"></div>
+        </div>
+
+        <!-- CỘT PHẢI: Thông tin chi tiết & Nút mua hàng -->
+        <div style="flex: 1.2; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box;">
+            <div>
+                <!-- Đánh giá sao -->
+                <div style="color: #f59e0b; font-size: 14px; margin-bottom: 8px;">
+                    ★★★★★ <span style="color: #64748b; font-size: 13px;">(4.9 / 5 đánh giá)</span>
+                </div>
+
+                <h2 id="modalTitle" style="margin-top: 0; font-size: 26px; color: #0f172a; margin-bottom: 12px; font-weight: 700; line-height: 1.3;"></h2>
+
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                    <p id="modalPrice" style="color: #ef4444; font-size: 26px; font-weight: 800; margin: 0;"></p>
+                    <span style="background: #fee2e2; color: #dc2626; padding: 4px 8px; font-size: 12px; font-weight: bold; border-radius: 4px;">Tiết kiệm 10%</span>
+                </div>
+
+                <!-- Khung mô tả nổi bật -->
+                <div style="background: #f8fafc; padding: 16px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #3b82f6; border: 1px solid #e2e8f0;">
+                    <p id="modalDesc" style="color: #334155; font-size: 14px; line-height: 1.6; margin: 0;">
+                        <b>Mô tả chi tiết:</b> Đang cập nhật...
+                    </p>
+                </div>
+
+                <!-- Chính sách -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; color: #475569; margin-bottom: 15px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="color: #22c55e; font-weight: bold;">✓</span> Đổi trả trong 7 ngày
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="color: #22c55e; font-weight: bold;">✓</span> Miễn phí vận chuyển
+                    </div>
+                </div>
+
+                <!-- DÒNG HIỂN THỊ TRẠNG THÁI TỒN KHO -->
+                <div style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #16a34a; font-weight: 600; margin-bottom: 20px;">
+                    <span style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%; display: inline-block;"></span>
+                    Trạng thái: <span style="color: #0f172a; font-weight: normal;">Còn hàng (Giao nhanh trong 2h tại cửa hàng gần nhất)</span>
+                </div>
+            </div>
+
+            <!-- Bộ chọn số lượng -->
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                <label for="modalQuantityInput" style="font-size: 14px; font-weight: 500; color: #374151;">Số lượng:</label>
+                <div style="display: flex; align-items: center; border: 1px solid #d1d5db; border-radius: 6px; overflow: hidden;">
+                    <button type="button" id="decreaseQtyBtn" style="padding: 6px 12px; background: #f3f4f6; border: none; cursor: pointer;">-</button>
+                    <input type="number" id="modalQuantityInput" value="1" min="1" max="100" style="width: 50px; text-align: center; border: none; outline: none; font-size: 14px;" />
+                    <button type="button" id="increaseQtyBtn" style="padding: 6px 12px; background: #f3f4f6; border: none; cursor: pointer;">+</button>
+                </div>
+            </div>
+
+            <!-- Nút thêm vào giỏ hàng -->
+            <button id="modalAddToCart" class="btn add-to-cart-btn" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; padding: 14px 20px; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; text-align: center; box-shadow: 0 4px 12px rgba(37,99,235,0.3); transition: all 0.2s;">
+                🛒 Thêm vào giỏ hàng ngay
+            </button>
+        </div>
+
+        <!-- Chức năng tìm kiếm sản phẩm trên thanh tìm kiếm-->
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const searchInput = document.getElementById("search-input");
+                const searchButton = document.getElementById("search-button");
+                const productItems = document.querySelectorAll(".product-item");
+
+                function filterProducts() {
+                    if (!searchInput) return;
+                    const keyword = searchInput.value.toLowerCase().trim();
+
+                    productItems.forEach(item => {
+                        const titleEl = item.querySelector(".product-title");
+                        const title = titleEl ? titleEl.textContent.toLowerCase() : "";
+
+                        // Nếu từ khóa khớp với tiêu đề sản phẩm
+                        if (title.includes(keyword)) {
+                            item.style.display = ""; // Trả về trạng thái hiển thị mặc định của CSS
+                        } else {
+                            item.style.display = "none"; // Ẩn hẳn đi
+                        }
+                    });
+                }
+
+                // Bấm nút tìm kiếm
+                if (searchButton) {
+                    searchButton.addEventListener("click", function (e) {
+                        e.preventDefault();
+                        filterProducts();
+                    });
+                }
+
+                // Gõ phím trực tiếp
+                if (searchInput) {
+                    searchInput.addEventListener("keyup", function () {
+                        filterProducts();
+                    });
+                }
+            });
+        </script>
+    </div>
+</div>

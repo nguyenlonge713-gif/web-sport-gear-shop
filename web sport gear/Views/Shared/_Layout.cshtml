@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Gear Sport - Website Bán Đồ Thể Thao</title>
+    <!-- Thêm Font Awesome để lấy icon giỏ hàng -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="~/Content/style.css" rel="stylesheet" />
+</head>
+<body>
+    <!-- Tiêu đề và Header -->
+    <header>
+        <a href="@Url.Action("Index", "Home")" class="logo">Gear Sport</a>
+
+        <!-- Thanh menu danh mục sản phẩm -->
+        <nav class="main-menu">
+            <ul>
+                <li><a href="@Url.Action("Index", "Home")">Trang Chủ</a></li>
+                <li><a href="@Url.Action("AoTheThao", "Home")">Áo Thể Thao</a></li>
+                <li><a href="@Url.Action("GiayDaBong", "Home")">Giày Đá Bóng</a></li>
+                <li><a href="@Url.Action("PhuKien", "Home")">Phụ Kiện</a></li>
+            </ul>
+        </nav>
+
+        <!-- Giỏ hàng -->
+        <div class="cart">
+            <a href="@Url.Action("Cart", "Home")">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count">0</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Nội dung thay đổi của từng trang -->
+    <div class="container">
+        @RenderBody()
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 - Gear Sport Store. All rights reserved.</p>
+    </footer>
+
+    <script src="~/Scripts/main.js"></script>
+</body>
+</html>

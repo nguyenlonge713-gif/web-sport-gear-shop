@@ -1,0 +1,30 @@
+﻿@{
+    ViewBag.Title = "Giỏ Hàng - Gear Sport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div style="background: white; padding: 30px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-top: 20px;">
+    <h2 style="margin-bottom: 20px; border-left: 5px solid #ff4500; padding-left: 10px;">Giỏ Hàng Của Bạn</h2>
+
+    <table style="width: 100%; border-collapse: collapse; text-align: left; margin-bottom: 20px;">
+        <thead>
+            <tr style="border-bottom: 2px solid #ddd; background: #f9f9f9;">
+                <th style="padding: 12px;">Sản phẩm</th>
+                <th style="padding: 12px;">Đơn giá</th>
+                <th style="padding: 12px;">Số lượng</th>
+                <th style="padding: 12px;">Thành tiền</th>
+                <th style="padding: 12px;">Thao tác</th>
+            </tr>
+        </thead>
+        <!-- Đã thêm id="cart-items" để JavaScript nhận diện và tự động điền sản phẩm vào đây -->
+        <tbody id="cart-items">
+            <!-- Dữ liệu sẽ tự động render ở đây -->
+        </tbody>
+    </table>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 2px solid #ddd; padding-top: 20px;">
+        <!-- Đã thêm id="cart-total" để tự động cập nhật tổng tiền -->
+        <h3 style="font-size: 20px;">Tổng thanh toán: <span id="cart-total" style="color: #ff4500;">0 đ</span></h3>
+        <a href="@Url.Action("Checkout", "Home")" class="btn" style="text-decoration: none; padding: 12px 25px; font-size: 16px;">Tiến Hành Thanh Toán</a>
+    </div>
+</div>

@@ -1,0 +1,27 @@
+﻿@{
+    ViewBag.Title = "Thanh Toán - Gear Sport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div style="max-width: 600px; margin: 30px auto; background: white; padding: 30px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <h2 style="margin-bottom: 20px; border-left: 5px solid #ff4500; padding-left: 10px;">Thông Tin Giao Hàng</h2>
+
+    <form onsubmit="alert('Đặt hàng thành công!'); return false;">
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Họ và tên người nhận</label>
+            <input type="text" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Nhập họ và tên...">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Số điện thoại</label>
+            <input type="tel" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Nhập số điện thoại...">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Địa chỉ giao hàng chi tiết</label>
+            <textarea required rows="3" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Số nhà, tên đường, phường/xã..."></textarea>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%; padding: 12px; font-size: 16px;">Xác Nhận Đặt Hàng</button>
+    </form>
+</div>
