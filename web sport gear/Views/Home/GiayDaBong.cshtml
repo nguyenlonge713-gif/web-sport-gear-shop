@@ -3,55 +3,144 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!-- Phần Tiêu Đề Danh Mục -->
-<section style="margin: 30px 0; text-align: center;">
-    <h2>Danh Mục Giày Thể Thao & Đá Banh</h2>
-    <p>Khám phá các mẫu giày đá banh sân cỏ nhân tạo, giày chạy bộ và giày bóng rổ chính hãng.</p>
-</section>
 
-<!-- Phần Danh Sách Sản Phẩm Giày -->
-<section class="featured-products">
-    <div class="product-container product-grid" style="margin-top: 20px;">
+<!-- Banner trang trí hai bên danh mục Giày Đá Bóng -->
+<div class="category-side-banners" aria-hidden="true">
 
-        <!-- Giày Chạy Bộ Nike Air -->
-        <div class="product-item product-card">
-            <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff" alt="Giày chạy bộ" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Giày Chạy Bộ Nike Air</h3>
-                <p class="product-price">1.500.000 đ</p>
-                <button class="btn add-to-cart-btn" data-id="1" data-name="Giày Chạy Bộ Nike Air" data-price="1500000">Thêm vào giỏ</button>
-            </div>
+    <!-- Banner bên trái -->
+    <div class="category-side-banner category-side-left">
+        <img src="https://plus.unsplash.com/premium_photo-1663133611323-69d98d17de90?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8Z2klQzMlQTB5JTIwJUM0JTkxJUMzJUExJTIwYiVDMyVCM25nfGVufDB8fDB8fHww"
+             alt="" />
+
+        <div class="category-side-caption">
+            <span class="category-side-label">GEAR SPORT</span>
+            <span class="category-side-title">PLAY<br />WITH PASSION</span>
+            <span class="category-side-line"></span>
+            <span class="category-side-subtitle">FOOTBALL COLLECTION</span>
         </div>
-
-        <!-- Giày Bóng Rổ Nam Cao Cấp -->
-        <div class="product-item product-card">
-            <img src="https://images.unsplash.com/photo-1579338559194-a162d19bf842" alt="Giày bóng rổ" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Giày Bóng Rổ Nam Cao Cấp</h3>
-                <p class="product-price">1.650.000 đ</p>
-                <button class="btn add-to-cart-btn" data-id="15" data-name="Giày Bóng Rổ Nam Cao Cấp" data-price="1650000">Thêm vào giỏ</button>
-            </div>
-        </div>
-
-        <!-- Giày Đá Banh Sân Cỏ Nhân Tạo -->
-        <div class="product-item product-card">
-            <img src="https://images.unsplash.com/photo-1511886929837-354d827aae26?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Giày đá banh" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Giày Đá Banh Sân Cỏ Nhân Tạo</h3>
-                <p class="product-price">890.000 đ</p>
-                <button class="btn add-to-cart-btn" data-id="17" data-name="Giày Đá Banh Sân Cỏ Nhân Tạo" data-price="890000">Thêm vào giỏ</button>
-            </div>
-        </div>
-
-        <!-- Giày Chạy Bộ Nam Lightweight -->
-        <div class="product-item product-card">
-            <img src="https://images.unsplash.com/photo-1562183241-b937e95585b6?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGdpJUMzJUEweSUyMGNoJUUxJUJBJUExeSUyMGIlRTElQkIlOTl8ZW58MHx8MHx8fDA%3D" alt="Giày chạy bộ nam" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Giày Chạy Bộ Nam Lightweight</h3>
-                <p class="product-price">1.350.000 đ</p>
-                <button class="btn add-to-cart-btn" data-id="18" data-name="Giày Chạy Bộ Nam Lightweight" data-price="1350000">Thêm vào giỏ</button>
-            </div>
-        </div>
-
     </div>
-</section>
+
+    <!-- Banner bên phải -->
+    <div class="category-side-banner category-side-right">
+        <img src="https://images.unsplash.com/photo-1724414450740-58299b203161?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTEwfHxnaSVDMyVBMHklMjAlQzQlOTElQzMlQTElMjBiJUMzJUIzbmd8ZW58MHx8MHx8fDA%3D"
+             alt="" />
+
+        <div class="category-side-caption">
+            <span class="category-side-label">GEAR SPORT</span>
+            <span class="category-side-title">OWN<br />THE GAME</span>
+            <span class="category-side-line"></span>
+            <span class="category-side-subtitle">BUILT FOR VICTORY</span>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+
+<!-- Banner tiêu đề nổi bật phía trên -->
+<div class="category-hero-banner">
+    <div class="hero-overlay">
+        <div class="hero-content">
+            <span class="breadcrumb-text">Trang chủ / Giày Đá Bóng</span>
+            <h1 class="hero-title">DANH MỤC GIÀY THỂ THAO & ĐÁ BANH</h1>
+            <p class="hero-subtitle">Khám phá các mẫu giày đá banh sân cỏ nhân tạo, giày chạy bộ và giày bóng rổ chính hãng.</p>
+        </div>
+    </div>
+</div>
+
+<div class="category-main-container">
+    <!-- Cột trái: Bộ lọc Sidebar -->
+    <aside class="category-sidebar">
+        <div class="sidebar-box">
+            <h3 class="sidebar-title">Loại Giày</h3>
+            <ul class="sidebar-menu">
+                <li><a href="#" class="active">Tất cả giày</a></li>
+                <li><a href="#">Giày Đá Banh</a></li>
+                <li><a href="#">Giày Chạy Bộ</a></li>
+                <li><a href="#">Giày Bóng Rổ</a></li>
+            </ul>
+        </div>
+
+        <div class="sidebar-box">
+            <h3 class="sidebar-title">Khoảng Giá</h3>
+            <div class="price-filter">
+                <label class="filter-checkbox"><input type="checkbox"> Dưới 1.000.000đ</label>
+                <label class="filter-checkbox"><input type="checkbox"> 1.000.000đ - 1.500.000đ</label>
+                <label class="filter-checkbox"><input type="checkbox"> Trên 1.500.000đ</label>
+            </div>
+        </div>
+
+        <div class="sidebar-box">
+            <h3 class="sidebar-title">Size Giày</h3>
+            <div class="size-options">
+                <span class="size-btn">39</span>
+                <span class="size-btn">40</span>
+                <span class="size-btn">41</span>
+                <span class="size-btn">42</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Cột phải: Thanh công cụ + Danh sách sản phẩm giữ nguyên của bạn -->
+    <main class="category-content">
+        <div class="toolbar-bar">
+            <span class="product-count">Hiển thị <strong>4</strong> sản phẩm</span>
+            <div class="sort-dropdown">
+                <label for="sortSelect">Sắp xếp: </label>
+                <select id="sortSelect">
+                    <option>Mới nhất</option>
+                    <option>Giá từ thấp đến cao</option>
+                    <option>Giá từ cao đến thấp</option>
+                </select>
+            </div>
+        </div>
+
+        <section class="featured-products">
+            <div class="product-container product-grid">
+
+                <!-- Giày Chạy Bộ Nike Air -->
+                <div class="product-item product-card">
+                    <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff" alt="Giày chạy bộ" class="product-img" />
+                    <div class="product-info">
+                        <h3 class="product-title">Giày Chạy Bộ Nike Air</h3>
+                        <p class="product-price">1.500.000 đ</p>
+                        <button class="btn add-to-cart-btn" data-id="1" data-name="Giày Chạy Bộ Nike Air" data-price="1500000">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+                <!-- Giày Bóng Rổ Nam Cao Cấp -->
+                <div class="product-item product-card">
+                    <img src="https://images.unsplash.com/photo-1579338559194-a162d19bf842" alt="Giày bóng rổ" class="product-img" />
+                    <div class="product-info">
+                        <h3 class="product-title">Giày Bóng Rổ Nam Cao Cấp</h3>
+                        <p class="product-price">1.650.000 đ</p>
+                        <button class="btn add-to-cart-btn" data-id="15" data-name="Giày Bóng Rổ Nam Cao Cấp" data-price="1650000">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+                <!-- Giày Đá Banh Sân Cỏ Nhân Tạo -->
+                <div class="product-item product-card">
+                    <img src="https://images.unsplash.com/photo-1511886929837-354d827aae26?q=80&w=764&auto=format&fit=crop" alt="Giày đá banh" class="product-img" />
+                    <div class="product-info">
+                        <h3 class="product-title">Giày Đá Banh Sân Cỏ Nhân Tạo</h3>
+                        <p class="product-price">890.000 đ</p>
+                        <button class="btn add-to-cart-btn" data-id="17" data-name="Giày Đá Banh Sân Cỏ Nhân Tạo" data-price="890000">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+                <!-- Giày Chạy Bộ Nam Lightweight -->
+                <div class="product-item product-card">
+                    <img src="https://images.unsplash.com/photo-1562183241-b937e95585b6?w=500&auto=format&fit=crop" alt="Giày chạy bộ nam" class="product-img" />
+                    <div class="product-info">
+                        <h3 class="product-title">Giày Chạy Bộ Nam Lightweight</h3>
+                        <p class="product-price">1.350.000 đ</p>
+                        <button class="btn add-to-cart-btn" data-id="18" data-name="Giày Chạy Bộ Nam Lightweight" data-price="1350000">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+</div>

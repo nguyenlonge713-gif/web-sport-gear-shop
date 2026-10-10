@@ -3,75 +3,162 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!-- Phần Tiêu Đề Danh Mục -->
-<section style="margin: 30px 0; text-align: center;">
-    <h2>Danh Mục Phụ Kiện & Dụng Cụ Thể Thao</h2>
-    <p>Tổng hợp quần thể thao, bình nước, bóng đá, găng tay, túi xách và vợt chuyên nghiệp.</p>
-</section>
 
-<!-- Phần Danh Sách Sản Phẩm Phụ Kiện -->
-<section class="featured-products">
-    <div class="product-container product-grid" style="margin-top: 20px;">
 
-        <!-- Quần Short Chạy Bộ Nam -->
-        <div class="product-item product-card">
-            <img src="https://images.unsplash.com/photo-1623285512357-ff3b9a7579ea?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjE4fHxxdSVFMSVCQSVBN24lMjBzaG9ydCUyMG5hbXxlbnwwfHwwfHx8MA%3D%3D" alt="Quần short" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Quần Short Chạy Bộ Nam</h3>
-                <p class="product-price">250.000 đ</p>
-                <button class="btn add-to-cart-btn" data-id="3" data-name="Quần Short Chạy Bộ Nam" data-price="250000">Thêm vào giỏ</button>
-            </div>
+
+<!-- Banner trang trí hai bên danh mục Phụ Kiện -->
+<div class="category-side-banners" aria-hidden="true">
+
+    <!-- Banner bên trái -->
+    <div class="category-side-banner category-side-left">
+        <img src="https://media.istockphoto.com/id/2272960009/fr/photo/composition-de-divers-%C3%A9quipements-sportifs-pour-le-fitness-et-les-jeux.webp?a=1&b=1&s=612x612&w=0&k=20&c=Cf7YhEhLzzxoCox8TSWjTefZaXTMCj7a4zq_AojZ9T4="
+             alt="" />
+
+        <div class="category-side-caption">
+            <span class="category-side-label">GEAR SPORT</span>
+            <span class="category-side-title">GEAR UP<br />AND GO</span>
+            <span class="category-side-line"></span>
+            <span class="category-side-subtitle">SPORTS ACCESSORIES</span>
         </div>
-
-        <!-- Bình Nước Thể Thao 1L -->
-        <div class="product-item product-card">
-            <img src="https://images.unsplash.com/photo-1602143407151-7111542de6e8" alt="Bình nước" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Bình Nước Thể Thao 1L</h3>
-                <p class="product-price">180.000 đ</p>
-                <button class="btn add-to-cart-btn" data-id="4" data-name="Bình Nước Thể Thao 1L" data-price="180000">Thêm vào giỏ</button>
-            </div>
-        </div>
-
-        <!-- Bóng Đá Tiêu Chuẩn FIFA -->
-        <div class="product-item product-card">
-            <img src="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?q=80&w=1331&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Bóng đá" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Bóng Đá Tiêu Chuẩn FIFA</h3>
-                <p class="product-price">650.000 đ</p>
-                <button class="btn add-to-cart-btn" data-id="5" data-name="Bóng Đá Tiêu Chuẩn FIFA" data-price="650000">Thêm vào giỏ</button>
-            </div>
-        </div>
-
-        <!-- Găng Tay Thủ Môn Pro -->
-        <div class="product-item product-card">
-            <img src="https://plus.unsplash.com/premium_photo-1781205755096-6caab3faf2a1?q=80&w=986&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Găng Tay Thủ Môn Pro" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Găng Tay Thủ Môn Pro</h3>
-                <p class="product-price">450.000 đ</p>
-                <button class="btn add-to-cart-btn" data-id="6" data-name="Găng Tay Thủ Môn Pro" data-price="450000">Thêm vào giỏ</button>
-            </div>
-        </div>
-
-        <!-- Túi Trống Thể Thao Đa Năng -->
-        <div class="product-item product-card">
-            <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62" alt="Balo thể thao" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Túi Trống Thể Thao Đa Năng</h3>
-                <p class="product-price">390.000 đ</p>
-                <button class="btn add-to-cart-btn" data-id="10" data-name="Túi Trống Thể Thao Đa Năng" data-price="390000">Thêm vào giỏ</button>
-            </div>
-        </div>
-
-        <!-- Vợt Cầu Lông Chuyên Nghiệp -->
-        <div class="product-item product-card">
-            <img src="https://images.unsplash.com/photo-1687597778602-624a9438fe0b?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Vợt cầu lông" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Vợt Cầu Lông Chuyên Nghiệp</h3>
-                <p class="product-price">850.000 đ</p>
-                <button class="btn add-to-cart-btn" data-id="11" data-name="Vợt Cầu Lông Chuyên Nghiệp" data-price="850000">Thêm vào giỏ</button>
-            </div>
-        </div>
-
     </div>
-</section>
+
+    <!-- Banner bên phải -->
+    <div class="category-side-banner category-side-right">
+        <img src="https://media.istockphoto.com/id/472481322/fr/photo/%C3%A9quipements-de-sport.webp?a=1&b=1&s=612x612&w=0&k=20&c=FydqvpS_w24Q-bl3Df2wH2hWMFptHESEewqDww5u0Co="
+             alt="" />
+
+        <div class="category-side-caption">
+            <span class="category-side-label">GEAR SPORT</span>
+            <span class="category-side-title">READY<br />FOR ACTION</span>
+            <span class="category-side-line"></span>
+            <span class="category-side-subtitle">COMPLETE YOUR GAME</span>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- Banner tiêu đề nổi bật phía trên -->
+<div class="category-hero-banner">
+    <div class="hero-overlay">
+        <div class="hero-content">
+            <span class="breadcrumb-text">Trang chủ / Phụ Kiện</span>
+            <h1 class="hero-title">DANH MỤC PHỤ KIỆN & DỤNG CỤ THỂ THAO</h1>
+            <p class="hero-subtitle">Tổng hợp quần thể thao, bình nước, bóng đá, găng tay, túi xách và vợt chuyên nghiệp.</p>
+        </div>
+    </div>
+</div>
+
+<div class="category-main-container">
+    <!-- Cột trái: Bộ lọc Sidebar -->
+    <aside class="category-sidebar">
+        <div class="sidebar-box">
+            <h3 class="sidebar-title">Loại Phụ Kiện</h3>
+            <ul class="sidebar-menu">
+                <li><a href="#" class="active"><i class="fa fa-angle-right"></i> Tất cả phụ kiện</a></li>
+                <li><a href="#"><i class="fa fa-angle-right"></i> Trang Phục Thể Thao</a></li>
+                <li><a href="#"><i class="fa fa-angle-right"></i> Bình Nước & Balo</a></li>
+                <li><a href="#"><i class="fa fa-angle-right"></i> Dụng Cụ Thi Đấu</a></li>
+            </ul>
+        </div>
+
+        <div class="sidebar-box">
+            <h3 class="sidebar-title">Khoảng Giá</h3>
+            <div class="price-filter">
+                <label class="filter-checkbox"><input type="checkbox"> Dưới 300.000đ</label>
+                <label class="filter-checkbox"><input type="checkbox"> 300.000đ - 600.000đ</label>
+                <label class="filter-checkbox"><input type="checkbox"> Trên 600.000đ</label>
+            </div>
+        </div>
+
+        <div class="sidebar-box">
+            <h3 class="sidebar-title">Thương Hiệu</h3>
+            <div class="price-filter">
+                <label class="filter-checkbox"><input type="checkbox"> Gear Sport Pro</label>
+                <label class="filter-checkbox"><input type="checkbox"> Nike / Adidas</label>
+                <label class="filter-checkbox"><input type="checkbox"> Yonex / Molten</label>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Cột phải: Thanh công cụ + Danh sách 6 sản phẩm giữ nguyên của bạn -->
+    <main class="category-content">
+        <div class="toolbar-bar">
+            <span class="product-count">Hiển thị <strong>6</strong> sản phẩm</span>
+            <div class="sort-dropdown">
+                <label for="sortSelect">Sắp xếp: </label>
+                <select id="sortSelect">
+                    <option>Mới nhất</option>
+                    <option>Giá từ thấp đến cao</option>
+                    <option>Giá từ cao đến thấp</option>
+                </select>
+            </div>
+        </div>
+
+        <section class="featured-products">
+            <div class="product-container product-grid">
+
+                <!-- Quần Short Chạy Bộ Nam -->
+                <div class="product-item product-card">
+                    <img src="https://images.unsplash.com/photo-1623285512357-ff3b9a7579ea?w=500&auto=format&fit=crop" alt="Quần short" class="product-img" />
+                    <div class="product-info">
+                        <h3 class="product-title">Quần Short Chạy Bộ Nam</h3>
+                        <p class="product-price">250.000 đ</p>
+                        <button class="btn add-to-cart-btn" data-id="3" data-name="Quần Short Chạy Bộ Nam" data-price="250000">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+                <!-- Bình Nước Thể Thao 1L -->
+                <div class="product-item product-card">
+                    <img src="https://images.unsplash.com/photo-1602143407151-7111542de6e8" alt="Bình nước" class="product-img" />
+                    <div class="product-info">
+                        <h3 class="product-title">Bình Nước Thể Thao 1L</h3>
+                        <p class="product-price">180.000 đ</p>
+                        <button class="btn add-to-cart-btn" data-id="4" data-name="Bình Nước Thể Thao 1L" data-price="180000">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+                <!-- Bóng Đá Tiêu Chuẩn FIFA -->
+                <div class="product-item product-card">
+                    <img src="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?q=80&w=1331&auto=format&fit=crop" alt="Bóng đá" class="product-img" />
+                    <div class="product-info">
+                        <h3 class="product-title">Bóng Đá Tiêu Chuẩn FIFA</h3>
+                        <p class="product-price">650.000 đ</p>
+                        <button class="btn add-to-cart-btn" data-id="5" data-name="Bóng Đá Tiêu Chuẩn FIFA" data-price="650000">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+                <!-- Găng Tay Thủ Môn Pro -->
+                <div class="product-item product-card">
+                    <img src="https://plus.unsplash.com/premium_photo-1781205755096-6caab3faf2a1?q=80&w=986&auto=format&fit=crop" alt="Găng Tay Thủ Môn Pro" class="product-img" />
+                    <div class="product-info">
+                        <h3 class="product-title">Găng Tay Thủ Môn Pro</h3>
+                        <p class="product-price">450.000 đ</p>
+                        <button class="btn add-to-cart-btn" data-id="6" data-name="Găng Tay Thủ Môn Pro" data-price="450000">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+                <!-- Túi Trống Thể Thao Đa Năng -->
+                <div class="product-item product-card">
+                    <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62" alt="Balo thể thao" class="product-img" />
+                    <div class="product-info">
+                        <h3 class="product-title">Túi Trống Thể Thao Đa Năng</h3>
+                        <p class="product-price">390.000 đ</p>
+                        <button class="btn add-to-cart-btn" data-id="10" data-name="Túi Trống Thể Thao Đa Năng" data-price="390000">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+                <!-- Vợt Cầu Lông Chuyên Nghiệp -->
+                <div class="product-item product-card">
+                    <img src="https://images.unsplash.com/photo-1687597778602-624a9438fe0b?q=80&w=1935&auto=format&fit=crop" alt="Vợt cầu lông" class="product-img" />
+                    <div class="product-info">
+                        <h3 class="product-title">Vợt Cầu Lông Chuyên Nghiệp</h3>
+                        <p class="product-price">850.000 đ</p>
+                        <button class="btn add-to-cart-btn" data-id="11" data-name="Vợt Cầu Lông Chuyên Nghiệp" data-price="850000">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+</div>

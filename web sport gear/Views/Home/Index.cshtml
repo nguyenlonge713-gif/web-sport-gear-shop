@@ -3,6 +3,182 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+
+<!-- Banner trang trí hai bên - Gear Sport -->
+<div class="gearsport-side-banners" aria-hidden="true">
+
+    <!-- Banner bên trái -->
+    <div class="gearsport-side-banner side-banner-left">
+        <img src="https://images.unsplash.com/photo-1543351611-58f69d7c1781?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fGZvb3RiYWxsfGVufDB8fDB8fHww"
+             alt="" />
+        <div class="side-banner-caption">
+            <span class="side-banner-label">GEAR SPORT</span>
+            <span class="side-banner-title">MOVE<br />FORWARD</span>
+            <span class="side-banner-line"></span>
+            <span class="side-banner-subtitle">BUILT FOR MOVEMENT</span>
+        </div>
+    </div>
+
+    <!-- Banner bên phải -->
+    <div class="gearsport-side-banner side-banner-right">
+        <img src="https://images.unsplash.com/photo-1570498839593-e565b39455fc?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Zm9vdGJhbGx8ZW58MHx8MHx8fDA%3D"
+             alt="" />
+        <div class="side-banner-caption">
+            <span class="side-banner-label">GEAR SPORT</span>
+            <span class="side-banner-title">PUSH YOUR<br />LIMITS</span>
+            <span class="side-banner-line"></span>
+            <span class="side-banner-subtitle">YOUR NEXT LEVEL</span>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+<style>
+    /* ==========================================
+       GEAR SPORT - White Sports Side Banners
+       Chỉ áp dụng cho hai banner trang trí
+       ========================================== */
+
+    .gearsport-side-banners {
+        position: fixed;
+        top: 120px;
+        bottom: 50px;
+        left: 0;
+        right: 0;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    .gearsport-side-banner {
+        position: absolute;
+        top: 16px;
+        bottom: 16px;
+        width: clamp(170px, 15vw, 230px);
+        box-sizing: border-box;
+        overflow: hidden;
+        border: 1px solid #eeeeee;
+        border-radius: 12px;
+        background: #ffffff;
+        box-shadow: 0 8px 28px rgba(25, 25, 25, 0.06);
+    }
+
+    .side-banner-left {
+        left: 12px;
+    }
+
+    .side-banner-right {
+        right: 12px;
+    }
+
+    /* Ảnh thể thao */
+    .gearsport-side-banner img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        display: block;
+        opacity: 1;
+        filter: none;
+    }
+
+    /* Lớp phủ trắng giúp tổng thể nhẹ nhàng */
+    .gearsport-side-banner::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        background: linear-gradient( to bottom, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.42) 35%, rgba(255, 255, 255, 0.94) 76%, #ffffff 100% );
+    }
+
+    /* Vạch cam trang trí */
+    .gearsport-side-banner::after {
+        content: "";
+        position: absolute;
+        z-index: 2;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 76px;
+        background: #ff5722;
+        border-radius: 0 0 4px 0;
+    }
+
+    .side-banner-caption {
+        position: absolute;
+        z-index: 3;
+        left: 10px;
+        right: 8px;
+        bottom: 22px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 9px;
+        color: #202020;
+        overflow-wrap: anywhere;
+    }
+
+    .side-banner-label {
+        color: #f4511e;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 1.3px;
+    }
+
+    .side-banner-title {
+        font-size: clamp(12px, 1.05vw, 16px);
+        line-height: 1.45;
+        font-weight: 900;
+        letter-spacing: -0.3px;
+    }
+
+    .side-banner-line {
+        display: block;
+        width: 32px;
+        height: 3px;
+        border-radius: 3px;
+        background: #ff5722;
+    }
+
+    .side-banner-subtitle {
+        color: #666666;
+        font-size: 8px;
+        line-height: 1.6;
+        letter-spacing: 0.5px;
+    }
+
+    /* Ẩn banner trang trí khi không đủ chiều rộng */
+    @@media (max-width: 1150px) {
+        .gearsport-side-banners {
+            display: none;
+        }
+    }
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <!-- Phần Banner -->
 <section class="banner">
     <div class="banner-content">

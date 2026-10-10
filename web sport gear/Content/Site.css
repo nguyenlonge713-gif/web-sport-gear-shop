@@ -18,3 +18,269 @@ select,
 textarea {
     max-width: 280px;
 }
+
+
+
+
+
+/* Layout tổng quan cho trang danh mục */
+.category-main-container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 15px;
+    display: flex;
+    gap: 30px;
+    min-height: calc(100vh - 400px);
+}
+
+/* Hero Banner */
+.category-hero-banner {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    color: #fff;
+    padding: 40px 20px;
+    text-align: center;
+    border-bottom: 4px solid #ff5722;
+}
+
+.breadcrumb-text {
+    font-size: 13px;
+    color: #ccc;
+}
+
+.hero-title {
+    color: #ff5722;
+    font-size: 28px;
+    margin: 10px 0 5px 0;
+    text-transform: uppercase;
+}
+
+.hero-subtitle {
+    color: #eee;
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Sidebar bên trái */
+.category-sidebar {
+    width: 260px;
+    flex-shrink: 0;
+}
+
+.sidebar-box {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 18px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+
+.sidebar-title {
+    font-size: 16px;
+    color: #111;
+    border-bottom: 2px solid #ff5722;
+    padding-bottom: 8px;
+    margin-top: 0;
+    margin-bottom: 12px;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+    .sidebar-menu li {
+        margin-bottom: 8px;
+    }
+
+    .sidebar-menu a {
+        color: #444;
+        text-decoration: none;
+        font-size: 14px;
+        transition: color 0.2s;
+    }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            color: #ff5722;
+            font-weight: bold;
+        }
+
+.filter-checkbox {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.size-options {
+    display: flex;
+    gap: 8px;
+}
+
+.size-btn {
+    border: 1px solid #ddd;
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+
+    .size-btn:hover {
+        border-color: #ff5722;
+        color: #ff5722;
+    }
+
+/* Cột chính bên phải chứa sản phẩm */
+.category-content {
+    flex-grow: 1;
+}
+
+.toolbar-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    padding: 12px 18px;
+    border-radius: 8px;
+    border: 1px solid #e5e5e5;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.sort-dropdown select {
+    max-width: none; /* Ghi đè lại max-width 280px mặc định ở trên của bạn cho khung chọn sắp xếp */
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+}
+
+
+
+
+
+
+/* =========================================
+   GEAR SPORT - BANNER TRANG TRÍ HAI BÊN
+   Trang danh mục Áo Thể Thao / Giày đá bóng / Phụ kiện
+   ========================================= */
+.category-side-banners {
+    position: fixed;
+    top: 120px;
+    bottom: 50px;
+    left: 0;
+    right: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.category-side-banner {
+    position: absolute;
+    top: 16px;
+    bottom: 16px;
+    width: clamp(170px, 15vw, 230px);
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid #343434;
+    border-radius: 12px;
+    background: #181A1D;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.16);
+}
+
+.category-side-left {
+    left: 12px;
+}
+
+.category-side-right {
+    right: 12px;
+}
+
+/* Hình ảnh rõ nét, không làm mờ */
+.category-side-banner img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    opacity: 1;
+    filter: none;
+}
+
+/* Phủ màu tối phía dưới để làm nổi bật chữ */
+.category-side-banner::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient( to bottom, rgba(0, 0, 0, 0.03) 0%, rgba(0, 0, 0, 0.08) 40%, rgba(0, 0, 0, 0.76) 78%, rgba(0, 0, 0, 0.94) 100% );
+}
+
+/* Vạch cam thể thao */
+.category-side-banner::after {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 76px;
+    background: #FF5722;
+    border-radius: 0 0 4px 0;
+}
+
+/* Nội dung chữ trên banner */
+.category-side-caption {
+    position: absolute;
+    z-index: 3;
+    left: 14px;
+    right: 10px;
+    bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    color: #FFFFFF;
+    overflow-wrap: anywhere;
+}
+
+.category-side-label {
+    color: #FF7043;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.category-side-title {
+    font-size: clamp(15px, 1.2vw, 21px);
+    line-height: 1.35;
+    font-weight: 900;
+    letter-spacing: -0.3px;
+}
+
+.category-side-line {
+    display: block;
+    width: 38px;
+    height: 3px;
+    border-radius: 3px;
+    background: #FF5722;
+}
+
+.category-side-subtitle {
+    color: #EEEEEE;
+    font-size: 9px;
+    line-height: 1.6;
+    letter-spacing: 0.8px;
+}
+
+/* Ẩn banner trên màn hình hẹp để không che nội dung */
+@media (max-width: 1150px) {
+    .category-side-banners {
+        display: none;
+    }
+}
+

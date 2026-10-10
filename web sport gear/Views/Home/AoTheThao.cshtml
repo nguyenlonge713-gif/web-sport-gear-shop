@@ -3,40 +3,130 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<section style="margin: 30px 0; text-align: center;">
-    <h2>Danh Mục Áo Thể Thao</h2>
-    <p>Khám phá các mẫu áo thun, áo khoác gió và áo polo thể thao chính hãng.</p>
-</section>
+<!-- Banner trang trí hai bên danh mục Áo Thể Thao -->
+<div class="category-side-banners" aria-hidden="true">
+    <div class="category-side-banner category-side-left">
+        <img src="https://images.unsplash.com/photo-1759674804375-3d0c038a0a6a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NDR8fCVDMyVBMW8lMjB0aCVFMSVCQiU4MyUyMHRoYW98ZW58MHx8MHx8fDA%3D"
+             alt="" />
 
-<section class="featured-products">
-    <div class="product-container product-grid" style="margin-top: 20px;">
-
-        <div class="product-item product-card">
-            <img src="https://images.unsplash.com/photo-1581655353564-df123a1eb820" alt="Áo thun thể thao" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Áo Thun Thể Thao Nam</h3>
-                <p class="product-price">350.000 đ</p>
-                <button class="btn add-to-cart-btn" data-id="2" data-name="Áo Thun Thể Thao Nam" data-price="350000">Thêm vào giỏ</button>
-            </div>
+        <div class="category-side-caption">
+            <span class="category-side-label">GEAR SPORT</span>
+            <span class="category-side-title">SPORT<br />YOUR STYLE</span>
+            <span class="category-side-line"></span>
+            <span class="category-side-subtitle">MADE TO MOVE</span>
         </div>
-
-        <div class="product-item product-card">
-            <img src="https://images.unsplash.com/photo-1611308725032-74f0a551d018?q=80&w=722&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Áo khoác gió thể thao" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Áo Khoác Gió Thể Thao Nam</h3>
-                <p class="product-price">550.000 đ</p>
-                <button class="btn add-to-cart-btn" data-id="9" data-name="Áo Khoác Gió Thể Thao Nam" data-price="550000">Thêm vào giỏ</button>
-            </div>
-        </div>
-
-        <div class="product-item product-card">
-            <img src="https://plus.unsplash.com/premium_photo-1747861981617-1512bc2c06e8?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Áo polo thể thao" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Áo Polo Thể Thao Nam</h3>
-                <p class="product-price">290.000 đ</p>
-                <button class="btn add-to-cart-btn" data-id="16" data-name="Áo Polo Thể Thao Nam" data-price="290000">Thêm vào giỏ</button>
-            </div>
-        </div>
-
     </div>
-</section>
+
+    <div class="category-side-banner category-side-right">
+        <img src="https://images.unsplash.com/photo-1773355579207-4bc7a0915e74?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTI2fHwlQzMlQTFvJTIwdGglRTElQkIlODMlMjB0aGFvfGVufDB8fDB8fHww"
+             alt="" />
+
+        <div class="category-side-caption">
+            <span class="category-side-label">GEAR SPORT</span>
+            <span class="category-side-title">MOVE<br />WITH POWER</span>
+            <span class="category-side-line"></span>
+            <span class="category-side-subtitle">BUILT FOR SPORT</span>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+<!-- Banner tiêu đề nổi bật phía trên -->
+<div class="category-hero-banner">
+    <div class="hero-overlay">
+        <div class="hero-content">
+            <span class="breadcrumb-text">Trang chủ / Áo Thể Thao</span>
+            <h1 class="hero-title">DANH MỤC ÁO THỂ THAO</h1>
+            <p class="hero-subtitle">Khám phá các mẫu áo thun, áo khoác gió và áo polo thể thao chính hãng chất lượng cao.</p>
+        </div>
+    </div>
+</div>
+
+<div class="category-main-container">
+    <!-- Cột trái: Bộ lọc Sidebar giúp lấp đầy khoảng trống -->
+    <aside class="category-sidebar">
+        <div class="sidebar-box">
+            <h3 class="sidebar-title">Danh Mục Áo</h3>
+            <ul class="sidebar-menu">
+                <li><a href="#" class="active"><i class="fa fa-angle-right"></i> Tất cả áo</a></li>
+                <li><a href="#"><i class="fa fa-angle-right"></i> Áo Thun Thể Thao</a></li>
+                <li><a href="#"><i class="fa fa-angle-right"></i> Áo Khoác Gió</a></li>
+                <li><a href="#"><i class="fa fa-angle-right"></i> Áo Polo Thể Thao</a></li>
+            </ul>
+        </div>
+
+        <div class="sidebar-box">
+            <h3 class="sidebar-title">Khoảng Giá</h3>
+            <div class="price-filter">
+                <label class="filter-checkbox"><input type="checkbox"> Dưới 300.000đ</label>
+                <label class="filter-checkbox"><input type="checkbox"> 300.000đ - 500.000đ</label>
+                <label class="filter-checkbox"><input type="checkbox"> Trên 500.000đ</label>
+            </div>
+        </div>
+
+        <div class="sidebar-box">
+            <h3 class="sidebar-title">Kích Thước</h3>
+            <div class="size-options">
+                <span class="size-btn">S</span>
+                <span class="size-btn">M</span>
+                <span class="size-btn">L</span>
+                <span class="size-btn">XL</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Cột phải: Thanh công cụ + Danh sách sản phẩm -->
+    <main class="category-content">
+        <div class="toolbar-bar">
+            <span class="product-count">Hiển thị <strong>3</strong> sản phẩm</span>
+            <div class="sort-dropdown">
+                <label for="sortSelect">Sắp xếp: </label>
+                <select id="sortSelect">
+                    <option>Mới nhất</option>
+                    <option>Giá từ thấp đến cao</option>
+                    <option>Giá từ cao đến thấp</option>
+                </select>
+            </div>
+        </div>
+
+        <section class="featured-products">
+            <div class="product-container product-grid">
+
+                <div class="product-item product-card">
+                    <img src="https://images.unsplash.com/photo-1581655353564-df123a1eb820" alt="Áo thun thể thao" class="product-img" />
+                    <div class="product-info">
+                        <h3 class="product-title">Áo Thun Thể Thao Nam</h3>
+                        <p class="product-price">350.000 đ</p>
+                        <button class="btn add-to-cart-btn" data-id="2" data-name="Áo Thun Thể Thao Nam" data-price="350000">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+                <div class="product-item product-card">
+                    <img src="https://images.unsplash.com/photo-1611308725032-74f0a551d018?q=80&w=722&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Áo khoác gió thể thao" class="product-img" />
+                    <div class="product-info">
+                        <h3 class="product-title">Áo Khoác Gió Thể Thao Nam</h3>
+                        <p class="product-price">550.000 đ</p>
+                        <button class="btn add-to-cart-btn" data-id="9" data-name="Áo Khoác Gió Thể Thao Nam" data-price="550000">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+                <div class="product-item product-card">
+                    <img src="https://plus.unsplash.com/premium_photo-1747861981617-1512bc2c06e8?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Áo polo thể thao" class="product-img" />
+                    <div class="product-info">
+                        <h3 class="product-title">Áo Polo Thể Thao Nam</h3>
+                        <p class="product-price">290.000 đ</p>
+                        <button class="btn add-to-cart-btn" data-id="16" data-name="Áo Polo Thể Thao Nam" data-price="290000">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+</div>
