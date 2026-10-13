@@ -51,9 +51,9 @@ namespace web_sport_gear.Controllers
         {
             return View();
         }
-        public ActionResult Details(int id)
+        public ActionResult Details(int? id)
         {
-            ViewBag.ProductId = id;
+            ViewBag.ProductId = id ?? 1;
             return View();
         }
     }

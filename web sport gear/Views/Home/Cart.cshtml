@@ -16,15 +16,95 @@
                 <th style="padding: 12px;">Thao tác</th>
             </tr>
         </thead>
-        <!-- Đã thêm id="cart-items" để JavaScript nhận diện và tự động điền sản phẩm vào đây -->
         <tbody id="cart-items">
             <!-- Dữ liệu sẽ tự động render ở đây -->
         </tbody>
     </table>
 
     <div style="display: flex; justify-content: space-between; align-items: center; border-top: 2px solid #ddd; padding-top: 20px;">
-        <!-- Đã thêm id="cart-total" để tự động cập nhật tổng tiền -->
         <h3 style="font-size: 20px;">Tổng thanh toán: <span id="cart-total" style="color: #ff4500;">0 đ</span></h3>
-        <a href="@Url.Action("Checkout", "Home")" class="btn" style="text-decoration: none; padding: 12px 25px; font-size: 16px;">Tiến Hành Thanh Toán</a>
+
+        <!-- Để mặc định hiển thị (display: inline-block) để tránh bị mất nút -->
+        <a href="@Url.Action("Checkout", "Home")" id="checkout-btn" class="btn" style="text-decoration: none; padding: 12px 25px; font-size: 16px; background-color: #ff4500; color: white; border-radius: 6px; font-weight: bold; display: inline-block;">Tiến Hành Thanh Toán</a>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        renderCart();
+    });
+
+    function renderCart() {
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let tbody = document.getElementById('cart-items');
+        let totalSpan = document.getElementById('cart-total');
+        let checkoutBtn = document.getElementById('checkout-btn');
+
+        tbody.innerHTML = '';
+
+        // Xử lý khi giỏ hàng trống: ẩn nút thanh toán
+        if (cart.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 30px; color: #64748b;">Giỏ hàng của bạn đang trống!</td></tr>`;
+            totalSpan.innerText = '0 đ';
+
+            if (checkoutBtn) {
+                checkoutBtn.style.display = 'none';
+            }
+            return;
+        }
+
+        // Có sản phẩm: đảm bảo nút thanh toán luôn hiện rõ
+        if (checkoutBtn) {
+            checkoutBtn.style.display = 'inline-block';
+        }
+
+        let grandTotal = 0;
+
+        cart.forEach((item, index) => {
+            let itemTotal = (item.price || 0) * (item.quantity || 1);
+            grandTotal += itemTotal;
+
+            // Xử lý hiển thị hình ảnh dự phòng nếu item.image trống
+            let imgSrc = (item.image && item.image.trim() !== "") ? item.image : 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500';
+
+            let row = `
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 15px; display: flex; align-items: center; gap: 15px;">
+                        <img src="${imgSrc}" alt="${item.name}" style="width: 70px; height: 70px; object-fit: contain; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 5px;" onerror="this.src='https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500'" />
+                        <span style="font-weight: 600; color: #0f172a;">${item.name || 'Sản phẩm thể thao'}</span>
+                    </td>
+                    <td style="padding: 15px; font-weight: 600; color: #334155;">${Number(item.price || 0).toLocaleString('vi-VN')} đ</td>
+                    <td style="padding: 15px;">
+                        <input type="number" min="1" value="${item.quantity || 1}" style="width: 60px; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-weight: bold;" onchange="updateQuantity(${index}, this.value)" />
+                    </td>
+                    <td style="padding: 15px; font-weight: 700; color: #ef4444;">${Number(itemTotal).toLocaleString('vi-VN')} đ</td>
+                    <td style="padding: 15px;">
+                        <button type="button" onclick="removeItem(${index})" style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 600;">Xóa</button>
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+
+        totalSpan.innerText = grandTotal.toLocaleString('vi-VN') + ' đ';
+    }
+
+    function updateQuantity(index, newQty) {
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let qty = parseInt(newQty);
+        if (qty > 0) {
+            cart[index].quantity = qty;
+        } else {
+            cart.splice(index, 1);
+        }
+        localStorage.setItem('cart', JSON.stringify(cart));
+        renderCart();
+    }
+
+    function removeItem(index) {
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        cart.splice(index, 1);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        renderCart();
+    }
+</script>

@@ -6,59 +6,54 @@
 
     <title>Gear Sport - Website Bán Đồ Thể Thao</title>
 
+    <!-- Google Fonts - Phong cách thể thao hiện đại -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
     <!-- Font Awesome -->
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- CSS hiện có -->
     <link href="@Url.Content("~/Content/style.css")" rel="stylesheet" />
     <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" />
 
-    <!-- CSS cho nút đăng nhập và bố cục header -->
+    <!-- CSS tùy chỉnh Header & Layout Full-width -->
     <style>
-        .header-login-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 10px 16px;
-            margin-left: 12px;
-            border-radius: 8px;
-            background-color: #ed1c2e;
-            color: #fff !important;
-            font-size: 14px;
-            font-weight: 700;
-            text-decoration: none !important;
-            white-space: nowrap;
-            transition: background-color 0.2s ease,
-                        transform 0.2s ease;
+        * {
+            box-sizing: border-box;
         }
 
-        .header-login-btn:hover {
-            background-color: #c91021;
-            color: #fff !important;
-            transform: translateY(-2px);
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+            color: #111111;
         }
 
-        .header-login-btn i {
-            font-size: 15px;
-        }
-
-        /* Dùng Flexbox để chia header thành 3 phần: Trái (Logo) - Giữa (Menu) - Phải (Actions) */
         header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            padding: 10px 20px;
+            padding: 15px 40px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
-        /* 1. Logo (Cố định chiều rộng bên trái nếu cần, hoặc flex item bình thường) */
+        /* Logo Gear Sport */
         header > .logo {
-            flex: 0 0 auto;
+            font-size: 22px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #0f172a;
+            text-decoration: none;
         }
 
-        /* 2. Menu danh mục sản phẩm (Được đẩy ra chính giữa hoàn toàn) */
+        /* Menu danh mục sản phẩm */
         .main-menu {
             flex: 1 1 auto;
             display: flex;
@@ -70,47 +65,105 @@
             list-style: none;
             margin: 0;
             padding: 0;
-            gap: 20px; /* Khoảng cách giữa các mục menu */
+            gap: 30px;
         }
 
-        /* 3. Khu vực bên phải: đăng nhập và giỏ hàng */
+        .main-menu ul li a {
+            text-decoration: none;
+            color: #334155;
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: color 0.2s ease;
+        }
+
+        .main-menu ul li a:hover {
+            color: #ff5722; /* Màu cam chủ đạo Gear Sport */
+        }
+
+        /* Khu vực bên phải: đăng nhập và giỏ hàng */
         .header-actions {
             display: flex;
             align-items: center;
+            gap: 15px;
+        }
+
+        .header-login-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             gap: 8px;
-            flex: 0 0 auto;
-            /* Đã xóa margin-left: auto; cũ để tránh bị lệch */
+            padding: 8px 16px;
+            border-radius: 6px;
+            background-color: #ff5722;
+            color: #fff !important;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none !important;
+            text-transform: uppercase;
+            white-space: nowrap;
+            transition: background-color 0.2s ease, transform 0.2s ease;
         }
 
-        .header-actions .cart {
-            margin-left: 0;
+        .header-login-btn:hover {
+            background-color: #e64a19;
+            transform: translateY(-2px);
         }
 
-        /* Responsive cho điện thoại */
+        .cart a {
+            position: relative;
+            color: #0f172a;
+            font-size: 18px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -10px;
+            background-color: #ff5722;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Footer phong cách tối giản hiện đại */
+        footer {
+            background-color: #0f172a;
+            color: #94a3b8;
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 60px;
+            font-size: 14px;
+        }
+
+        footer p {
+            margin: 0;
+        }
+
+        /* Responsive cho thiết bị di động */
         @@media (max-width: 768px) {
             header {
+                padding: 12px 20px;
                 flex-direction: column;
-                gap: 10px;
+                gap: 12px;
             }
 
             .main-menu ul {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 10px;
+                gap: 15px;
             }
 
-            .header-login-btn {
-                padding: 9px 11px;
-                margin-left: 0;
+            .main-menu ul li a {
                 font-size: 12px;
-            }
-
-            .header-login-btn span {
-                display: inline;
-            }
-
-            .header-actions {
-                gap: 6px;
             }
         }
     </style>
@@ -119,7 +172,6 @@
 <body>
     <!-- Header Gear Sport -->
     <header>
-
         <!-- Logo -->
         <a href="@Url.Action("Index", "Home")" class="logo">
             Gear Sport
@@ -145,30 +197,26 @@
 
         <!-- Nút đăng nhập và giỏ hàng -->
         <div class="header-actions">
-
             <!-- Nút đăng nhập -->
-            <a href="@Url.Action("Login", "Account")"
-               class="header-login-btn">
+            <a href="@Url.Action("Login", "Account")" class="header-login-btn">
                 <i class="fa-regular fa-user"></i>
                 <span>Đăng nhập</span>
             </a>
 
             <!-- Giỏ hàng -->
             <div class="cart">
-                <a href="@Url.Action("Cart", "Home")"
-                   aria-label="Giỏ hàng">
+                <a href="@Url.Action("Cart", "Home")" aria-label="Giỏ hàng">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-count">0</span>
                 </a>
             </div>
-
         </div>
     </header>
 
-    <!-- Nội dung từng trang -->
-    <div class="container">
+    <!-- Nội dung từng trang (Đã gỡ bỏ class container cố định để cho phép banner tràn viền 100%) -->
+    <main>
         @RenderBody()
-    </div>
+    </main>
 
     <!-- Footer -->
     <footer>

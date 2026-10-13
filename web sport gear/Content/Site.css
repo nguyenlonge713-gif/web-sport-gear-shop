@@ -1,60 +1,74 @@
-﻿/* Thiết lập khoảng đệm để ngăn nội dung chạm vào các cạnh. */
-.body-content {
-    margin-top: 15px;
-    padding-left: 15px;
-    padding-right: 15px;
+﻿/* ==========================================
+   GEAR SPORT - UPDATED SITE.CSS (PUMA STYLE)
+   ========================================== */
+
+* {
+    box-sizing: border-box;
 }
 
-/* Ghi đè hành vi mặc định của Bootstrap, vốn sẽ cắt bớt các thuật ngữ quá dài so với cột bên trái trong danh sách mô tả dạng ngang.
-*/
+/* Thiết lập khoảng đệm để ngăn nội dung chạm vào các cạnh. */
+.body-content {
+    margin-top: 15px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+/* Ghi đè hành vi mặc định của Bootstrap */
 .dl-horizontal dt {
     white-space: normal;
 }
 
-/* Thiết lập chiều rộng cho các phần tử nhập liệu của biểu mẫu vì mặc định chúng chiếm 100% chiều rộng. */
+/* Thiết lập chiều rộng cho các phần tử nhập liệu của biểu mẫu */
 input,
 select,
 textarea {
     max-width: 280px;
 }
 
-
-
-
+body {
+    font-family: 'Montserrat', Arial, sans-serif;
+    background-color: #ffffff;
+    color: #111111;
+    margin: 0;
+    padding: 0;
+}
 
 /* Layout tổng quan cho trang danh mục */
 .category-main-container {
-    max-width: 1200px;
-    margin: 30px auto;
-    padding: 0 15px;
+    max-width: 1300px;
+    margin: 40px auto;
+    padding: 0 20px;
     display: flex;
     gap: 30px;
     min-height: calc(100vh - 400px);
 }
 
-/* Hero Banner */
+/* Hero Banner cho trang danh mục */
 .category-hero-banner {
-    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    background: #0f172a;
     color: #fff;
-    padding: 40px 20px;
+    padding: 50px 20px;
     text-align: center;
-    border-bottom: 4px solid #ff5722;
+    border-bottom: 3px solid #ff5722;
 }
 
 .breadcrumb-text {
     font-size: 13px;
-    color: #ccc;
+    color: #94a3b8;
+    letter-spacing: 0.5px;
 }
 
 .hero-title {
-    color: #ff5722;
-    font-size: 28px;
+    color: #ffffff;
+    font-size: 32px;
+    font-weight: 900;
     margin: 10px 0 5px 0;
     text-transform: uppercase;
+    letter-spacing: -0.5px;
 }
 
 .hero-subtitle {
-    color: #eee;
+    color: #cbd5e1;
     font-size: 14px;
     margin: 0;
 }
@@ -66,21 +80,23 @@ textarea {
 }
 
 .sidebar-box {
-    background: #fff;
-    border: 1px solid #e5e5e5;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
     border-radius: 8px;
-    padding: 18px;
+    padding: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
 }
 
 .sidebar-title {
     font-size: 16px;
-    color: #111;
+    color: #0f172a;
     border-bottom: 2px solid #ff5722;
     padding-bottom: 8px;
     margin-top: 0;
-    margin-bottom: 12px;
+    margin-bottom: 15px;
+    font-weight: 800;
+    text-transform: uppercase;
 }
 
 .sidebar-menu {
@@ -90,45 +106,52 @@ textarea {
 }
 
     .sidebar-menu li {
-        margin-bottom: 8px;
+        margin-bottom: 10px;
     }
 
     .sidebar-menu a {
-        color: #444;
+        color: #475569;
         text-decoration: none;
         font-size: 14px;
+        font-weight: 500;
         transition: color 0.2s;
     }
 
         .sidebar-menu a:hover, .sidebar-menu a.active {
             color: #ff5722;
-            font-weight: bold;
+            font-weight: 700;
         }
 
 .filter-checkbox {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     font-size: 14px;
+    color: #334155;
     cursor: pointer;
 }
 
 .size-options {
     display: flex;
     gap: 8px;
+    flex-wrap: wrap;
 }
 
 .size-btn {
-    border: 1px solid #ddd;
-    padding: 5px 12px;
-    border-radius: 4px;
+    border: 1px solid #cbd5e1;
+    padding: 6px 14px;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 13px;
+    font-weight: 600;
+    background: #ffffff;
+    color: #334155;
     transition: all 0.2s;
 }
 
     .size-btn:hover {
         border-color: #ff5722;
         color: #ff5722;
+        background: #fff5f5;
     }
 
 /* Cột chính bên phải chứa sản phẩm */
@@ -140,30 +163,27 @@ textarea {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #fff;
-    padding: 12px 18px;
+    background: #ffffff;
+    padding: 15px 20px;
     border-radius: 8px;
-    border: 1px solid #e5e5e5;
-    margin-bottom: 20px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 25px;
     font-size: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
 }
 
 .sort-dropdown select {
-    max-width: none; /* Ghi đè lại max-width 280px mặc định ở trên của bạn cho khung chọn sắp xếp */
-    padding: 6px 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    max-width: none;
+    padding: 8px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
     outline: none;
+    font-size: 14px;
+    font-weight: 500;
 }
-
-
-
-
-
 
 /* =========================================
    GEAR SPORT - BANNER TRANG TRÍ HAI BÊN
-   Trang danh mục Áo Thể Thao / Giày đá bóng / Phụ kiện
    ========================================= */
 .category-side-banners {
     position: fixed;
@@ -197,7 +217,6 @@ textarea {
     right: 12px;
 }
 
-/* Hình ảnh rõ nét, không làm mờ */
 .category-side-banner img {
     position: absolute;
     inset: 0;
@@ -210,7 +229,6 @@ textarea {
     filter: none;
 }
 
-/* Phủ màu tối phía dưới để làm nổi bật chữ */
 .category-side-banner::before {
     content: "";
     position: absolute;
@@ -219,7 +237,6 @@ textarea {
     background: linear-gradient( to bottom, rgba(0, 0, 0, 0.03) 0%, rgba(0, 0, 0, 0.08) 40%, rgba(0, 0, 0, 0.76) 78%, rgba(0, 0, 0, 0.94) 100% );
 }
 
-/* Vạch cam thể thao */
 .category-side-banner::after {
     content: "";
     position: absolute;
@@ -228,11 +245,10 @@ textarea {
     left: 0;
     width: 5px;
     height: 76px;
-    background: #FF5722;
+    background: #ff5722;
     border-radius: 0 0 4px 0;
 }
 
-/* Nội dung chữ trên banner */
 .category-side-caption {
     position: absolute;
     z-index: 3;
@@ -248,7 +264,7 @@ textarea {
 }
 
 .category-side-label {
-    color: #FF7043;
+    color: #ff7043;
     font-size: 10px;
     font-weight: 800;
     letter-spacing: 1.5px;
@@ -266,7 +282,7 @@ textarea {
     width: 38px;
     height: 3px;
     border-radius: 3px;
-    background: #FF5722;
+    background: #ff5722;
 }
 
 .category-side-subtitle {
@@ -276,10 +292,8 @@ textarea {
     letter-spacing: 0.8px;
 }
 
-/* Ẩn banner trên màn hình hẹp để không che nội dung */
 @media (max-width: 1150px) {
     .category-side-banners {
         display: none;
     }
 }
-

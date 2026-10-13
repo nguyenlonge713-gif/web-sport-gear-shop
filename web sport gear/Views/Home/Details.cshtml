@@ -1,0 +1,711 @@
+﻿@{
+    ViewBag.Title = "Chi Tiết Sản Phẩm - Gear Sport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Lấy ID từ Controller gửi sang (mặc định là 1 nếu null)
+    int productId = ViewBag.ProductId != null ? (int)ViewBag.ProductId : 1;
+
+    // Khởi tạo các thông tin mặc định theo ID sản phẩm
+    string name = "Giày Thể Thao Chuyên Dụng Gear Sport Pro";
+    string brand = "GEAR SPORT";
+    string price = "1.500.000 đ";
+    decimal priceValue = 1500000;
+    string oldPrice = "1.850.000 đ";
+    string image = "https://images.unsplash.com/photo-1542291026-7eec264c27ff";
+    string desc = "Mẫu giày thể thao cao cấp thế hệ mới tích hợp công nghệ đế đệm Phylon siêu nhẹ, thoáng khí tối đa. Thiết kế phong cách thời trang năng động phù hợp cho cả tập luyện chuyên nghiệp và dạo phố.";
+    string category = "Giày Thể Thao";
+    string material = "Thân vải dệt thể thao + Đế cao su bám sân cao cấp";
+    string weight = "240g / chiếc";
+
+    // Tùy chỉnh thông tin chi tiết dựa theo mã ID sản phẩm thực tế từ trang chủ
+    if (productId == 1)
+    {
+        name = "Giày Tennis/Pickleball Nike Zoom Vapor 12";
+        brand = "NIKE";
+        price = "1.500.000 đ";
+        priceValue = 1500000;
+        oldPrice = "1.900.000 đ";
+        image = "https://images.unsplash.com/photo-1542291026-7eec264c27ff";
+        desc = "Giày Nike Zoom Vapor 12 tối ưu hóa cho bộ môn Tennis và Pickleball, hỗ trợ di chuyển đổi hướng linh hoạt, đế siêu bám sân và ôm sát bàn chân bảo vệ khớp tối đa.";
+        category = "Giày Tennis / Pickleball";
+        material = "Da tổng hợp cao cấp kết hợp lưới thoáng khí";
+    }
+    else if (productId == 18)
+    {
+        name = "Giày Chạy Bộ Nam Adidas Supernova";
+        brand = "ADIDAS";
+        price = "1.350.000 đ";
+        priceValue = 1350000;
+        oldPrice = "1.600.000 đ";
+        image = "https://images.unsplash.com/photo-1562183241-b937e95585b6?w=500";
+        desc = "Đệm đế êm ái đàn hồi cao giúp bạn thoải mái chinh phục mọi đường chạy dài mà không lo đau nhức bàn chân.";
+        category = "Giày Chạy Bộ";
+        material = "Vải dệt Primeknit tái chế + Đế đệm Boost";
+    }
+    else if (productId == 17)
+    {
+        name = "Giày Đá Banh Sân Cỏ Nhân Tạo Pro";
+        brand = "PUMA";
+        price = "890.000 đ";
+        priceValue = 890000;
+        oldPrice = "1.200.000 đ";
+        image = "https://images.unsplash.com/photo-1511886929837-354d827aae26?q=80&w=764";
+        desc = "Thiết kế đinh dăm TF chuyên dụng cho sân cỏ nhân tạo, bề mặt upper dập nổi giúp kiểm soát và sút bóng cực đầm chân.";
+        category = "Giày Đá Bóng";
+        material = "Da PU tổng hợp mềm + Đế cao su đinh dăm TF";
+    }
+    else if (productId == 15)
+    {
+        name = "Giày Thể Thao Nam Asics Court FF 3";
+        brand = "ASICS";
+        price = "1.650.000 đ";
+        priceValue = 1650000;
+        oldPrice = "2.100.000 đ";
+        image = "https://images.unsplash.com/photo-1579338559194-a162d19bf842";
+        desc = "Dòng giày đỉnh cao của Asics mang lại sự vững chãi tuyệt đối cho các pha với bóng cứu bóng tốc độ cao.";
+        category = "Giày Thể Thao";
+        material = "Lưới kỹ thuật cao + Hệ thống FlyteFoam";
+    }
+    else if (productId == 2)
+    {
+        name = "Áo Thun Thể Thao Nam Dry-Fit";
+        brand = "GEAR SPORT";
+        price = "350.000 đ";
+        priceValue = 350000;
+        oldPrice = "450.000 đ";
+        image = "https://images.unsplash.com/photo-1581655353564-df123a1eb820";
+        desc = "Công nghệ vải Dry-Fit thấm hút mồ hôi cực nhanh, giữ cơ thể luôn khô thoáng trong suốt buổi tập gym hay chạy bộ.";
+        category = "Áo Thể Thao";
+        material = "100% Polyester thể thao cao cấp co giãn 4 chiều";
+        weight = "150g";
+    }
+    else if (productId == 12)
+    {
+        name = "Áo Khoác Gió Thể Thao Nam";
+        brand = "ADIDAS";
+        price = "550.000 đ";
+        priceValue = 550000;
+        oldPrice = "750.000 đ";
+        image = "https://images.unsplash.com/photo-1611308725032-74f0a551d018?w=500";
+        desc = "Áo khoác gió siêu nhẹ chống nước nhẹ, cản gió tốt cho mùa đông lạnh hoặc thời tiết chuyển mùa sáng sớm.";
+        category = "Áo Khoác Nam";
+        material = "Vải dù gió chống thấm cao cấp";
+    }
+    else if (productId == 4)
+    {
+        name = "Bình Nước Thể Thao Cao Cấp 1L";
+        brand = "GEAR SPORT";
+        price = "180.000 đ";
+        priceValue = 180000;
+        oldPrice = "250.000 đ";
+        image = "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500";
+        desc = "Bình đựng nước thể thao dung tích lớn 1 lít, chất liệu nhựa Tritan an toàn không chứa BPA, có vạch đo thể tích nước.";
+        category = "Phụ Kiện";
+        material = "Nhựa Tritan nguyên sinh cao cấp chịu nhiệt";
+    }
+    else if (productId == 5)
+    {
+        name = "Bóng Đá Tiêu Chuẩn FIFA Pro";
+        brand = "MOLTEN";
+        price = "650.000 đ";
+        priceValue = 650000;
+        oldPrice = "850.000 đ";
+        image = "https://images.unsplash.com/photo-1518091043644-c1d4457512c6?w=500";
+        desc = "Bóng đá thi đấu chuyên nghiệp đạt tiêu chuẩn chất lượng FIFA, độ nảy chuẩn xác và chống thấm nước tuyệt đối.";
+        category = "Phụ Kiện Bóng Đá";
+        material = "Da PU khâu nhiệt cao cấp";
+    }
+    else if (productId == 6)
+    {
+        name = "Găng Tay Thủ Môn Dính Xương";
+        brand = "PRO GOAL";
+        price = "450.000 đ";
+        priceValue = 450000;
+        oldPrice = "600.000 đ";
+        image = "https://plus.unsplash.com/premium_photo-1781205755096-6caab3faf2a1?w=500";
+        desc = "Găng tay thủ môn tích hợp khung xương bảo vệ ngón tay chống lật, mặt mút cao su Đức bắt dính bóng cực tốt.";
+        category = "Phụ Kiện Thủ Môn";
+        material = "Mút German Latex + Xương nhựa bảo vệ ngón";
+    }
+    else if (productId == 13)
+    {
+        name = "Áo Polo Thể Thao Nam Lịch Lãm";
+        brand = "NIKE";
+        price = "290.000 đ";
+        priceValue = 290000;
+        oldPrice = "390.000 đ";
+        image = "https://plus.unsplash.com/premium_photo-1747861981617-1512bc2c06e8?w=500";
+        desc = "Áo polo thể thao vừa lịch lãm để đi làm, vừa thoải mái năng động để chơi thể thao và tham gia hoạt động ngoài trời.";
+        category = "Áo Polo";
+        material = "Thun cá sấu mè thể thao thoáng khí";
+    }
+}
+
+<style>
+    .details-wrapper {
+        max-width: 1250px;
+        margin: 30px auto 60px auto;
+        padding: 0 20px;
+    }
+
+    .breadcrumb-nav {
+        font-size: 13px;
+        color: #64748b;
+        margin-bottom: 25px;
+    }
+
+        .breadcrumb-nav a {
+            color: #0f172a;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+            .breadcrumb-nav a:hover {
+                color: #ff5722;
+            }
+
+    .product-main-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        margin-bottom: 50px;
+    }
+
+    .product-gallery-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .main-image-box {
+        width: 100%;
+        height: 460px;
+        background: #f8fafc;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .main-image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 20px;
+        }
+
+    .details-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .brand-badge {
+        font-size: 12px;
+        font-weight: 800;
+        color: #ff5722;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .product-title-heading {
+        font-size: 26px;
+        font-weight: 900;
+        color: #0f172a;
+        margin: 8px 0 12px 0;
+        text-transform: uppercase;
+    }
+
+    .rating-summary {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+
+    .stars {
+        color: #f59e0b;
+    }
+
+    .price-box {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .current-price {
+        font-size: 26px;
+        font-weight: 900;
+        color: #ef4444;
+    }
+
+    .old-price {
+        font-size: 16px;
+        color: #94a3b8;
+        text-decoration: line-through;
+    }
+
+    .short-description {
+        font-size: 14px;
+        color: #475569;
+        line-height: 1.6;
+        margin-bottom: 25px;
+    }
+
+    .option-group {
+        margin-bottom: 20px;
+    }
+
+    .option-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+    }
+
+    .size-selector {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .size-chip {
+        border: 1px solid #cbd5e1;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        background: #fff;
+        transition: all 0.2s;
+    }
+
+        .size-chip:hover, .size-chip.selected {
+            border-color: #ff5722;
+            background: #ff5722;
+            color: #fff;
+        }
+
+    .quantity-and-action {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        margin-top: 10px;
+        margin-bottom: 30px;
+    }
+
+    .quantity-control {
+        display: flex;
+        align-items: center;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        overflow: hidden;
+        height: 48px;
+    }
+
+    .qty-btn {
+        background: #f8fafc;
+        border: none;
+        width: 40px;
+        height: 100%;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        color: #334155;
+    }
+
+    .qty-input {
+        width: 50px;
+        height: 100%;
+        border: none;
+        text-align: center;
+        font-weight: 700;
+        font-size: 14px;
+        color: #0f172a;
+        outline: none;
+    }
+
+    .btn-buy-now {
+        flex: 1;
+        height: 48px;
+        background: #0f172a;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-weight: 800;
+        font-size: 14px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+        .btn-buy-now:hover {
+            background: #ff5722;
+            transform: translateY(-2px);
+        }
+
+    .policy-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        background: #f8fafc;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #f1f5f9;
+    }
+
+    .policy-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #334155;
+    }
+
+        .policy-item i {
+            color: #ff5722;
+            font-size: 16px;
+        }
+
+    .product-tabs-container {
+        margin-top: 50px;
+        border-top: 2px solid #f1f5f9;
+        padding-top: 30px;
+    }
+
+    .tab-headers {
+        display: flex;
+        gap: 30px;
+        border-bottom: 2px solid #e2e8f0;
+        margin-bottom: 30px;
+    }
+
+    .tab-title-btn {
+        background: none;
+        border: none;
+        padding: 12px 0;
+        font-size: 16px;
+        font-weight: 800;
+        color: #64748b;
+        text-transform: uppercase;
+        cursor: pointer;
+        position: relative;
+        bottom: -2px;
+    }
+
+        .tab-title-btn.active {
+            color: #ff5722;
+            border-bottom: 3px solid #ff5722;
+        }
+
+    .tab-panel {
+        display: none;
+        line-height: 1.7;
+        color: #334155;
+        font-size: 14px;
+    }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+    .reviews-summary-box {
+        display: flex;
+        gap: 40px;
+        background: #f8fafc;
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        align-items: center;
+    }
+
+    .score-number {
+        font-size: 42px;
+        font-weight: 900;
+        color: #0f172a;
+    }
+
+    .review-item {
+        border-bottom: 1px solid #f1f5f9;
+        padding: 20px 0;
+    }
+
+    .reviewer-meta {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .reviewer-name {
+        font-weight: 700;
+        color: #0f172a;
+        font-size: 14px;
+    }
+
+    .add-review-form {
+        margin-top: 30px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        padding: 20px;
+        border-radius: 8px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #1e293b;
+        }
+
+    .form-control-custom {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        font-size: 14px;
+        outline: none;
+    }
+
+    @@media (max-width: 768px) {
+        .product-main-info {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="details-wrapper">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-nav">
+        <a href="/">Trang Chủ</a> /
+        <span>@category</span> /
+        <span>@name</span>
+    </div>
+
+    <!-- MAIN PRODUCT INFO -->
+    <div class="product-main-info">
+        <!-- Gallery -->
+        <div class="product-gallery-container">
+            <div class="main-image-box">
+                <img id="mainProductImg" src="@image" alt="@name" />
+            </div>
+        </div>
+
+        <!-- Info Details -->
+        <div class="details-content">
+            <span class="brand-badge">@brand OFFICIAL</span>
+            <h1 class="product-title-heading">@name</h1>
+
+            <div class="rating-summary">
+                <div class="stars">
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star"></i>
+                    <i class="fa fa-star-half-alt"></i>
+                </div>
+                <span class="review-count-text">4.8/5 (24 đánh giá từ khách hàng)</span>
+            </div>
+
+            <div class="price-box">
+                <span class="current-price">@price</span>
+                <span class="old-price">@oldPrice</span>
+            </div>
+
+            <p class="short-description">@desc</p>
+
+            <!-- Size Selector -->
+            <div class="option-group">
+                <div class="option-title">Chọn Kích Thước (Size):</div>
+                <div class="size-selector">
+                    <button type="button" class="size-chip selected">39</button>
+                    <button type="button" class="size-chip">40</button>
+                    <button type="button" class="size-chip">41</button>
+                    <button type="button" class="size-chip">42</button>
+                    <button type="button" class="size-chip">43</button>
+                </div>
+            </div>
+
+            <!-- Quantity & Add Button -->
+            <div class="option-title">Số Lượng:</div>
+            <div class="quantity-and-action">
+                <div class="quantity-control">
+                    <button type="button" class="qty-btn" onclick="decreaseQty()">-</button>
+                    <input type="text" id="productQty" class="qty-input" value="1" readonly />
+                    <button type="button" class="qty-btn" onclick="increaseQty()">+</button>
+                </div>
+
+                <!-- Nút thêm vào giỏ hàng truyền đúng thông tin động theo sản phẩm -->
+                <button type="button" class="btn-buy-now"
+                        data-id="@productId"
+                        data-name="@name"
+                        data-price="@priceValue"
+                        data-image="@image"
+                        onclick="addCurrentProductToCart(this)">
+                    <i class="fa fa-shopping-bag"></i> Thêm Vào Giỏ Hàng
+                </button>
+            </div>
+
+            <!-- Policy Badges -->
+            <div class="policy-grid">
+                <div class="policy-item">
+                    <i class="fa fa-truck"></i> Giao hàng toàn quốc từ 1-3 ngày
+                </div>
+                <div class="policy-item">
+                    <i class="fa fa-sync-alt"></i> Đổi trả miễn phí trong 3 ngày
+                </div>
+                <div class="policy-item">
+                    <i class="fa fa-shield-alt"></i> Bảo hành chính hãng 12 tháng
+                </div>
+                <div class="policy-item">
+                    <i class="fa fa-check-circle"></i> Cam kết 100% Hàng chính hãng
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABS: DESCRIPTION & REVIEWS -->
+    <div class="product-tabs-container">
+        <div class="tab-headers">
+            <button class="tab-title-btn active" onclick="switchTab('descTab', this)">Mô Tả Sản Phẩm</button>
+            <button class="tab-title-btn" onclick="switchTab('reviewTab', this)">Đánh Giá & Nhận Xét (24)</button>
+        </div>
+
+        <!-- Tab Content 1: Description -->
+        <div id="descTab" class="tab-panel active">
+            <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 12px; color: #0f172a;">Chi Tiết Kỹ Thuật & Đặc Điểm</h3>
+            <p>@desc</p>
+            <ul style="padding-left: 20px; margin-top: 10px; line-height: 1.8;">
+                <li><strong>Thương hiệu:</strong> @brand</li>
+                <li><strong>Danh mục:</strong> @category</li>
+                <li><strong>Chất liệu:</strong> @material</li>
+                <li><strong>Trọng lượng:</strong> @weight</li>
+                <li><strong>Xuất xứ:</strong> Chính hãng phân phối bởi Gear Sport</li>
+            </ul>
+        </div>
+
+        <!-- Tab Content 2: Reviews -->
+        <div id="reviewTab" class="tab-panel">
+            <div class="reviews-summary-box">
+                <div class="score-circle" style="text-align: center;">
+                    <div class="score-number">4.8</div>
+                    <div class="stars">
+                        <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
+                    </div>
+                </div>
+                <div>
+                    <h4 style="margin: 0 0 5px 0; font-size: 16px;">Đánh giá trung bình từ người mua</h4>
+                    <p style="margin: 0; color: #64748b; font-size: 13px;">96% khách hàng hài lòng về sản phẩm này.</p>
+                </div>
+            </div>
+
+            <div class="review-item">
+                <div class="reviewer-meta">
+                    <span class="reviewer-name">Nguyễn Văn Hùng <span style="color: #22c55e; font-size: 11px;">✓ Đã mua hàng</span></span>
+                    <span class="review-date">12/10/2026</span>
+                </div>
+                <div class="stars" style="font-size: 12px; margin-bottom: 5px;">
+                    <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
+                </div>
+                <p style="margin: 0;">Sản phẩm cực kỳ chất lượng, đúng mô tả. Rất đáng tiền!</p>
+            </div>
+
+            <!-- Add Review Form -->
+            <div class="add-review-form">
+                <h4 style="margin-top: 0; margin-bottom: 15px; font-size: 15px; text-transform: uppercase;">Gửi Đánh Giá Của Bạn</h4>
+                <div class="form-group">
+                    <label>Họ và Tên:</label>
+                    <input type="text" class="form-control-custom" placeholder="Nhập tên của bạn" />
+                </div>
+                <div class="form-group">
+                    <label>Nội dung nhận xét:</label>
+                    <textarea class="form-control-custom" rows="3" placeholder="Chia sẻ trải nghiệm sử dụng sản phẩm này..."></textarea>
+                </div>
+                <button type="button" class="btn-buy-now" style="width: auto; padding: 0 25px;">Gửi Đánh Giá</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function increaseQty() {
+        let input = document.getElementById('productQty');
+        let val = parseInt(input.value) || 1;
+        input.value = val + 1;
+    }
+
+    function decreaseQty() {
+        let input = document.getElementById('productQty');
+        let val = parseInt(input.value) || 1;
+        if (val > 1) {
+            input.value = val - 1;
+        }
+    }
+
+    function switchTab(tabId, btn) {
+        document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+        document.querySelectorAll('.tab-title-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        btn.classList.add('active');
+    }
+
+    document.querySelectorAll('.size-chip').forEach(chip => {
+        chip.addEventListener('click', function () {
+            document.querySelectorAll('.size-chip').forEach(c => c.classList.remove('selected'));
+            this.classList.add('selected');
+        });
+    });
+
+    // Cập nhật hàm nhận thêm thuộc tính ảnh
+    function addCurrentProductToCart(button) {
+        let productId = button.getAttribute('data-id');
+        let productName = button.getAttribute('data-name');
+        let productPrice = parseFloat(button.getAttribute('data-price'));
+        let productImage = button.getAttribute('data-image'); // Lấy đường dẫn ảnh
+
+        let qtyInput = document.getElementById('productQty');
+        let quantity = qtyInput ? parseInt(qtyInput.value) || 1 : 1;
+
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        let existingItem = cart.find(item => item.id == productId);
+        if (existingItem) {
+            existingItem.quantity += quantity;
+        } else {
+            // Đẩy thêm thuộc tính image vào đối tượng giỏ hàng
+            cart.push({
+                id: productId,
+                name: productName,
+                price: productPrice,
+                image: productImage,
+                quantity: quantity
+            });
+        }
+
+        localStorage.setItem('cart', JSON.stringify(cart));
+
+        // Cập nhật số lượng trên icon giỏ hàng ở header
+        let cartCountBadge = document.querySelector('.fa-shopping-bag + span, .fa-shopping-cart + span, .cart-count');
+        if (cartCountBadge) {
+            let totalQty = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCountBadge.innerText = totalQty;
+        }
+
+        alert(`Đã thêm thành công ${quantity} sản phẩm "${productName}" vào giỏ hàng!`);
+    }
+</script>

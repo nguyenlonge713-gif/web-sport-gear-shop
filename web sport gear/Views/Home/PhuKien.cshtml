@@ -3,162 +3,282 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<style>
+    /* ==========================================
+       GEAR SPORT - ACCESSORIES CAMPAIGN STYLE
+       ========================================== */
 
+    /* 1. Hero Campaign Banner Tràn Viền */
+    .acc-hero-campaign {
+        position: relative;
+        width: 100vw;
+        margin-left: calc(-50vw + 50%);
+        margin-right: calc(-50vw + 50%);
+        height: 480px;
+        background: #0f172a;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 30px;
+    }
 
+        .acc-hero-campaign img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            opacity: 0.85;
+        }
 
-<!-- Banner trang trí hai bên danh mục Phụ Kiện -->
-<div class="category-side-banners" aria-hidden="true">
+    .acc-hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.25) 60%, transparent 100%);
+    }
 
-    <!-- Banner bên trái -->
-    <div class="category-side-banner category-side-left">
-        <img src="https://media.istockphoto.com/id/2272960009/fr/photo/composition-de-divers-%C3%A9quipements-sportifs-pour-le-fitness-et-les-jeux.webp?a=1&b=1&s=612x612&w=0&k=20&c=Cf7YhEhLzzxoCox8TSWjTefZaXTMCj7a4zq_AojZ9T4="
-             alt="" />
+    .acc-hero-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        color: #ffffff;
+        padding: 0 20px;
+        max-width: 900px;
+    }
 
-        <div class="category-side-caption">
-            <span class="category-side-label">GEAR SPORT</span>
-            <span class="category-side-title">GEAR UP<br />AND GO</span>
-            <span class="category-side-line"></span>
-            <span class="category-side-subtitle">SPORTS ACCESSORIES</span>
-        </div>
+    .acc-breadcrumb {
+        font-size: 12px;
+        letter-spacing: 1px;
+        color: #cbd5e1;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+
+    .acc-hero-title {
+        font-size: clamp(30px, 4.8vw, 54px);
+        font-weight: 900;
+        text-transform: uppercase;
+        margin: 0 0 12px 0;
+        letter-spacing: -1px;
+    }
+
+    .acc-hero-desc {
+        font-size: 15px;
+        color: #e2e8f0;
+        margin: 0;
+        font-weight: 400;
+        letter-spacing: 0.5px;
+    }
+
+    /* 2. Dải danh mục phụ dạng thẻ ảnh thu nhỏ (Sub-category Cards) */
+    .sub-categories-bar {
+        max-width: 1300px;
+        margin: 0 auto 40px auto;
+        padding: 0 20px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+
+    .sub-cat-card {
+        position: relative;
+        height: 95px;
+        border-radius: 8px;
+        overflow: hidden;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #1e293b;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+        .sub-cat-card img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.5;
+            transition: transform 0.4s ease;
+        }
+
+        .sub-cat-card:hover img {
+            transform: scale(1.08);
+            opacity: 0.7;
+        }
+
+        .sub-cat-card span {
+            position: relative;
+            z-index: 2;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+            text-align: center;
+            padding: 0 10px;
+        }
+
+        .sub-cat-card.active, .sub-cat-card:hover {
+            border-color: #ff5722;
+        }
+
+    /* 3. Bố cục chính Full-width không có sidebar rườm rà */
+    .acc-catalog-container {
+        max-width: 1300px;
+        margin: 0 auto 60px auto;
+        padding: 0 20px;
+    }
+
+    .acc-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 15px;
+    }
+
+    .acc-count {
+        font-size: 14px;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .acc-sort select {
+        padding: 8px 16px;
+        border: 1px solid #cbd5e1;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 14px;
+        outline: none;
+        background: #fff;
+        cursor: pointer;
+    }
+
+    /* Lưới sản phẩm rộng rãi */
+    .acc-catalog-container .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 30px;
+    }
+</style>
+
+<!-- 1. HERO CAMPAIGN BANNER TRÀN VIỀN -->
+<div class="acc-hero-campaign">
+    <img src="https://images.unsplash.com/photo-1637666544359-0e88de7b3206?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" alt="Sports Accessories Campaign" />
+    <div class="acc-hero-overlay"></div>
+    <div class="acc-hero-content">
+        <div class="acc-breadcrumb">Trang chủ / Phụ Kiện & Dụng Cụ</div>
+        <h1 class="acc-hero-title">Bộ Sưu Tập Phụ Kiện Thể Thao</h1>
+        <p class="acc-hero-desc">Trang bị hoàn hảo từ bình nước, bóng thi đấu, túi xách đến dụng cụ tập luyện chuyên nghiệp chính hãng.</p>
     </div>
-
-    <!-- Banner bên phải -->
-    <div class="category-side-banner category-side-right">
-        <img src="https://media.istockphoto.com/id/472481322/fr/photo/%C3%A9quipements-de-sport.webp?a=1&b=1&s=612x612&w=0&k=20&c=FydqvpS_w24Q-bl3Df2wH2hWMFptHESEewqDww5u0Co="
-             alt="" />
-
-        <div class="category-side-caption">
-            <span class="category-side-label">GEAR SPORT</span>
-            <span class="category-side-title">READY<br />FOR ACTION</span>
-            <span class="category-side-line"></span>
-            <span class="category-side-subtitle">COMPLETE YOUR GAME</span>
-        </div>
-    </div>
-
 </div>
 
-
-<!-- Banner tiêu đề nổi bật phía trên -->
-<div class="category-hero-banner">
-    <div class="hero-overlay">
-        <div class="hero-content">
-            <span class="breadcrumb-text">Trang chủ / Phụ Kiện</span>
-            <h1 class="hero-title">DANH MỤC PHỤ KIỆN & DỤNG CỤ THỂ THAO</h1>
-            <p class="hero-subtitle">Tổng hợp quần thể thao, bình nước, bóng đá, găng tay, túi xách và vợt chuyên nghiệp.</p>
-        </div>
-    </div>
+<!-- 2. THANH CHUYỂN NHANH DANH MỤC PHỤ DẠNG THẺ ẢNH -->
+<div class="sub-categories-bar">
+    <a href="#" class="sub-cat-card active">
+        <img src="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?w=400" alt="Tất cả phụ kiện" />
+        <span>Tất cả phụ kiện</span>
+    </a>
+    <a href="#" class="sub-cat-card">
+        <img src="https://images.unsplash.com/photo-1623285512357-ff3b9a7579ea?w=400" alt="Trang Phục Thể Thao" />
+        <span>Trang Phục</span>
+    </a>
+    <a href="#" class="sub-cat-card">
+        <img src="https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400" alt="Bình Nước & Balo" />
+        <span>Bình Nước & Balo</span>
+    </a>
+    <a href="#" class="sub-cat-card">
+        <img src="https://images.unsplash.com/photo-1687597778602-624a9438fe0b?w=400" alt="Dụng Cụ Thi Đấu" />
+        <span>Dụng Cụ Thi Đấu</span>
+    </a>
 </div>
 
-<div class="category-main-container">
-    <!-- Cột trái: Bộ lọc Sidebar -->
-    <aside class="category-sidebar">
-        <div class="sidebar-box">
-            <h3 class="sidebar-title">Loại Phụ Kiện</h3>
-            <ul class="sidebar-menu">
-                <li><a href="#" class="active"><i class="fa fa-angle-right"></i> Tất cả phụ kiện</a></li>
-                <li><a href="#"><i class="fa fa-angle-right"></i> Trang Phục Thể Thao</a></li>
-                <li><a href="#"><i class="fa fa-angle-right"></i> Bình Nước & Balo</a></li>
-                <li><a href="#"><i class="fa fa-angle-right"></i> Dụng Cụ Thi Đấu</a></li>
-            </ul>
+<!-- 3. KHU VỰC HIỂN THỊ SẢN PHẨM CHÍNH -->
+<div class="acc-catalog-container">
+    <div class="acc-toolbar">
+        <span class="acc-count">Hiển thị <strong>6</strong> sản phẩm chính hãng</span>
+        <div class="acc-sort">
+            <select id="sortSelect">
+                <option>Sắp xếp: Mới nhất</option>
+                <option>Giá: Thấp đến cao</option>
+                <option>Giá: Cao xuống thấp</option>
+            </select>
         </div>
+    </div>
 
-        <div class="sidebar-box">
-            <h3 class="sidebar-title">Khoảng Giá</h3>
-            <div class="price-filter">
-                <label class="filter-checkbox"><input type="checkbox"> Dưới 300.000đ</label>
-                <label class="filter-checkbox"><input type="checkbox"> 300.000đ - 600.000đ</label>
-                <label class="filter-checkbox"><input type="checkbox"> Trên 600.000đ</label>
+    <section class="featured-products">
+        <div class="product-container product-grid">
+
+            <!-- Quần Short Chạy Bộ Nam -->
+            <div class="product-item product-card">
+                <img src="https://images.unsplash.com/photo-1623285512357-ff3b9a7579ea?w=500&auto=format&fit=crop" alt="Quần short" class="product-img" />
+                <div class="product-info">
+                    <h3 class="product-title">Quần Short Chạy Bộ Nam</h3>
+                    <p class="product-price">250.000 đ</p>
+                    <button class="btn add-to-cart-btn" data-id="3" data-name="Quần Short Chạy Bộ Nam" data-price="250000">Thêm vào giỏ</button>
+                </div>
             </div>
+
+            <!-- Bình Nước Thể Thao 1L -->
+            <div class="product-item product-card">
+                <img src="https://images.unsplash.com/photo-1602143407151-7111542de6e8" alt="Bình nước" class="product-img" />
+                <div class="product-info">
+                    <h3 class="product-title">Bình Nước Thể Thao 1L</h3>
+                    <p class="product-price">180.000 đ</p>
+                    <button class="btn add-to-cart-btn" data-id="4" data-name="Bình Nước Thể Thao 1L" data-price="180000">Thêm vào giỏ</button>
+                </div>
+            </div>
+
+            <!-- Bóng Đá Tiêu Chuẩn FIFA -->
+            <div class="product-item product-card">
+                <img src="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?q=80&w=1331&auto=format&fit=crop" alt="Bóng đá" class="product-img" />
+                <div class="product-info">
+                    <h3 class="product-title">Bóng Đá Tiêu Chuẩn FIFA</h3>
+                    <p class="product-price">650.000 đ</p>
+                    <button class="btn add-to-cart-btn" data-id="5" data-name="Bóng Đá Tiêu Chuẩn FIFA" data-price="650000">Thêm vào giỏ</button>
+                </div>
+            </div>
+
+            <!-- Găng Tay Thủ Môn Pro -->
+            <div class="product-item product-card">
+                <img src="https://plus.unsplash.com/premium_photo-1781205755096-6caab3faf2a1?q=80&w=986&auto=format&fit=crop" alt="Găng Tay Thủ Môn Pro" class="product-img" />
+                <div class="product-info">
+                    <h3 class="product-title">Găng Tay Thủ Môn Pro</h3>
+                    <p class="product-price">450.000 đ</p>
+                    <button class="btn add-to-cart-btn" data-id="6" data-name="Găng Tay Thủ Môn Pro" data-price="450000">Thêm vào giỏ</button>
+                </div>
+            </div>
+
+            <!-- Túi Trống Thể Thao Đa Năng -->
+            <div class="product-item product-card">
+                <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62" alt="Balo thể thao" class="product-img" />
+                <div class="product-info">
+                    <h3 class="product-title">Túi Trống Thể Thao Đa Năng</h3>
+                    <p class="product-price">390.000 đ</p>
+                    <button class="btn add-to-cart-btn" data-id="10" data-name="Túi Trống Thể Thao Đa Năng" data-price="390000">Thêm vào giỏ</button>
+                </div>
+            </div>
+
+            <!-- Vợt Cầu Lông Chuyên Nghiệp -->
+            <div class="product-item product-card">
+                <img src="https://images.unsplash.com/photo-1687597778602-624a9438fe0b?q=80&w=1935&auto=format&fit=crop" alt="Vợt cầu lông" class="product-img" />
+                <div class="product-info">
+                    <h3 class="product-title">Vợt Cầu Lông Chuyên Nghiệp</h3>
+                    <p class="product-price">850.000 đ</p>
+                    <button class="btn add-to-cart-btn" data-id="11" data-name="Vợt Cầu Lông Chuyên Nghiệp" data-price="850000">Thêm vào giỏ</button>
+                </div>
+            </div>
+
         </div>
-
-        <div class="sidebar-box">
-            <h3 class="sidebar-title">Thương Hiệu</h3>
-            <div class="price-filter">
-                <label class="filter-checkbox"><input type="checkbox"> Gear Sport Pro</label>
-                <label class="filter-checkbox"><input type="checkbox"> Nike / Adidas</label>
-                <label class="filter-checkbox"><input type="checkbox"> Yonex / Molten</label>
-            </div>
-        </div>
-    </aside>
-
-    <!-- Cột phải: Thanh công cụ + Danh sách 6 sản phẩm giữ nguyên của bạn -->
-    <main class="category-content">
-        <div class="toolbar-bar">
-            <span class="product-count">Hiển thị <strong>6</strong> sản phẩm</span>
-            <div class="sort-dropdown">
-                <label for="sortSelect">Sắp xếp: </label>
-                <select id="sortSelect">
-                    <option>Mới nhất</option>
-                    <option>Giá từ thấp đến cao</option>
-                    <option>Giá từ cao đến thấp</option>
-                </select>
-            </div>
-        </div>
-
-        <section class="featured-products">
-            <div class="product-container product-grid">
-
-                <!-- Quần Short Chạy Bộ Nam -->
-                <div class="product-item product-card">
-                    <img src="https://images.unsplash.com/photo-1623285512357-ff3b9a7579ea?w=500&auto=format&fit=crop" alt="Quần short" class="product-img" />
-                    <div class="product-info">
-                        <h3 class="product-title">Quần Short Chạy Bộ Nam</h3>
-                        <p class="product-price">250.000 đ</p>
-                        <button class="btn add-to-cart-btn" data-id="3" data-name="Quần Short Chạy Bộ Nam" data-price="250000">Thêm vào giỏ</button>
-                    </div>
-                </div>
-
-                <!-- Bình Nước Thể Thao 1L -->
-                <div class="product-item product-card">
-                    <img src="https://images.unsplash.com/photo-1602143407151-7111542de6e8" alt="Bình nước" class="product-img" />
-                    <div class="product-info">
-                        <h3 class="product-title">Bình Nước Thể Thao 1L</h3>
-                        <p class="product-price">180.000 đ</p>
-                        <button class="btn add-to-cart-btn" data-id="4" data-name="Bình Nước Thể Thao 1L" data-price="180000">Thêm vào giỏ</button>
-                    </div>
-                </div>
-
-                <!-- Bóng Đá Tiêu Chuẩn FIFA -->
-                <div class="product-item product-card">
-                    <img src="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?q=80&w=1331&auto=format&fit=crop" alt="Bóng đá" class="product-img" />
-                    <div class="product-info">
-                        <h3 class="product-title">Bóng Đá Tiêu Chuẩn FIFA</h3>
-                        <p class="product-price">650.000 đ</p>
-                        <button class="btn add-to-cart-btn" data-id="5" data-name="Bóng Đá Tiêu Chuẩn FIFA" data-price="650000">Thêm vào giỏ</button>
-                    </div>
-                </div>
-
-                <!-- Găng Tay Thủ Môn Pro -->
-                <div class="product-item product-card">
-                    <img src="https://plus.unsplash.com/premium_photo-1781205755096-6caab3faf2a1?q=80&w=986&auto=format&fit=crop" alt="Găng Tay Thủ Môn Pro" class="product-img" />
-                    <div class="product-info">
-                        <h3 class="product-title">Găng Tay Thủ Môn Pro</h3>
-                        <p class="product-price">450.000 đ</p>
-                        <button class="btn add-to-cart-btn" data-id="6" data-name="Găng Tay Thủ Môn Pro" data-price="450000">Thêm vào giỏ</button>
-                    </div>
-                </div>
-
-                <!-- Túi Trống Thể Thao Đa Năng -->
-                <div class="product-item product-card">
-                    <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62" alt="Balo thể thao" class="product-img" />
-                    <div class="product-info">
-                        <h3 class="product-title">Túi Trống Thể Thao Đa Năng</h3>
-                        <p class="product-price">390.000 đ</p>
-                        <button class="btn add-to-cart-btn" data-id="10" data-name="Túi Trống Thể Thao Đa Năng" data-price="390000">Thêm vào giỏ</button>
-                    </div>
-                </div>
-
-                <!-- Vợt Cầu Lông Chuyên Nghiệp -->
-                <div class="product-item product-card">
-                    <img src="https://images.unsplash.com/photo-1687597778602-624a9438fe0b?q=80&w=1935&auto=format&fit=crop" alt="Vợt cầu lông" class="product-img" />
-                    <div class="product-info">
-                        <h3 class="product-title">Vợt Cầu Lông Chuyên Nghiệp</h3>
-                        <p class="product-price">850.000 đ</p>
-                        <button class="btn add-to-cart-btn" data-id="11" data-name="Vợt Cầu Lông Chuyên Nghiệp" data-price="850000">Thêm vào giỏ</button>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-    </main>
+    </section>
 </div>

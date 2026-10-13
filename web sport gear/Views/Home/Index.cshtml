@@ -3,557 +3,738 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-
-<!-- Banner trang trí hai bên - Gear Sport -->
-<div class="gearsport-side-banners" aria-hidden="true">
-
-    <!-- Banner bên trái -->
-    <div class="gearsport-side-banner side-banner-left">
-        <img src="https://images.unsplash.com/photo-1543351611-58f69d7c1781?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fGZvb3RiYWxsfGVufDB8fDB8fHww"
-             alt="" />
-        <div class="side-banner-caption">
-            <span class="side-banner-label">GEAR SPORT</span>
-            <span class="side-banner-title">MOVE<br />FORWARD</span>
-            <span class="side-banner-line"></span>
-            <span class="side-banner-subtitle">BUILT FOR MOVEMENT</span>
-        </div>
-    </div>
-
-    <!-- Banner bên phải -->
-    <div class="gearsport-side-banner side-banner-right">
-        <img src="https://images.unsplash.com/photo-1570498839593-e565b39455fc?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Zm9vdGJhbGx8ZW58MHx8MHx8fDA%3D"
-             alt="" />
-        <div class="side-banner-caption">
-            <span class="side-banner-label">GEAR SPORT</span>
-            <span class="side-banner-title">PUSH YOUR<br />LIMITS</span>
-            <span class="side-banner-line"></span>
-            <span class="side-banner-subtitle">YOUR NEXT LEVEL</span>
-        </div>
-    </div>
-
-</div>
-
-
-
-
 <style>
     /* ==========================================
-       GEAR SPORT - White Sports Side Banners
-       Chỉ áp dụng cho hai banner trang trí
+       GEAR SPORT - TOP HERO & BANNER STYLES
        ========================================== */
 
-    .gearsport-side-banners {
-        position: fixed;
-        top: 120px;
-        bottom: 50px;
-        left: 0;
-        right: 0;
-        z-index: 0;
-        pointer-events: none;
-        overflow: hidden;
+    /* 1. Thanh Tiêu Chuẩn Service Bar */
+    .top-service-bar {
+        background: #fafafa;
+        border-bottom: 1px solid #eee;
+        padding: 8px 0;
+        font-size: 12px;
+        color: #444;
     }
 
-    .gearsport-side-banner {
-        position: absolute;
-        top: 16px;
-        bottom: 16px;
-        width: clamp(170px, 15vw, 230px);
-        box-sizing: border-box;
-        overflow: hidden;
-        border: 1px solid #eeeeee;
+    .service-container {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        text-align: center;
+    }
+
+    .service-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+    }
+
+    .service-item i {
+        color: #ff5722;
+        font-size: 14px;
+    }
+
+    /* 2. Hero Banner Lớn (Slider/Campaign) */
+    .hero-banner-wrapper {
+        max-width: 1300px;
+        margin: 20px auto;
+        padding: 0 20px;
+    }
+
+    .main-hero-banner {
+        position: relative;
+        width: 100%;
+        height: 420px;
         border-radius: 12px;
+        overflow: hidden;
+        background: #000;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+
+    .main-hero-banner img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    /* 3. Bộ 3 Banner Phụ (3 Columns Grid) */
+    .sub-banners-grid {
+        max-width: 1300px;
+        margin: 20px auto 40px auto;
+        padding: 0 20px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+    .sub-banner-card {
+        position: relative;
+        height: 360px;
+        border-radius: 12px;
+        overflow: hidden;
+        display: block;
+        text-decoration: none;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .sub-banner-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .sub-banner-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+
+    .sub-banner-card:hover img {
+        transform: scale(1.05);
+    }
+
+    .sub-banner-content {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 60%, transparent 100%);
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        color: #ffffff;
+    }
+
+    .sub-banner-title {
+        font-size: 22px;
+        font-weight: 900;
+        text-transform: uppercase;
+        margin: 0;
+        color: #facc15; /* Màu vàng nổi bật */
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .sub-banner-subtitle {
+        font-size: 13px;
+        color: #e2e8f0;
+        margin-top: 5px;
+        font-weight: 500;
+    }
+
+    .btn-action-yellow {
+        align-self: flex-start;
+        background: #facc15;
+        color: #000;
+        font-weight: 800;
+        font-size: 12px;
+        padding: 8px 18px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: none;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    }
+
+    /* Layout Sections */
+    .home-section {
+        max-width: 1300px;
+        margin: 0 auto 50px auto;
+        padding: 0 20px;
+    }
+
+    .section-header-title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: 900;
+        text-transform: uppercase;
+        margin-bottom: 15px;
+        color: #1e293b;
+        letter-spacing: 0.5px;
+    }
+
+    .custom-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 25px;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 10px;
+    }
+
+    .tab-btn {
+        background: none;
+        border: none;
+        font-size: 13px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        cursor: pointer;
+        padding: 6px 12px;
+        transition: all 0.2s;
+    }
+
+    .tab-btn.active, .tab-btn:hover {
+        color: #ff5722;
+        border-bottom: 2px solid #ff5722;
+    }
+
+    .product-grid-5 {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    /* Thẻ sản phẩm mini */
+    .product-card-mini {
         background: #ffffff;
-        box-shadow: 0 8px 28px rgba(25, 25, 25, 0.06);
+        border-radius: 8px;
+        border: 1px solid #f1f5f9;
+        padding: 12px;
+        position: relative;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
 
-    .side-banner-left {
-        left: 12px;
+    .product-card-mini:hover {
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        transform: translateY(-3px);
     }
 
-    .side-banner-right {
-        right: 12px;
+    .product-card-mini a {
+        text-decoration: none;
+        color: inherit;
+        display: block;
     }
 
-    /* Ảnh thể thao */
-    .gearsport-side-banner img {
+    .product-card-mini a:hover .mini-title {
+        color: #ff5722;
+    }
+
+    .badge-tag {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: #ff5722;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 800;
+        padding: 2px 6px;
+        border-radius: 4px;
+        z-index: 2;
+    }
+
+    .badge-tag.new {
+        background: #ff3d00;
+        right: 10px;
+        left: auto;
+    }
+
+    .product-card-mini img {
+        width: 100%;
+        height: 160px;
+        object-fit: contain;
+        background: #f8fafc;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        transition: transform 0.3s ease;
+    }
+
+    .product-card-mini:hover img {
+        transform: scale(1.04);
+    }
+
+    .mini-brand {
+        font-size: 11px;
+        color: #94a3b8;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: block;
+    }
+
+    .mini-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 4px 0 6px 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.3;
+        height: 34px;
+        transition: color 0.2s;
+    }
+
+    .mini-price {
+        color: #ef4444;
+        font-weight: 800;
+        font-size: 14px;
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    .product-card-mini .add-to-cart-btn {
+        margin-top: 5px;
+        padding: 8px 0;
+        font-size: 12px;
+        width: 100%;
+        border-radius: 6px;
+    }
+
+    .btn-view-more {
+        display: block;
+        width: 140px;
+        margin: 0 auto;
+        text-align: center;
+        padding: 8px 16px;
+        border: 1px solid #0f172a;
+        color: #0f172a;
+        font-weight: 700;
+        font-size: 12px;
+        text-decoration: none;
+        text-transform: uppercase;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+
+    .btn-view-more:hover {
+        background: #0f172a;
+        color: #ffffff;
+    }
+
+    .sports-categories-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 15px;
+        margin: 40px 0;
+    }
+
+    .sport-card {
+        position: relative;
+        height: 280px;
+        border-radius: 12px;
+        overflow: hidden;
+        text-decoration: none;
+        display: flex;
+        align-items: flex-end;
+        padding: 15px;
+    }
+
+    .sport-card img {
         position: absolute;
         inset: 0;
         width: 100%;
         height: 100%;
         object-fit: cover;
-        object-position: center;
-        display: block;
-        opacity: 1;
-        filter: none;
+        transition: transform 0.4s ease;
     }
 
-    /* Lớp phủ trắng giúp tổng thể nhẹ nhàng :) */
-    .gearsport-side-banner::before {
+    .sport-card:hover img {
+        transform: scale(1.08);
+    }
+
+    .sport-card::after {
         content: "";
         position: absolute;
         inset: 0;
-        z-index: 1;
-        background: linear-gradient( to bottom, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.42) 35%, rgba(255, 255, 255, 0.94) 76%, #ffffff 100% );
+        background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%);
     }
 
-    /* Vạch cam trang trí */
-    .gearsport-side-banner::after {
-        content: "";
-        position: absolute;
+    .sport-card span {
+        position: relative;
         z-index: 2;
-        top: 0;
-        left: 0;
-        width: 5px;
-        height: 76px;
-        background: #ff5722;
-        border-radius: 0 0 4px 0;
-    }
-
-    .side-banner-caption {
-        position: absolute;
-        z-index: 3;
-        left: 10px;
-        right: 8px;
-        bottom: 22px;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 9px;
-        color: #202020;
-        overflow-wrap: anywhere;
-    }
-
-    .side-banner-label {
-        color: #f4511e;
-        font-size: 9px;
-        font-weight: 800;
-        letter-spacing: 1.3px;
-    }
-
-    .side-banner-title {
-        font-size: clamp(12px, 1.05vw, 16px);
-        line-height: 1.45;
+        color: #ffffff;
         font-weight: 900;
-        letter-spacing: -0.3px;
+        font-size: 15px;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 6px;
     }
 
-    .side-banner-line {
-        display: block;
-        width: 32px;
-        height: 3px;
-        border-radius: 3px;
-        background: #ff5722;
+    .news-promo-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+        margin-top: 40px;
     }
 
-    .side-banner-subtitle {
-        color: #666666;
-        font-size: 8px;
-        line-height: 1.6;
-        letter-spacing: 0.5px;
+    .news-block-title {
+        background: #0f172a;
+        color: #ffffff;
+        padding: 8px 15px;
+        font-size: 14px;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-bottom: 15px;
     }
 
-    /* Ẩn banner trang trí khi không đủ chiều rộng */
-    @@media (max-width: 1150px) {
-        .gearsport-side-banners {
-            display: none;
+    .news-item {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+        align-items: center;
+    }
+
+    .news-item img {
+        width: 110px;
+        height: 75px;
+        object-fit: cover;
+        border-radius: 6px;
+    }
+
+    .news-info h4 {
+        font-size: 13px;
+        font-weight: 700;
+        margin: 0 0 5px 0;
+        color: #1e293b;
+    }
+
+    .news-info p {
+        font-size: 12px;
+        color: #64748b;
+        margin: 0;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    @@media (max-width: 1024px) {
+        .product-grid-5, .sports-categories-grid, .sub-banners-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+    @@media (max-width: 640px) {
+        .product-grid-5, .sports-categories-grid, .sub-banners-grid, .news-promo-container {
+            grid-template-columns: 1fr;
         }
     }
 </style>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- Phần Banner -->
-<section class="banner">
-    <div class="banner-content">
-        <h2>Đỉnh Cao Thể Thao - Bứt Phá Giới Hạn</h2>
-        <p>Khám phá bộ sưu tập quần áo và dụng cụ thể thao chính hãng mới nhất tại Gear Sport.</p>
-        <a href="#product-list" class="btn">Bắt đầu mua sắm</a>
-    </div>
-</section>
-
-<!-- Phần Tìm Kiếm -->
-<section class="search-section" style="margin: 30px 0; text-align: center;">
-    <h2>Tìm Kiếm Sản Phẩm</h2>
-    <div class="search-container" style="display: inline-flex; gap: 10px; margin-top: 10px;">
-        <input type="text" id="search-input" placeholder="Nhập tên sản phẩm thể thao..." style="padding: 10px; width: 300px; border: 1px solid #ccc; border-radius: 4px;">
-        <button id="search-button" class="btn" style="padding: 10px 20px;">Tìm kiếm</button>
-    </div>
-</section>
-
-<!-- Phần Danh Sách Sản Phẩm -->
-<section id="product-list" class="featured-products">
-    <h2>Danh Sách Sản Phẩm Gear Sport</h2>
-    <div class="product-container product-grid" style="margin-top: 20px;">
-
-        <!-- Sản phẩm giày chạy bộ -->
-        <div class="product-item product-card" style="cursor: pointer;">
-            <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff" alt="Giày chạy bộ" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Giày Chạy Bộ Nike Air</h3>
-                <p class="product-price">1.500.000 đ</p>
-                <button class="btn add-to-cart-btn"
-                        data-id="1"
-                        data-name="Giày Chạy Bộ Nike Air"
-                        data-price="1500000"
-                        data-image="https://images.unsplash.com/photo-1542291026-7eec264c27ff"
-                        data-images="https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSPEjw90YY95eiI484xc88z09OQxq0TnlkafUyk3QE2QK9sUZqZ27pVpPdVcNvfneatC36-AjhnWLeT-pB6xLUUiia-yqOaPff0la4RmnoztQpywpT6wppWfnY&usqp=CAc,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTn7wH4K45bgylS3LdFpratBdpHyx-OoIQjON3X1kZPbg&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzgkgfqEl6RgS3gmCbSw9eWD1HLee3_GLzCwbB9Uto7Q&s=10"
-                        data-desc="Giày chạy bộ chuyên dụng với công nghệ đệm khí Air êm ái, thân giày làm từ vải dệt nguyên khối thoáng khí, đế cao su chống mài mòn cao, giúp tối ưu hóa tốc độ và bảo vệ cổ chân tối đa.">
-                    Thêm vào giỏ
-                </button>
-            </div>
+<!-- 1. THANH SERVICE BAR TẠO LÒNG TIN -->
+<div class="top-service-bar">
+    <div class="service-container">
+        <div class="service-item">
+            <i class="fa fa-truck"></i> Miễn phí giao hàng đơn từ 500k
         </div>
-
-        <!-- Sản phẩm áo thun thể thao -->
-        <div class="product-item product-card" style="cursor: pointer;">
-            <img src="https://images.unsplash.com/photo-1581655353564-df123a1eb820" alt="Áo thun thể thao" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Áo Thun Thể Thao Nam</h3>
-                <p class="product-price">350.000 đ</p>
-                <button class="btn add-to-cart-btn"
-                        data-id="2"
-                        data-name="Áo Thun Thể Thao Nam"
-                        data-price="350000"
-                        data-image="https://images.unsplash.com/photo-1581655353564-df123a1eb820"
-                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5hBohtBydXq7TDi68pqvFa_Bzqq05z3f3DkIYKxT24g&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3PHfkBqHWzSppmD4Ms6U9XRz1reZjE1MY7-mRWdL8vQ&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSva8FZ6h9Rw_yESLZPhuyVoXVRPZWCiI02uJX1hEpkOA&s"
-                        data-desc="Áo thun thể thao nam chất liệu thun mè cao cấp, siêu nhẹ, khả năng thấm hút mồ hôi cực tốt với công nghệ Dry-Fit, giữ cơ thể luôn khô thoáng trong suốt buổi tập luyện cường độ cao.">
-                    Thêm vào giỏ
-                </button>
-            </div>
+        <div class="service-item">
+            <i class="fa fa-refresh"></i> Miễn phí đổi trả trong 3 ngày
         </div>
-
-        <!-- Sản phẩm quần short chạy bộ nam -->
-        <div class="product-item product-card" style="cursor: pointer;">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjR66nsXvXLznIZNzEBB_PQyOSWPCtgY0vi7ulX7vIqA&s" alt="Quần short" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Quần Short Chạy Bộ Nam</h3>
-                <p class="product-price">250.000 đ</p>
-                <button class="btn add-to-cart-btn"
-                        data-id="3"
-                        data-name="Quần Short Chạy Bộ Nam"
-                        data-price="250000"
-                        data-image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8y_-DeRsf7SFV9wdcilm1l6us35GmrhC9ek_3D8KXVA&s=10"
-                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-jk_72xVAvr2gDf_wdbkcqQQKXBw_eYgdjZfODpj9fA&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTti0YfasSv9EpIr-nhowPtONGuHou9Yvaj-FK5wqKokg&s,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8y_-DeRsf7SFV9wdcilm1l6us35GmrhC9ek_3D8KXVA&s=10"
-                        data-desc="Quần short thể thao nam thiết kế năng động, chất liệu thun co giãn 4 chiều kết hợp lớp lót bên trong thoáng khí, mang lại cảm giác thoải mái tuyệt đối trong mọi chuyển động.">
-                    Thêm vào giỏ
-                </button>
-            </div>
+        <div class="service-item">
+            <i class="fa fa-check-circle"></i> Cam kết 100% chính hãng
         </div>
-
-        <!-- Sản phẩm Bình nước thể thao -->
-        <div class="product-item product-card" style="cursor: pointer;">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAGUpYJ2Ku5V5PTmkxORRupZR_j80f8watABIBqPY6JQ&s=10" alt="Bình nước" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Bình Nước Thể Thao 1L</h3>
-                <p class="product-price">180.000 đ</p>
-                <button class="btn add-to-cart-btn"
-                        data-id="4"
-                        data-name="Bình Nước Thể Thao 1L"
-                        data-price="180000"
-                        data-image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThNVuK--CpFU7c-HNCzeX9OU1_zABcfurndnCeNxQPfQ&s=10"
-                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUW6w07_YGzDQphFxfQgjimkEMuQup1WEkKnGZY-wOEw&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSz4lrr8elRFEzefoMv_9-NtJK0AvjJDRxWi4VChLkJEg&s=10"
-                        data-desc="Bình nước thể thao dung tích 1 lít làm từ chất liệu nhựa Tritan cao cấp an toàn không chứa BPA, thiết kế chống rò rỉ nước hoàn hảo, tiện lợi mang theo khi tập gym hoặc chạy bộ ngoài trời.">
-                    Thêm vào giỏ
-                </button>
-            </div>
-        </div>
-
-        <!-- Sản phẩm Bóng đá tiêu chuẩn FIFA -->
-        <div class="product-item product-card" style="cursor: pointer;">
-            <img src="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?q=80&w=1331&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Bóng đá" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Bóng Đá Tiêu Chuẩn FIFA</h3>
-                <p class="product-price">650.000 đ</p>
-                <button class="btn add-to-cart-btn"
-                        data-id="5"
-                        data-name="Bóng Đá Tiêu Chuẩn FIFA"
-                        data-price="650000"
-                        data-image="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?q=80&w=1331&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7Grnpjut_DJ35NkEg0MRQgKeLWh5CEj-ANCkhCQFirg&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcauKC12QNrCYO2e206Y16jZ9gD0bJfq7Z3GmCkpqNGA&s,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzd5qs4Qdq2wH6KGIHjtS3v05G7oB03IL0JL2U0YrfHQ&s=10"
-                        data-desc="Bóng đá đạt tiêu chuẩn chất lượng FIFA, cấu trúc khâu tay chắc chắn từ chất liệu da PU cao cấp giúp chống thấm nước, độ nảy ổn định và giữ hơi cực tốt trên mọi mặt sân.">
-                    Thêm vào giỏ
-                </button>
-            </div>
-        </div>
-
-        <!-- Sản phẩm Găng tay thủ môn Pro -->
-        <div class="product-item product-card" style="cursor: pointer;">
-            <img src="https://plus.unsplash.com/premium_photo-1781205755096-6caab3faf2a1?q=80&w=986&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Găng Tay Thủ Môn Pro" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Găng Tay Thủ Môn Pro</h3>
-                <p class="product-price">450.000 đ</p>
-                <button class="btn add-to-cart-btn"
-                        data-id="6"
-                        data-name="Găng Tay Thủ Môn Pro"
-                        data-price="450000"
-                        data-image="https://plus.unsplash.com/premium_photo-1781205755096-6caab3faf2a1?q=80&w=986&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXoFYD-CADIQbApOk6JdqUtDSNu0QKolOBxtO_bbFCBQ&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTilajshVZLhSHoYtXqTBuJLWPSamsABdjcdxCBBxeBqg&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5GY02Pk3HonuL-pMJNugYGuYnETDINdicWKipMMa4sw&s=10"
-                        data-desc="Găng tay thủ môn chuyên nghiệp với lớp mút cao su Đức bám dính siêu hạng, khung xương bảo vệ ngón tay chống lật hiệu quả, giúp bắt dính bóng chắc chắn trong mọi tình huống.">
-                    Thêm vào giỏ
-                </button>
-            </div>
-        </div>
-
-        <!-- Sản phẩm mẫu: Áo khoác gió thể thao -->
-        <div class="product-item product-card" style="cursor: pointer;">
-            <img src="https://images.unsplash.com/photo-1611308725032-74f0a551d018?q=80&w=722&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Áo khoác gió thể thao" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Áo Khoác Gió Thể Thao Nam</h3>
-                <p class="product-price">550.000 đ</p>
-                <button class="btn add-to-cart-btn"
-                        data-id="9"
-                        data-name="Áo Khoác Gió Thể Thao Nam"
-                        data-price="550000"
-                        data-image="https://images.unsplash.com/photo-1611308725032-74f0a551d018?q=80&w=722&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtAWTi7ZjXDR3s1vhZ6WR7oNW8WjDGd0ZUAnMu7Z6myg&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJi3qp3urnF3oRB7F64vbBvVzWqI5rn_RbR9RY4pXWyg&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpjqRMkWmV4PIuYRyQfU_LefTUDiShlZoE701C7VBYCw&s=10"
-                        data-desc="Áo khoác gió thể thao siêu nhẹ chống gió và kháng nước nhẹ hiệu quả, thiết kế trẻ trung kèm túi khóa kéo tiện lợi, bảo vệ cơ thể khi tập luyện vào những ngày thời tiết lạnh hoặc se gió.">
-                    Thêm vào giỏ
-                </button>
-            </div>
-        </div>
-
-        <!-- Sản phẩm mẫu: Túi xách thể thao -->
-        <div class="product-item product-card" style="cursor: pointer;">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-fdLrc-RYII4SkEqHwIM3o4vUzhL29zRSuGHFV3YkgQ&s=10" alt="Balo thể thao" class="product-img" />
-
-            <div class="product-info">
-                <h3 class="product-title">Túi Trống Thể Thao Đa Năng</h3>
-                <p class="product-price">390.000 đ</p>
-                <button class="btn add-to-cart-btn"
-                        data-id="10"
-                        data-name="Túi Trống Thể Thao Đa Năng"
-                        data-price="390000"
-                        data-image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPxPLJ5eMWpwYsokzFtUdNLgoJOdh4THYz-jPUXy_wtQ&s=10"
-                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQKjfaulnO3brz6X0-QQ-pjVH-m-LIDBRcidTKusdfS7w&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQh44Ed9K-TrtPPLYUd9j-pXzriCm5F5yANKjbfto9fUw&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbW04XR0-yWnKEWKcnXtE2BTERhvYb45Se2f6VsW0y3A&s=10"
-                        data-desc="Túi trống thể thao dung tích lớn với ngăn đựng giày riêng biệt và ngăn chống thấm nước, chất liệu vải dù bền bỉ, là người bạn đồng hành lý tưởng cho những chuyến đi tập gym hoặc du lịch ngắn ngày.">
-                    Thêm vào giỏ
-                </button>
-            </div>
-        </div>
-
-        <!-- Sản phẩm mẫu: Vợt cầu lông -->
-        <div class="product-item product-card" style="cursor: pointer;">
-            <img src="https://images.unsplash.com/photo-1687597778602-624a9438fe0b?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Vợt cầu lông" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Vợt Cầu Lông Chuyên Nghiệp</h3>
-                <p class="product-price">850.000 đ</p>
-                <button class="btn add-to-cart-btn"
-                        data-id="11"
-                        data-name="Vợt Cầu Lông Chuyên Nghiệp"
-                        data-price="850000"
-                        data-image="https://images.unsplash.com/photo-1687597778602-624a9438fe0b?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQr4meTs0_J0g4ynNXIt0iA1AS1MAtptUOwfB8yukCngQ&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzyjIw8hSGCm6URR54EcXAIL-e4BvhpHMyW0evWN5PGw&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5uO7px1v6uRIdI1aoMn4liV3p0LazJDenOgl24OE0_Q&s=10"
-                        data-desc="Vợt cầu lông làm từ carbon nguyên khối siêu nhẹ, trợ lực tốt, khung vợt chịu lực căng cao giúp những cú smash (đập cầu) trở nên uy lực và chuẩn xác hơn.">
-                    Thêm vào giỏ
-                </button>
-            </div>
-        </div>
-
-        <!-- Sản phẩm mẫu: Giày bóng rổ -->
-        <div class="product-item product-card" style="cursor: pointer;">
-            <img src="https://images.unsplash.com/photo-1579338559194-a162d19bf842" alt="Giày bóng rổ" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Giày Bóng Rổ Nam Cao Cấp</h3>
-                <p class="product-price">1.650.000 đ</p>
-                <button class="btn add-to-cart-btn"
-                        data-id="15"
-                        data-name="Giày Bóng Rổ Nam Cao Cấp"
-                        data-price="1650000"
-                        data-image="https://images.unsplash.com/photo-1579338559194-a162d19bf842"
-                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNPbusm_Cj4kP7Do9b_XmViGLxExqUSgvcyH2T0mRMFw&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYfBUC2HUfSEKvESA7MQGuWYqgZOUI3mGhI_7kyOCghw&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWsRGQjZwKy0SWPqb7tMGLZvb1HOwtfsmyyj-4QMG9zw&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGZ045Gt5h0CXLphlPNvvmR0lPNEyPxmxduKgpxWcHIA&s=10"
-                        data-desc="Giày bóng rổ cao cổ thiết kế chuyên dụng ôm sát cổ chân, đế giày bám sân cực tốt chống trơn trượt, hệ thống đệm giảm chấn tối ưu giúp bảo vệ khớp gối khi bật nhảy cao và tiếp đất.">
-                    Thêm vào giỏ
-                </button>
-            </div>
-        </div>
-
-        <!-- Sản phẩm mẫu: Áo polo thể thao -->
-        <div class="product-item product-card" style="cursor: pointer;">
-            <img src="https://plus.unsplash.com/premium_photo-1747861981617-1512bc2c06e8?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Áo polo thể thao" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Áo Polo Thể Thao Nam</h3>
-                <p class="product-price">290.000 đ</p>
-                <button class="btn add-to-cart-btn"
-                        data-id="16"
-                        data-name="Áo Polo Thể Thao Nam"
-                        data-price="290000"
-                        data-image="https://plus.unsplash.com/premium_photo-1747861981617-1512bc2c06e8?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTc3uIQCzodnSd-ryNXxCYrAdU-ptMg3k38UrU1CPSgqQ&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSE1MsfF25DZtdBQ3smxUzSlOIS5f7oxdBQ3c3zxYCr5w&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_015ehbjy2yLWjJoSKa_zrx5OWdB67zmZVXjTyDok9g&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQp62bYT59pRsFCAmQrxFs1u9wN_WYG7f5Cuszu0wMBlw&s=10"
-                        data-desc="Áo polo thể thao lịch lãm nhưng vẫn đảm bảo độ thoáng mát, chất vải cá sấu mè co giãn tốt, thấm hút mồ hôi nhanh, phù hợp mặc đi chơi thể thao, đánh golf hoặc dạo phố.">
-                    Thêm vào giỏ
-                </button>
-            </div>
-        </div>
-
-        <!-- Sản phẩm mẫu: Giày đá banh đinh -->
-        <div class="product-item product-card" style="cursor: pointer;">
-            <img src="https://images.unsplash.com/photo-1511886929837-354d827aae26?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Giày đá banh" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Giày Đá Banh Sân Cỏ Nhân Tạo</h3>
-                <p class="product-price">890.000 đ</p>
-                <button class="btn add-to-cart-btn"
-                        data-id="17"
-                        data-name="Giày Đá Banh Sân Cỏ Nhân Tạo"
-                        data-price="890000"
-                        data-image="https://images.unsplash.com/photo-1511886929837-354d827aae26?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSaVvBiPXG7M7aNwlz5E5ydxhP2beiwmwDXIhAclPheA&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDDTtFk8rmrb_7pfVHfK7MCviUTULTaRdfPyi_yXPQsA&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpnu39CAbJySxFeIjCl7vXENar5dkIdkllzHcNZafkHA&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOXyLn02pL9pMjgFYgXyXcE7MNe20kfVvInsU53w4V2Q&s=10"
-                        data-desc="Giày đá banh sân cỏ nhân tạo đinh dăm TF bám sân tuyệt vời, bề mặt da tổng hợp mềm mại hỗ trợ cảm giác bóng tốt nhất và những đường chuyền bóng chính xác.">
-                    Thêm vào giỏ
-                </button>
-            </div>
-        </div>
-
-        <!-- Sản phẩm mẫu: Giày chạy bộ cao cấp -->
-        <div class="product-item product-card" style="cursor: pointer;">
-            <img src="https://images.unsplash.com/photo-1562183241-b937e95585b6?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGdpJUMzJUEweSUyMGNoJUUxJUJBJUExeSUyMGIlRTElQkIlOTl8ZW58MHx8MHx8fDA%3D" alt="Giày chạy bộ nam" class="product-img" />
-            <div class="product-info">
-                <h3 class="product-title">Giày Chạy Bộ Nam Lightweight</h3>
-                <p class="product-price">1.350.000 đ</p>
-                <button class="btn add-to-cart-btn"
-                        data-id="18"
-                        data-name="Giày Chạy Bộ Nam Lightweight"
-                        data-price="1350000"
-                        data-image="https://images.unsplash.com/photo-1562183241-b937e95585b6?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGdpJUMzJUEweSUyMGNoJUUxJUJBJUExeSUyMGIlRTElQkIlOTl8ZW58MHx8MHx8fDA%3D"
-                        data-images="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNYe9VNGgu1qlltc05ZzAIhXQa_xT4cTYgWg9cnzsQ4w&s=10,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQueuUcfEUNQlySNZojKtc847783-Cg9gqetEw20kQ5AQ&s,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFaXRvulmry2_l0xzzU6sc-hMW53MDc-iVAZz2G0zkQw&s,https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQI9t_acyqzQheIa0-RKj9PonPZHPQfSLz84ms1nN7aaA&s=10"
-                        data-desc="Giày chạy bộ siêu nhẹ Lightweight công nghệ mới giúp giảm tối đa trọng lượng đôi giày, đế đệm đàn hồi cao cấp giúp từng bước chạy nhẹ nhàng và bứt phá tốc độ dễ dàng.">
-                    Thêm vào giỏ
-                </button>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ================= KHUNG MODAL CHI TIẾT SẢN PHẨM ================= -->
-<div id="productDetailModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
-    <div class="modal-content" style="background: #fff; padding: 40px; border-radius: 20px; max-width: 1000px; width: 90%; position: relative; display: flex; gap: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); box-sizing: border-box;">
-
-        <!-- Nút đóng (dấu X) -->
-        <button id="closeModalBtn" style="position: absolute; top: 20px; right: 25px; background: #f1f5f9; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #333; transition: all 0.2s; z-index: 10;">&times;</button>
-
-        <!-- CỘT TRÁI: Ảnh chính + Mũi tên chuyển ảnh + Danh sách ảnh nhỏ -->
-        <div style="flex: 1; display: flex; flex-direction: column; gap: 15px; align-items: center; justify-content: center; background: #f8fafc; border-radius: 14px; padding: 20px; position: relative; box-sizing: border-box;">
-            <span style="position: absolute; top: 15px; left: 15px; background: #22c55e; color: white; padding: 4px 10px; font-size: 12px; font-weight: bold; border-radius: 6px; z-index: 2;">Chính Hãng 100%</span>
-
-            <!-- Vùng chứa ảnh chính và nút mũi tên trái/phải -->
-            <div style="position: relative; width: 100%; display: flex; align-items: center; justify-content: center;">
-                <!-- Nút mũi tên trái -->
-                <button id="prevImgBtn" style="position: absolute; left: 10px; z-index: 5; background: rgba(0,0,0,0.5); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">&#10094;</button>
-
-                <!-- Ảnh chính lớn -->
-                <img id="modalImg" src="" alt="Ảnh sản phẩm" style="width: 100%; max-height: 320px; border-radius: 10px; object-fit: contain;" />
-
-                <!-- Nút mũi tên phải -->
-                <button id="nextImgBtn" style="position: absolute; right: 10px; z-index: 5; background: rgba(0,0,0,0.5); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">&#10095;</button>
-            </div>
-
-            <!-- Danh sách ảnh thu nhỏ liên quan -->
-            <div id="modalThumbnailList" style="display: flex; gap: 8px; overflow-x: auto; width: 100%; padding-bottom: 5px; justify-content: flex-start;"></div>
-        </div>
-
-        <!-- CỘT PHẢI: Thông tin chi tiết & Nút mua hàng -->
-        <div style="flex: 1.2; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box;">
-            <div>
-                <!-- Đánh giá sao -->
-                <div style="color: #f59e0b; font-size: 14px; margin-bottom: 8px;">
-                    ★★★★★ <span style="color: #64748b; font-size: 13px;">(4.9 / 5 đánh giá)</span>
-                </div>
-
-                <h2 id="modalTitle" style="margin-top: 0; font-size: 26px; color: #0f172a; margin-bottom: 12px; font-weight: 700; line-height: 1.3;"></h2>
-
-                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
-                    <p id="modalPrice" style="color: #ef4444; font-size: 26px; font-weight: 800; margin: 0;"></p>
-                    <span style="background: #fee2e2; color: #dc2626; padding: 4px 8px; font-size: 12px; font-weight: bold; border-radius: 4px;">Tiết kiệm 10%</span>
-                </div>
-
-                <!-- Khung mô tả nổi bật -->
-                <div style="background: #f8fafc; padding: 16px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #3b82f6; border: 1px solid #e2e8f0;">
-                    <p id="modalDesc" style="color: #334155; font-size: 14px; line-height: 1.6; margin: 0;">
-                        <b>Mô tả chi tiết:</b> Đang cập nhật...
-                    </p>
-                </div>
-
-                <!-- Chính sách -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; color: #475569; margin-bottom: 15px;">
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="color: #22c55e; font-weight: bold;">✓</span> Đổi trả trong 7 ngày
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="color: #22c55e; font-weight: bold;">✓</span> Miễn phí vận chuyển
-                    </div>
-                </div>
-
-                <!-- DÒNG HIỂN THỊ TRẠNG THÁI TỒN KHO -->
-                <div style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #16a34a; font-weight: 600; margin-bottom: 20px;">
-                    <span style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%; display: inline-block;"></span>
-                    Trạng thái: <span style="color: #0f172a; font-weight: normal;">Còn hàng (Giao nhanh trong 2h tại cửa hàng gần nhất)</span>
-                </div>
-            </div>
-
-            <!-- Bộ chọn số lượng -->
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-                <label for="modalQuantityInput" style="font-size: 14px; font-weight: 500; color: #374151;">Số lượng:</label>
-                <div style="display: flex; align-items: center; border: 1px solid #d1d5db; border-radius: 6px; overflow: hidden;">
-                    <button type="button" id="decreaseQtyBtn" style="padding: 6px 12px; background: #f3f4f6; border: none; cursor: pointer;">-</button>
-                    <input type="number" id="modalQuantityInput" value="1" min="1" max="100" style="width: 50px; text-align: center; border: none; outline: none; font-size: 14px;" />
-                    <button type="button" id="increaseQtyBtn" style="padding: 6px 12px; background: #f3f4f6; border: none; cursor: pointer;">+</button>
-                </div>
-            </div>
-
-            <!-- Nút thêm vào giỏ hàng -->
-            <button id="modalAddToCart" class="btn add-to-cart-btn" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; padding: 14px 20px; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; text-align: center; box-shadow: 0 4px 12px rgba(37,99,235,0.3); transition: all 0.2s;">
-                🛒 Thêm vào giỏ hàng ngay
-            </button>
-        </div>
-
-        <!-- Chức năng tìm kiếm sản phẩm trên thanh tìm kiếm-->
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                const searchInput = document.getElementById("search-input");
-                const searchButton = document.getElementById("search-button");
-                const productItems = document.querySelectorAll(".product-item");
-
-                function filterProducts() {
-                    if (!searchInput) return;
-                    const keyword = searchInput.value.toLowerCase().trim();
-
-                    productItems.forEach(item => {
-                        const titleEl = item.querySelector(".product-title");
-                        const title = titleEl ? titleEl.textContent.toLowerCase() : "";
-
-                        // Nếu từ khóa khớp với tiêu đề sản phẩm
-                        if (title.includes(keyword)) {
-                            item.style.display = ""; // Trả về trạng thái hiển thị mặc định của CSS
-                        } else {
-                            item.style.display = "none"; // Ẩn hẳn đi
-                        }
-                    });
-                }
-
-                // Bấm nút tìm kiếm
-                if (searchButton) {
-                    searchButton.addEventListener("click", function (e) {
-                        e.preventDefault();
-                        filterProducts();
-                    });
-                }
-
-                // Gõ phím trực tiếp
-                if (searchInput) {
-                    searchInput.addEventListener("keyup", function () {
-                        filterProducts();
-                    });
-                }
-            });
-        </script>
     </div>
 </div>
+
+<!-- 2. MAIN HERO BANNER (SLIDER NỔI BẬT) -->
+<div class="hero-banner-wrapper">
+    <div class="main-hero-banner">
+        <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=1600&auto=format&fit=crop" alt="NEW OUTFIT - NEW SEASON" />
+    </div>
+</div>
+
+<!-- 3. BỘ 3 BANNER PHỤ CHO CÁC BST CHÍNH -->
+<div class="sub-banners-grid">
+    <!-- Banner 1: Thời trang Nam -->
+    <a href="@Url.Action("AoTheThao", "Home")" class="sub-banner-card">
+        <img src="https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=600" alt="Thời trang Nam" />
+        <div class="sub-banner-content">
+            <div>
+                <h3 class="sub-banner-title">Thời trang Nam</h3>
+                <p class="sub-banner-subtitle">Khám phá BST từ thương hiệu mới nhất 2026</p>
+            </div>
+            <span class="btn-action-yellow">Xem ngay</span>
+        </div>
+    </a>
+
+    <!-- Banner 2: Tennis / Pickleball -->
+    <a href="@Url.Action("GiayDaBong", "Home")" class="sub-banner-card">
+        <img src="https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=600" alt="BST Tennis / Pickleball" />
+        <div class="sub-banner-content">
+            <div>
+                <h3 class="sub-banner-title">BST Tennis / Pickleball</h3>
+                <p class="sub-banner-subtitle">Giá chỉ từ 455K</p>
+            </div>
+            <span class="btn-action-yellow">Xem ngay</span>
+        </div>
+    </a>
+
+    <!-- Banner 3: Giá mới mùa mới -->
+    <a href="@Url.Action("PhuKien", "Home")" class="sub-banner-card">
+        <img src="https://images.unsplash.com/photo-1511886929837-354d827aae26?w=600" alt="Giá mới mùa mới" />
+        <div class="sub-banner-content">
+            <div>
+                <h3 class="sub-banner-title">Giá mới mùa mới</h3>
+                <p class="sub-banner-subtitle">1000+ sản phẩm ưu đãi cực tốt</p>
+            </div>
+            <span class="btn-action-yellow">Xem ngay</span>
+        </div>
+    </a>
+</div>
+
+<!-- KHỐI 4: CHUẨN BỊ MÙA MỚI (HELLO WINTER) -->
+<section class="home-section">
+    <h2 class="section-header-title">HELLO WINTER ❄️</h2>
+
+    <div class="custom-tabs">
+        <button class="tab-btn active">LIMITED SALES</button>
+        <button class="tab-btn">EXTRA 10%</button>
+        <button class="tab-btn">SALE 20% - 30%</button>
+    </div>
+
+    <div class="product-grid-5">
+        <!-- Sản phẩm 1 -->
+        <div class="product-card-mini">
+            <span class="badge-tag">-20%</span>
+            <span class="badge-tag new">NEW</span>
+            <a href="@Url.Action("Details", "Home", new { id = 1 })">
+                <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff" alt="Nike" />
+            </a>
+            <div>
+                <span class="mini-brand">NIKE</span>
+                <a href="@Url.Action("Details", "Home", new { id = 1 })">
+                    <h3 class="mini-title">Giày Tennis/Pickleball Nike Zoom Vapor 12</h3>
+                </a>
+                <span class="mini-price">1.500.000 đ</span>
+            </div>
+            <button class="btn add-to-cart-btn" data-id="1" data-name="Giày Tennis/Pickleball Nike Zoom Vapor 12" data-price="1500000">Thêm vào giỏ</button>
+        </div>
+
+        <!-- Sản phẩm 2 -->
+        <div class="product-card-mini">
+            <span class="badge-tag">-15%</span>
+            <a href="@Url.Action("Details", "Home", new { id = 18 })">
+                <img src="https://images.unsplash.com/photo-1562183241-b937e95585b6?w=500" alt="Adidas" />
+            </a>
+            <div>
+                <span class="mini-brand">ADIDAS</span>
+                <a href="@Url.Action("Details", "Home", new { id = 18 })">
+                    <h3 class="mini-title">Giày Chạy Bộ Nam Adidas Supernova</h3>
+                </a>
+                <span class="mini-price">1.350.000 đ</span>
+            </div>
+            <button class="btn add-to-cart-btn" data-id="18" data-name="Giày Chạy Bộ Nam Adidas Supernova" data-price="1350000">Thêm vào giỏ</button>
+        </div>
+
+        <!-- Sản phẩm 3 -->
+        <div class="product-card-mini">
+            <span class="badge-tag">-25%</span>
+            <a href="@Url.Action("Details", "Home", new { id = 17 })">
+                <img src="https://images.unsplash.com/photo-1511886929837-354d827aae26?q=80&w=764" alt="Puma" />
+            </a>
+            <div>
+                <span class="mini-brand">PUMA</span>
+                <a href="@Url.Action("Details", "Home", new { id = 17 })">
+                    <h3 class="mini-title">Giày Đá Banh Sân Cỏ Nhân Tạo Pro</h3>
+                </a>
+                <span class="mini-price">890.000 đ</span>
+            </div>
+            <button class="btn add-to-cart-btn" data-id="17" data-name="Giày Đá Banh Sân Cỏ Nhân Tạo Pro" data-price="890000">Thêm vào giỏ</button>
+        </div>
+
+        <!-- Sản phẩm 4 -->
+        <div class="product-card-mini">
+            <span class="badge-tag new">NEW</span>
+            <a href="@Url.Action("Details", "Home", new { id = 15 })">
+                <img src="https://images.unsplash.com/photo-1579338559194-a162d19bf842" alt="Asics" />
+            </a>
+            <div>
+                <span class="mini-brand">ASICS</span>
+                <a href="@Url.Action("Details", "Home", new { id = 15 })">
+                    <h3 class="mini-title">Giày Thể Thao Nam Asics Court FF 3</h3>
+                </a>
+                <span class="mini-price">1.650.000 đ</span>
+            </div>
+            <button class="btn add-to-cart-btn" data-id="15" data-name="Giày Thể Thao Nam Asics Court FF 3" data-price="1650000">Thêm vào giỏ</button>
+        </div>
+
+        <!-- Sản phẩm 5 -->
+        <div class="product-card-mini">
+            <span class="badge-tag">-10%</span>
+            <a href="@Url.Action("Details", "Home", new { id = 2 })">
+                <img src="https://images.unsplash.com/photo-1581655353564-df123a1eb820" alt="Nike" />
+            </a>
+            <div>
+                <span class="mini-brand">GEAR SPORT</span>
+                <a href="@Url.Action("Details", "Home", new { id = 2 })">
+                    <h3 class="mini-title">Áo Thun Thể Thao Nam Dry-Fit</h3>
+                </a>
+                <span class="mini-price">350.000 đ</span>
+            </div>
+            <button class="btn add-to-cart-btn" data-id="2" data-name="Áo Thun Thể Thao Nam Dry-Fit" data-price="350000">Thêm vào giỏ</button>
+        </div>
+    </div>
+
+    <a href="@Url.Action("AoTheThao", "Home")" class="btn-view-more">Xem tất cả</a>
+</section>
+
+<!-- KHỐI 5: THẺ BỘ MÔN THỂ THAO -->
+<section class="home-section">
+    <div class="sports-categories-grid">
+        <a href="#" class="sport-card">
+            <img src="https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=500" alt="Pickleball" />
+            <span>PICKLEBALL ►</span>
+        </a>
+        <a href="@Url.Action("GiayDaBong", "Home")" class="sport-card">
+            <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500" alt="Chạy bộ" />
+            <span>CHẠY BỘ ►</span>
+        </a>
+        <a href="@Url.Action("PhuKien", "Home")" class="sport-card">
+            <img src="https://images.unsplash.com/photo-1687597778602-624a9438fe0b?w=500" alt="Cầu lông" />
+            <span>CẦU LÔNG ►</span>
+        </a>
+        <a href="#" class="sport-card">
+            <img src="https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=500" alt="Tennis" />
+            <span>TENNIS ►</span>
+        </a>
+        <a href="#" class="sport-card">
+            <img src="https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=500" alt="Golf" />
+            <span>GOLF ►</span>
+        </a>
+    </div>
+</section>
+
+<!-- KHỐI 6: TRẦN SẢN PHẨM XU HƯỚNG (TRENDING) -->
+<section class="home-section">
+    <h2 class="section-header-title">🔥 TRENDING 🔥</h2>
+
+    <div class="custom-tabs">
+        <button class="tab-btn active">VOUCHER HOT</button>
+        <button class="tab-btn">VỢT CẦU LÔNG</button>
+    </div>
+
+    <div class="product-grid-5">
+        <!-- Sản phẩm 6 -->
+        <div class="product-card-mini">
+            <a href="@Url.Action("Details", "Home", new { id = 12 })">
+                <img src="https://images.unsplash.com/photo-1611308725032-74f0a551d018?w=500" alt="Áo khoác" />
+            </a>
+            <div>
+                <span class="mini-brand">ADIDAS</span>
+                <a href="@Url.Action("Details", "Home", new { id = 12 })">
+                    <h3 class="mini-title">Áo Khoác Gió Thể Thao Nam</h3>
+                </a>
+                <span class="mini-price">550.000 đ</span>
+            </div>
+            <button class="btn add-to-cart-btn" data-id="12" data-name="Áo Khoác Gió Thể Thao Nam" data-price="550000">Thêm vào giỏ</button>
+        </div>
+
+        <!-- Sản phẩm 7 -->
+        <div class="product-card-mini">
+            <a href="@Url.Action("Details", "Home", new { id = 4 })">
+                <img src="https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500" alt="Bình nước" />
+            </a>
+            <div>
+                <span class="mini-brand">GEAR SPORT</span>
+                <a href="@Url.Action("Details", "Home", new { id = 4 })">
+                    <h3 class="mini-title">Bình Nước Thể Thao Cao Cấp 1L</h3>
+                </a>
+                <span class="mini-price">180.000 đ</span>
+            </div>
+            <button class="btn add-to-cart-btn" data-id="4" data-name="Bình Nước Thể Thao Cao Cấp 1L" data-price="180000">Thêm vào giỏ</button>
+        </div>
+
+        <!-- Sản phẩm 8 -->
+        <div class="product-card-mini">
+            <a href="@Url.Action("Details", "Home", new { id = 5 })">
+                <img src="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?w=500" alt="Bóng đá" />
+            </a>
+            <div>
+                <span class="mini-brand">MOLTEN</span>
+                <a href="@Url.Action("Details", "Home", new { id = 5 })">
+                    <h3 class="mini-title">Bóng Đá Tiêu Chuẩn FIFA Pro</h3>
+                </a>
+                <span class="mini-price">650.000 đ</span>
+            </div>
+            <button class="btn add-to-cart-btn" data-id="5" data-name="Bóng Đá Tiêu Chuẩn FIFA Pro" data-price="650000">Thêm vào giỏ</button>
+        </div>
+
+        <!-- Sản phẩm 9 -->
+        <div class="product-card-mini">
+            <a href="@Url.Action("Details", "Home", new { id = 6 })">
+                <img src="https://plus.unsplash.com/premium_photo-1781205755096-6caab3faf2a1?w=500" alt="Găng tay" />
+            </a>
+            <div>
+                <span class="mini-brand">PRO GOAL</span>
+                <a href="@Url.Action("Details", "Home", new { id = 6 })">
+                    <h3 class="mini-title">Găng Tay Thủ Môn Dính Xương</h3>
+                </a>
+                <span class="mini-price">450.000 đ</span>
+            </div>
+            <button class="btn add-to-cart-btn" data-id="6" data-name="Găng Tay Thủ Môn Dính Xương" data-price="450000">Thêm vào giỏ</button>
+        </div>
+
+        <!-- Sản phẩm 10 -->
+        <div class="product-card-mini">
+            <a href="@Url.Action("Details", "Home", new { id = 13 })">
+                <img src="https://plus.unsplash.com/premium_photo-1747861981617-1512bc2c06e8?w=500" alt="Áo polo" />
+            </a>
+            <div>
+                <span class="mini-brand">NIKE</span>
+                <a href="@Url.Action("Details", "Home", new { id = 13 })">
+                    <h3 class="mini-title">Áo Polo Thể Thao Nam Lịch Lãm</h3>
+                </a>
+                <span class="mini-price">290.000 đ</span>
+            </div>
+            <button class="btn add-to-cart-btn" data-id="13" data-name="Áo Polo Thể Thao Nam Lịch Lãm" data-price="290000">Thêm vào giỏ</button>
+        </div>
+    </div>
+
+    <a href="#" class="btn-view-more">Xem tất cả</a>
+</section>
+
+<!-- KHỐI 7: TIN TỨC & TIN KHUYẾN MẠI (2 CỘT) -->
+<section class="home-section">
+    <div class="news-promo-container">
+        <!-- Cột Tin tức -->
+        <div>
+            <div class="news-block-title">TIN TỨC</div>
+            <div class="news-item">
+                <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=300" alt="Tin 1" />
+                <div class="news-info">
+                    <h4>BỘ ĐỒ THỂ THAO GEAR SPORT - SẴN SÀNG CHINH PHỤC MỌI THỬ THÁCH</h4>
+                    <p>Trải nghiệm dòng sản phẩm thể thao mới giúp tối ưu hóa hiệu suất vận động của bạn.</p>
+                </div>
+            </div>
+            <div class="news-item">
+                <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300" alt="Tin 2" />
+                <div class="news-info">
+                    <h4>BST GIÀY TENNIS/PICKLEBALL MỚI NHẤT ĐÃ CÓ MẶT</h4>
+                    <p>Khám phá các thiết kế đế đệm êm ái chống trơn trượt hiệu quả nhất mùa này.</p>
+                </div>
+            </div>
+            <a href="#" class="btn-view-more" style="margin-top: 15px;">Xem tất cả</a>
+        </div>
+
+        <!-- Cột Khuyến mại -->
+        <div>
+            <div class="news-block-title">TIN KHUYẾN MẠI</div>
+            <div class="news-item">
+                <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=300" alt="KM 1" />
+                <div class="news-info">
+                    <h4>ĐÓN DIỆN MẠO MỚI CÙNG GEAR SPORT - VOUCHER UP TO 100K</h4>
+                    <p>Giảm ngay cho hóa đơn từ 500k khi đăng ký thành viên mới tại cửa hàng.</p>
+                </div>
+            </div>
+            <div class="news-item">
+                <img src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=300" alt="KM 2" />
+                <div class="news-info">
+                    <h4>TƯNG BỪNG KHAI TRƯƠNG CHI NHÁNH MỚI - GIẢM GIÁ 50%</h4>
+                    <p>Ưu đãi cực sốc dành riêng cho bộ sưu tập giày bóng đá và quần áo tập gym.</p>
+                </div>
+            </div>
+            <a href="#" class="btn-view-more" style="margin-top: 15px;">Xem tất cả</a>
+        </div>
+    </div>
+</section>
