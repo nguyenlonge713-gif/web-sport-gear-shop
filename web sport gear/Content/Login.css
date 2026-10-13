@@ -1,0 +1,700 @@
+﻿/* =========================
+   1. CÀI ĐẶT CHUNG
+========================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --sport-red: #ed1c2e;
+    --sport-red-dark: #c91021;
+    --sport-black: #101010;
+    --sport-gray: #6b7280;
+    --sport-border: #dedfe3;
+}
+
+html {
+    min-height: 100%;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: var(--sport-black);
+    background: #fff;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.login-page {
+    display: grid;
+    grid-template-columns: 52% 48%;
+    min-height: 100vh;
+}
+
+/* =========================
+   2. LOGO GEAR SPORT
+========================= */
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    width: fit-content;
+    font-size: 32px;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: -1.5px;
+    line-height: 1;
+}
+
+    .brand span {
+        font-weight: 950;
+    }
+
+    .brand strong {
+        color: var(--sport-red);
+        font-weight: 950;
+    }
+
+.brand-light {
+    color: #fff;
+}
+
+.brand-dark {
+    color: #111;
+}
+
+/* =========================
+   3. KHUNG BÊN TRÁI
+========================= */
+.hero-panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100vh;
+    overflow: hidden;
+    padding: 30px 7.5% 25px;
+    color: #fff;
+    background-color: #101010;
+    /* Ảnh vận động viên thể thao */
+    background-image: linear-gradient( 90deg, rgba(0, 0, 0, 0.86) 0%, rgba(0, 0, 0, 0.62) 55%, rgba(0, 0, 0, 0.42) 100% ), url("https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1400&q=85");
+    background-size: cover;
+    background-position: center;
+}
+
+    .hero-panel::before {
+        content: "";
+        position: absolute;
+        top: -100px;
+        left: -85px;
+        width: 180px;
+        height: 300px;
+        background: var(--sport-red);
+        transform: rotate(28deg);
+        opacity: 0.95;
+    }
+
+    .hero-panel::after {
+        content: "";
+        position: absolute;
+        right: 7%;
+        bottom: -110px;
+        width: 35px;
+        height: 260px;
+        background: var(--sport-red);
+        transform: rotate(27deg);
+        opacity: 0.9;
+    }
+
+    .hero-panel > * {
+        position: relative;
+        z-index: 1;
+    }
+
+.hero-content {
+    max-width: 570px;
+    margin: auto 0;
+    padding: 65px 0 55px;
+}
+
+.hero-tag {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 22px;
+    color: #f2f2f2;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+    .hero-tag span {
+        width: 28px;
+        height: 3px;
+        background: var(--sport-red);
+    }
+
+.hero-content h1 {
+    font-size: clamp(28px, 3vw, 43px);
+    font-weight: 900;
+    line-height: 1.25;
+    letter-spacing: -0.8px;
+}
+
+    .hero-content h1 span {
+        display: block;
+        margin-top: 8px;
+        color: var(--sport-red);
+        font-size: clamp(36px, 4.1vw, 59px);
+        font-style: italic;
+        letter-spacing: -1.5px;
+    }
+
+.hero-content > p {
+    max-width: 410px;
+    margin-top: 22px;
+    color: #e1e1e1;
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+.hero-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-top: 48px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+    .feature-item i {
+        color: #fff;
+        font-size: 23px;
+    }
+
+.hero-footer {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #d5d5d5;
+    font-size: 10px;
+    letter-spacing: 3px;
+}
+
+    .hero-footer span {
+        width: 35px;
+        height: 1px;
+        background: #777;
+    }
+
+/* =========================
+   4. KHUNG BÊN PHẢI
+========================= */
+.form-panel {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    padding: 100px 8% 45px;
+    background: radial-gradient( circle at 100% 100%, #f3f3f3 0, #fff 34% );
+}
+
+.top-nav {
+    position: absolute;
+    top: 32px;
+    right: 8%;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+    .top-nav a {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #222;
+        font-size: 13px;
+        font-weight: 600;
+        transition: color 0.2s ease;
+    }
+
+        .top-nav a:hover {
+            color: var(--sport-red);
+        }
+
+.nav-divider {
+    width: 1px;
+    height: 22px;
+    background: #d3d3d3;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 490px;
+    margin: auto;
+}
+
+    .login-card > .brand {
+        margin-bottom: 30px;
+    }
+
+    .login-card h2 {
+        margin-bottom: 12px;
+        font-size: clamp(26px, 2.2vw, 34px);
+        font-weight: 800;
+        letter-spacing: -0.8px;
+    }
+
+.login-description {
+    margin-bottom: 32px;
+    color: var(--sport-gray);
+    font-size: 15px;
+    line-height: 1.75;
+}
+
+/* =========================
+   5. Ô NHẬP LIỆU
+========================= */
+.form-group {
+    margin-bottom: 22px;
+}
+
+    .form-group > label {
+        display: block;
+        margin-bottom: 10px;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    min-height: 54px;
+    padding: 0 15px;
+    border: 1px solid var(--sport-border);
+    border-radius: 12px;
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+    .input-wrapper:focus-within {
+        border-color: var(--sport-red);
+        box-shadow: 0 0 0 3px rgba(237, 28, 46, 0.09);
+    }
+
+.input-icon {
+    flex-shrink: 0;
+    margin-right: 13px;
+    color: #525866;
+    font-size: 17px;
+}
+
+.input-wrapper input {
+    width: 100%;
+    min-width: 0;
+    height: 50px;
+    border: none;
+    outline: none;
+    color: #222;
+    background: transparent;
+    font-size: 14px;
+}
+
+    .input-wrapper input::placeholder {
+        color: #999da5;
+    }
+
+.toggle-password {
+    flex-shrink: 0;
+    padding: 8px;
+    border: none;
+    background: transparent;
+    color: #60646c;
+    font-size: 17px;
+}
+
+    .toggle-password:hover {
+        color: var(--sport-red);
+    }
+
+/* =========================
+   6. GHI NHỚ / QUÊN MẬT KHẨU
+========================= */
+.form-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 4px 0 30px;
+}
+
+.remember-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: #666b74;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+    .remember-option input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+    }
+
+.custom-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 21px;
+    height: 21px;
+    border: 1px solid #c7c9cf;
+    border-radius: 5px;
+    color: transparent;
+    background: #fff;
+    transition: all 0.2s ease;
+}
+
+.remember-option input:checked + .custom-checkbox {
+    border-color: var(--sport-red);
+    background: var(--sport-red);
+    color: #fff;
+}
+
+.remember-option input:focus-visible + .custom-checkbox {
+    outline: 3px solid rgba(237, 28, 46, 0.25);
+}
+
+.custom-checkbox i {
+    font-size: 12px;
+}
+
+.form-options > a {
+    color: var(--sport-red);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+    .form-options > a:hover,
+    .register-text a:hover {
+        color: var(--sport-red-dark);
+        text-decoration: underline;
+    }
+
+/* =========================
+   7. NÚT ĐĂNG NHẬP
+========================= */
+.login-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 54px;
+    border: none;
+    border-radius: 14px;
+    color: #fff;
+    background: linear-gradient(110deg, #f01d2e, #d81022);
+    box-shadow: 0 8px 18px rgba(237, 28, 46, 0.17);
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+    .login-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 11px 24px rgba(237, 28, 46, 0.25);
+    }
+
+    .login-button:active {
+        transform: translateY(0);
+    }
+
+/* Thông báo Frontend demo */
+.demo-message {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border: 1px solid #f4b8be;
+    border-radius: 9px;
+    color: #a51220;
+    background: #fff2f3;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* =========================
+   8. ĐĂNG NHẬP MẠNG XÃ HỘI
+========================= */
+.social-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 30px 0 23px;
+}
+
+    .social-divider span {
+        flex: 1;
+        height: 1px;
+        background: #dedfe3;
+    }
+
+    .social-divider p {
+        flex-shrink: 0;
+        color: #7a7d85;
+        font-size: 12px;
+    }
+
+.social-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 17px;
+}
+
+.social-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid #e5e6e9;
+    border-radius: 50%;
+    background: #fff;
+    font-size: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+    .social-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    }
+
+.google-button {
+    color: #4285f4;
+}
+
+.facebook-button {
+    color: #1877f2;
+}
+
+/* =========================
+   9. ĐĂNG KÝ / QUAY LẠI
+========================= */
+.register-text {
+    margin-top: 28px;
+    color: #737781;
+    text-align: center;
+    font-size: 13px;
+}
+
+    .register-text a {
+        color: var(--sport-red);
+        font-weight: 700;
+    }
+
+.back-home {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: fit-content;
+    margin: 43px auto 0;
+    color: #737781;
+    font-size: 13px;
+    transition: color 0.2s;
+}
+
+    .back-home:hover {
+        color: var(--sport-red);
+    }
+
+/* =========================
+   10. TABLET
+========================= */
+@media (max-width: 1050px) {
+    .login-page {
+        grid-template-columns: 45% 55%;
+    }
+
+    .hero-panel {
+        padding-right: 7%;
+        padding-left: 7%;
+    }
+
+    .hero-features {
+        gap: 16px;
+    }
+
+    .feature-item {
+        gap: 8px;
+    }
+
+    .form-panel {
+        padding-right: 7%;
+        padding-left: 7%;
+    }
+
+    .top-nav {
+        right: 7%;
+    }
+
+    .brand {
+        font-size: 28px;
+    }
+}
+
+/* =========================
+   11. ĐIỆN THOẠI
+========================= */
+@media (max-width: 760px) {
+    .login-page {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    .hero-panel {
+        min-height: auto;
+        padding: 24px 24px 28px;
+        background-position: center 40%;
+    }
+
+        .hero-panel::before {
+            width: 110px;
+            height: 200px;
+        }
+
+    .hero-content {
+        padding: 55px 0 25px;
+    }
+
+    .hero-tag {
+        margin-bottom: 15px;
+        font-size: 10px;
+    }
+
+    .hero-content h1 {
+        font-size: 27px;
+    }
+
+        .hero-content h1 span {
+            font-size: clamp(34px, 9vw, 46px);
+        }
+
+    .hero-content > p {
+        margin-top: 15px;
+        font-size: 13px;
+    }
+
+    .hero-features {
+        gap: 17px;
+        margin-top: 27px;
+    }
+
+    .feature-item {
+        gap: 8px;
+        font-size: 10px;
+    }
+
+        .feature-item i {
+            font-size: 19px;
+        }
+
+    .hero-footer {
+        margin-top: 10px;
+        font-size: 8px;
+        letter-spacing: 2px;
+    }
+
+    .form-panel {
+        align-items: flex-start;
+        padding: 82px 24px 35px;
+    }
+
+    .top-nav {
+        top: 25px;
+        right: 24px;
+        gap: 16px;
+    }
+
+        .top-nav a {
+            gap: 7px;
+            font-size: 12px;
+        }
+
+    .login-card {
+        max-width: 500px;
+    }
+
+        .login-card > .brand {
+            margin-bottom: 22px;
+        }
+
+        .login-card h2 {
+            font-size: 27px;
+        }
+
+    .login-description {
+        margin-bottom: 25px;
+        font-size: 14px;
+    }
+
+    .back-home {
+        margin-top: 32px;
+    }
+}
+
+/* =========================
+   12. ĐIỆN THOẠI NHỎ
+========================= */
+@media (max-width: 380px) {
+    .hero-panel {
+        padding-right: 18px;
+        padding-left: 18px;
+    }
+
+    .form-panel {
+        padding-right: 18px;
+        padding-left: 18px;
+    }
+
+    .form-options {
+        align-items: flex-start;
+    }
+
+    .remember-option {
+        font-size: 12px;
+    }
+
+    .form-options > a {
+        font-size: 12px;
+    }
+
+    .hero-features {
+        gap: 12px;
+    }
+}

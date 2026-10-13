@@ -2,37 +2,170 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>Gear Sport - Website Bán Đồ Thể Thao</title>
-    <!-- Thêm Font Awesome để lấy icon giỏ hàng -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="~/Content/style.css" rel="stylesheet" />
-    <link href="~/Content/Site.css" rel="stylesheet" />
-</head>
-<body>
-    <!-- Tiêu đề và Header -->
-    <header>
-        <a href="@Url.Action("Index", "Home")" class="logo">Gear Sport</a>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <!-- Thanh menu danh mục sản phẩm -->
+    <title>Gear Sport - Website Bán Đồ Thể Thao</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- CSS hiện có -->
+    <link href="@Url.Content("~/Content/style.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" />
+
+    <!-- CSS cho nút đăng nhập và bố cục header -->
+    <style>
+        .header-login-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 16px;
+            margin-left: 12px;
+            border-radius: 8px;
+            background-color: #ed1c2e;
+            color: #fff !important;
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none !important;
+            white-space: nowrap;
+            transition: background-color 0.2s ease,
+                        transform 0.2s ease;
+        }
+
+        .header-login-btn:hover {
+            background-color: #c91021;
+            color: #fff !important;
+            transform: translateY(-2px);
+        }
+
+        .header-login-btn i {
+            font-size: 15px;
+        }
+
+        /* Dùng Flexbox để chia header thành 3 phần: Trái (Logo) - Giữa (Menu) - Phải (Actions) */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            padding: 10px 20px;
+        }
+
+        /* 1. Logo (Cố định chiều rộng bên trái nếu cần, hoặc flex item bình thường) */
+        header > .logo {
+            flex: 0 0 auto;
+        }
+
+        /* 2. Menu danh mục sản phẩm (Được đẩy ra chính giữa hoàn toàn) */
+        .main-menu {
+            flex: 1 1 auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        .main-menu ul {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: 20px; /* Khoảng cách giữa các mục menu */
+        }
+
+        /* 3. Khu vực bên phải: đăng nhập và giỏ hàng */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 0 0 auto;
+            /* Đã xóa margin-left: auto; cũ để tránh bị lệch */
+        }
+
+        .header-actions .cart {
+            margin-left: 0;
+        }
+
+        /* Responsive cho điện thoại */
+        @@media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .main-menu ul {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            .header-login-btn {
+                padding: 9px 11px;
+                margin-left: 0;
+                font-size: 12px;
+            }
+
+            .header-login-btn span {
+                display: inline;
+            }
+
+            .header-actions {
+                gap: 6px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header Gear Sport -->
+    <header>
+
+        <!-- Logo -->
+        <a href="@Url.Action("Index", "Home")" class="logo">
+            Gear Sport
+        </a>
+
+        <!-- Menu danh mục sản phẩm -->
         <nav class="main-menu">
             <ul>
-                <li><a href="@Url.Action("Index", "Home")">Trang Chủ</a></li>
-                <li><a href="@Url.Action("AoTheThao", "Home")">Áo Thể Thao</a></li>
-                <li><a href="@Url.Action("GiayDaBong", "Home")">Giày Đá Bóng</a></li>
-                <li><a href="@Url.Action("PhuKien", "Home")">Phụ Kiện</a></li>
+                <li>
+                    <a href="@Url.Action("Index", "Home")">Trang Chủ</a>
+                </li>
+                <li>
+                    <a href="@Url.Action("AoTheThao", "Home")">Áo Thể Thao</a>
+                </li>
+                <li>
+                    <a href="@Url.Action("GiayDaBong", "Home")">Giày Đá Bóng</a>
+                </li>
+                <li>
+                    <a href="@Url.Action("PhuKien", "Home")">Phụ Kiện</a>
+                </li>
             </ul>
         </nav>
 
-        <!-- Giỏ hàng -->
-        <div class="cart">
-            <a href="@Url.Action("Cart", "Home")">
-                <i class="fas fa-shopping-cart"></i>
-                <span class="cart-count">0</span>
+        <!-- Nút đăng nhập và giỏ hàng -->
+        <div class="header-actions">
+
+            <!-- Nút đăng nhập -->
+            <a href="@Url.Action("Login", "Account")"
+               class="header-login-btn">
+                <i class="fa-regular fa-user"></i>
+                <span>Đăng nhập</span>
             </a>
+
+            <!-- Giỏ hàng -->
+            <div class="cart">
+                <a href="@Url.Action("Cart", "Home")"
+                   aria-label="Giỏ hàng">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count">0</span>
+                </a>
+            </div>
+
         </div>
     </header>
 
-    <!-- Nội dung thay đổi của từng trang -->
+    <!-- Nội dung từng trang -->
     <div class="container">
         @RenderBody()
     </div>
@@ -42,6 +175,9 @@
         <p>&copy; 2026 - Gear Sport Store. All rights reserved.</p>
     </footer>
 
-    <script src="~/Scripts/main.js"></script>
+    <!-- JavaScript hiện có -->
+    <script src="@Url.Content("~/Scripts/main.js")"></script>
+
+    @RenderSection("scripts", required: false)
 </body>
 </html>

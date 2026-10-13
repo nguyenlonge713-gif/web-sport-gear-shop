@@ -1,18 +1,17 @@
-﻿/* Set padding to keep content from hitting the edges */
+﻿/* Thiết lập khoảng đệm để ngăn nội dung chạm vào các cạnh. */
 .body-content {
     margin-top: 15px;
     padding-left: 15px;
     padding-right: 15px;
 }
 
-/* Override the default bootstrap behavior where horizontal description lists 
-   will truncate terms that are too long to fit in the left column 
+/* Ghi đè hành vi mặc định của Bootstrap, vốn sẽ cắt bớt các thuật ngữ quá dài so với cột bên trái trong danh sách mô tả dạng ngang.
 */
 .dl-horizontal dt {
     white-space: normal;
 }
 
-/* Set width on the form input elements since they're 100% wide by default */
+/* Thiết lập chiều rộng cho các phần tử nhập liệu của biểu mẫu vì mặc định chúng chiếm 100% chiều rộng. */
 input,
 select,
 textarea {
