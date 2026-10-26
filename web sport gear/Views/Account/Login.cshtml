@@ -1,4 +1,5 @@
-﻿@{
+﻿
+@{
     ViewBag.Title = "Đăng nhập - Gear Sport";
     Layout = null;
 }
@@ -19,7 +20,7 @@
 <body>
     <main class="login-page">
 
-        <!-- BÊN TRÁI: HÌNH ẢNH VÀ THƯƠNG HIỆU -->
+        <!-- BÊN TRAI: HINH ANH VA THUONG HIEU -->
         <section class="hero-panel">
 
             <a href="@Url.Content("~/")" class="brand brand-light">
@@ -65,7 +66,7 @@
             </div>
         </section>
 
-        <!-- BÊN PHẢI: FORM ĐĂNG NHẬP -->
+        <!-- BEN PHAI: FORM DANG NHAP -->
         <section class="form-panel">
 
             <nav class="top-nav">
@@ -73,7 +74,9 @@
                     <i class="fa-solid fa-house"></i>
                     Trang chủ
                 </a>
+
                 <span class="nav-divider"></span>
+
                 <a href="@Url.Content("~/")">
                     <i class="fa-solid fa-cart-shopping"></i>
                     Cửa hàng
@@ -94,10 +97,33 @@
                     mua sắm và khám phá những ưu đãi hấp dẫn.
                 </p>
 
-                <form id="loginForm">
+                <!-- THONG BAO DANG KY THANH CONG -->
+                @if (TempData["RegisterSuccess"] != null)
+                {
+                    <div class="demo-message">
+                        @TempData["RegisterSuccess"]
+                    </div>
+                }
+
+                <!-- FORM DANG NHAP GUI DU LIEU DEN CONTROLLER -->
+                @using (Html.BeginForm(
+                    "Login",
+                    "Account",
+                    FormMethod.Post,
+                    new { id = "loginForm" }))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <!-- THONG BAO LOI TU CONTROLLER -->
+                    @Html.ValidationSummary(
+                        false,
+                        "",
+                        new { @class = "validation-message" })
 
                     <div class="form-group">
-                        <label for="email">Email hoặc số điện thoại</label>
+                        <label for="email">
+                            Email hoặc số điện thoại
+                        </label>
 
                         <div class="input-wrapper">
                             <i class="fa-regular fa-envelope input-icon"></i>
@@ -107,6 +133,7 @@
                                    name="email"
                                    placeholder="Nhập email hoặc số điện thoại"
                                    autocomplete="username"
+                                   value="@Request.Form["email"]"
                                    required />
                         </div>
                     </div>
@@ -135,10 +162,13 @@
 
                     <div class="form-options">
                         <label class="remember-option">
-                            <input type="checkbox" id="rememberMe" />
+                            <input type="checkbox"
+                                   id="rememberMe" />
+
                             <span class="custom-checkbox">
                                 <i class="fa-solid fa-check"></i>
                             </span>
+
                             <span>Ghi nhớ đăng nhập</span>
                         </label>
 
@@ -152,6 +182,7 @@
                         ĐĂNG NHẬP
                     </button>
 
+                    <!-- THONG BAO CHO CAC CHUC NANG DEMO -->
                     <div id="loginMessage"
                          class="demo-message"
                          role="status"
@@ -181,12 +212,16 @@
                         </button>
                     </div>
 
+                    <!-- CHUYEN SANG TRANG DANG KY -->
                     <p class="register-text">
                         Chưa có tài khoản?
-                        <a href="#" id="registerLink">Đăng ký ngay</a>
-                    </p>
 
-                </form>
+                        <a href="@Url.Action("Register", "Account")"
+                           id="registerLink">
+                            Đăng ký ngay
+                        </a>
+                    </p>
+                }
 
                 <a href="@Url.Content("~/")" class="back-home">
                     <i class="fa-solid fa-arrow-left"></i>
@@ -198,7 +233,7 @@
     </main>
 
     <script>
-        // Hiện hoặc ẩn mật khẩu
+        // Hien hoac an mat khau
         const passwordInput = document.getElementById("password");
         const togglePassword = document.getElementById("togglePassword");
 
@@ -217,8 +252,7 @@
             );
         });
 
-        // Demo giao diện: không gửi dữ liệu đến máy chủ
-        const loginForm = document.getElementById("loginForm");
+        // Hien thong bao cho cac chuc nang demo
         const loginMessage = document.getElementById("loginMessage");
 
         function showDemoMessage(message) {
@@ -226,35 +260,33 @@
             loginMessage.hidden = false;
         }
 
-        loginForm.addEventListener("submit", function (event) {
-            event.preventDefault();
+        // Luu y: khong chan su kien submit cua form dang nhap.
+        // Form se gui email va password den AccountController.
 
-            showDemoMessage(
-                "Đây là giao diện Frontend demo. Chức năng đăng nhập chưa được kết nối."
-            );
-        });
-
-        // Các liên kết minh họa vì chưa có chức năng tương ứng
+        // Quen mat khau
         document.getElementById("forgotPassword")
             .addEventListener("click", function (event) {
                 event.preventDefault();
-                showDemoMessage("Chức năng quên mật khẩu chưa được triển khai.");
+
+                showDemoMessage(
+                    "Chức năng quên mật khẩu chưa được triển khai."
+                );
             });
 
-        document.getElementById("registerLink")
-            .addEventListener("click", function (event) {
-                event.preventDefault();
-                showDemoMessage("Trang đăng ký tài khoản chưa được triển khai.");
-            });
-
+        // Dang nhap Google
         document.getElementById("googleLogin")
             .addEventListener("click", function () {
-                showDemoMessage("Đăng nhập Google chưa được kết nối.");
+                showDemoMessage(
+                    "Đăng nhập Google chưa được kết nối."
+                );
             });
 
+        // Dang nhap Facebook
         document.getElementById("facebookLogin")
             .addEventListener("click", function () {
-                showDemoMessage("Đăng nhập Facebook chưa được kết nối.");
+                showDemoMessage(
+                    "Đăng nhập Facebook chưa được kết nối."
+                );
             });
     </script>
 </body>

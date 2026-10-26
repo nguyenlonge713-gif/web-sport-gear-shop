@@ -1,0 +1,387 @@
+﻿@{
+    ViewBag.Title = "Đăng ký - Gear Sport";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.Title</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+    <link href="@Url.Content("~/Content/login.css")"
+          rel="stylesheet" />
+
+    <style>
+        .register-card {
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+            .register-card .register-description {
+                color: #777;
+                line-height: 1.6;
+                margin-bottom: 24px;
+            }
+
+            .register-card .form-group {
+                margin-bottom: 16px;
+            }
+
+            .register-card .input-wrapper {
+                position: relative;
+            }
+
+                .register-card .input-wrapper input {
+                    width: 100%;
+                    box-sizing: border-box;
+                    padding-right: 45px;
+                }
+
+            .register-card .toggle-password {
+                position: absolute;
+                right: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                border: none;
+                background: transparent;
+                cursor: pointer;
+                color: #777;
+            }
+
+            .register-card .register-button {
+                width: 100%;
+                margin-top: 8px;
+                cursor: pointer;
+            }
+
+            .register-card .register-message {
+                margin-top: 14px;
+                font-size: 14px;
+                line-height: 1.5;
+            }
+
+                .register-card .register-message.error {
+                    color: #d93025;
+                }
+
+                .register-card .register-message.success {
+                    color: #188038;
+                }
+
+            .register-card .validation-summary-errors {
+                color: #d93025;
+                margin-bottom: 15px;
+            }
+
+                .register-card .validation-summary-errors ul {
+                    padding-left: 20px;
+                }
+
+            .register-card .login-text {
+                text-align: center;
+                margin-top: 22px;
+            }
+
+                .register-card .login-text a {
+                    font-weight: 600;
+                }
+
+        @@media (max-width: 768px) {
+            .register-card {
+                padding-top: 20px;
+                padding-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="login-page">
+
+        <!-- BÊN TRÁI: THƯƠNG HIỆU -->
+        <section class="hero-panel">
+
+            <a href="@Url.Content("~/")" class="brand brand-light">
+                <span>GEAR</span><strong>SPORT</strong>
+            </a>
+
+            <div class="hero-content">
+                <div class="hero-tag">
+                    <span></span> YOUR SPORT. YOUR STYLE.
+                </div>
+
+                <h1>
+                    GIA NHẬP CỘNG ĐỒNG
+                    <span>GEAR SPORT</span>
+                </h1>
+
+                <p>
+                    Tạo tài khoản để khám phá các sản phẩm thể thao,
+                    theo dõi đơn hàng và trải nghiệm mua sắm thuận tiện
+                    cùng Gear Sport.
+                </p>
+
+                <div class="hero-features">
+                    <div class="feature-item">
+                        <i class="fa-solid fa-basket-shopping"></i>
+                        <span>Mua sắm<br />dễ dàng</span>
+                    </div>
+
+                    <div class="feature-item">
+                        <i class="fa-solid fa-box"></i>
+                        <span>Theo dõi<br />đơn hàng</span>
+                    </div>
+
+                    <div class="feature-item">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>Tài khoản<br />an toàn</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-footer">
+                GEAR SPORT <span></span> MORE THAN SPORTS
+            </div>
+        </section>
+
+        <!-- BÊN PHẢI: FORM ĐĂNG KÝ -->
+        <section class="form-panel">
+
+            <nav class="top-nav">
+                <a href="@Url.Content("~/")">
+                    <i class="fa-solid fa-house"></i>
+                    Trang chủ
+                </a>
+
+                <span class="nav-divider"></span>
+
+                <a href="@Url.Content("~/")">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    Cửa hàng
+                </a>
+            </nav>
+
+            <div class="login-card register-card">
+
+                <a href="@Url.Content("~/")"
+                   class="brand brand-dark">
+                    <span>GEAR</span><strong>SPORT</strong>
+                </a>
+
+                <h2>Tạo tài khoản</h2>
+
+                <p class="register-description">
+                    Điền thông tin bên dưới để bắt đầu mua sắm
+                    cùng Gear Sport.
+                </p>
+
+                @using (Html.BeginForm(
+                    "Register",
+                    "Account",
+                    FormMethod.Post,
+                    new { id = "registerForm" }))
+                {
+                    @Html.AntiForgeryToken()
+
+                    @Html.ValidationSummary(
+                        false,
+                        "",
+                        new { @class = "validation-summary-errors" })
+
+                    <div class="form-group">
+                        <label for="FullName">Họ và tên</label>
+
+                        <div class="input-wrapper">
+                            <i class="fa-regular fa-user input-icon"></i>
+
+                            <input type="text"
+                                   id="FullName"
+                                   name="FullName"
+                                   placeholder="Nhập họ và tên"
+                                   maxlength="100"
+                                   autocomplete="name"
+                                   required />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Email">Email</label>
+
+                        <div class="input-wrapper">
+                            <i class="fa-regular fa-envelope input-icon"></i>
+
+                            <input type="email"
+                                   id="Email"
+                                   name="Email"
+                                   placeholder="example@email.com"
+                                   maxlength="255"
+                                   autocomplete="email"
+                                   required />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Phone">Số điện thoại</label>
+
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-phone input-icon"></i>
+
+                            <input type="tel"
+                                   id="Phone"
+                                   name="Phone"
+                                   placeholder="Nhập số điện thoại"
+                                   maxlength="20"
+                                   autocomplete="tel"
+                                   required />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Password">Mật khẩu</label>
+
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-lock input-icon"></i>
+
+                            <input type="password"
+                                   id="Password"
+                                   name="Password"
+                                   placeholder="Tối thiểu 8 ký tự"
+                                   minlength="8"
+                                   maxlength="128"
+                                   autocomplete="new-password"
+                                   required />
+
+                            <button type="button"
+                                    class="toggle-password"
+                                    data-target="Password"
+                                    aria-label="Hiện mật khẩu">
+                                <i class="fa-regular fa-eye-slash"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ConfirmPassword">
+                            Xác nhận mật khẩu
+                        </label>
+
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-lock input-icon"></i>
+
+                            <input type="password"
+                                   id="ConfirmPassword"
+                                   name="ConfirmPassword"
+                                   placeholder="Nhập lại mật khẩu"
+                                   minlength="8"
+                                   maxlength="128"
+                                   autocomplete="new-password"
+                                   required />
+
+                            <button type="button"
+                                    class="toggle-password"
+                                    data-target="ConfirmPassword"
+                                    aria-label="Hiện mật khẩu">
+                                <i class="fa-regular fa-eye-slash"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                            class="login-button register-button">
+                        <i class="fa-solid fa-user-plus"></i>
+                        ĐĂNG KÝ
+                    </button>
+
+                    <div id="registerMessage"
+                         class="register-message"
+                         role="status"
+                         aria-live="polite"
+                         hidden>
+                    </div>
+                }
+
+                <p class="login-text">
+                    Đã có tài khoản?
+                    <a href="@Url.Action("Login", "Account")">
+                        Đăng nhập ngay
+                    </a>
+                </p>
+
+                <a href="@Url.Content("~/")" class="back-home">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Quay lại trang chủ
+                </a>
+
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Hiện hoặc ẩn mật khẩu
+        document.querySelectorAll(".toggle-password")
+            .forEach(function (button) {
+                button.addEventListener("click", function () {
+                    const input = document.getElementById(
+                        this.getAttribute("data-target")
+                    );
+
+                    const showPassword = input.type === "password";
+                    input.type = showPassword ? "text" : "password";
+
+                    this.innerHTML = showPassword
+                        ? '<i class="fa-regular fa-eye"></i>'
+                        : '<i class="fa-regular fa-eye-slash"></i>';
+
+                    this.setAttribute(
+                        "aria-label",
+                        showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"
+                    );
+                });
+            });
+
+        // Kiểm tra hai mật khẩu ở phía trình duyệt
+        const registerForm = document.getElementById("registerForm");
+        const passwordInput = document.getElementById("Password");
+        const confirmInput = document.getElementById("ConfirmPassword");
+        const registerMessage = document.getElementById("registerMessage");
+
+        function checkPasswordMatch() {
+            if (confirmInput.value === "") {
+                confirmInput.setCustomValidity("");
+                return;
+            }
+
+            if (passwordInput.value !== confirmInput.value) {
+                confirmInput.setCustomValidity(
+                    "Mật khẩu xác nhận không khớp."
+                );
+            } else {
+                confirmInput.setCustomValidity("");
+            }
+        }
+
+        passwordInput.addEventListener("input", checkPasswordMatch);
+        confirmInput.addEventListener("input", checkPasswordMatch);
+
+        // Form sẽ gửi POST đến AccountController.
+        // Server chịu trách nhiệm kiểm tra và tạo tài khoản.
+        registerForm.addEventListener("submit", function (event) {
+            checkPasswordMatch();
+
+            if (!registerForm.checkValidity()) {
+                event.preventDefault();
+                registerForm.reportValidity();
+                return;
+            }
+
+            registerMessage.hidden = true;
+        });
+    </script>
+</body>
+</html>

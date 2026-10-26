@@ -16,95 +16,221 @@
                 <th style="padding: 12px;">Thao tác</th>
             </tr>
         </thead>
-        <tbody id="cart-items">
-            <!-- Dữ liệu sẽ tự động render ở đây -->
-        </tbody>
+        <tbody id="cart-items"></tbody>
     </table>
 
     <div style="display: flex; justify-content: space-between; align-items: center; border-top: 2px solid #ddd; padding-top: 20px;">
-        <h3 style="font-size: 20px;">Tổng thanh toán: <span id="cart-total" style="color: #ff4500;">0 đ</span></h3>
+        <h3 style="font-size: 20px;">
+            Tổng thanh toán:
+            <span id="cart-total" style="color: #ff4500;">0 đ</span>
+        </h3>
 
-        <!-- Để mặc định hiển thị (display: inline-block) để tránh bị mất nút -->
-        <a href="@Url.Action("Checkout", "Home")" id="checkout-btn" class="btn" style="text-decoration: none; padding: 12px 25px; font-size: 16px; background-color: #ff4500; color: white; border-radius: 6px; font-weight: bold; display: inline-block;">Tiến Hành Thanh Toán</a>
+        <a href="@Url.Action("Checkout", "Home")"
+           id="checkout-btn"
+           class="btn"
+           style="text-decoration: none; padding: 12px 25px; font-size: 16px; background-color: #ff4500; color: white; border-radius: 6px; font-weight: bold; display: inline-block;">
+            Tiến Hành Thanh Toán
+        </a>
     </div>
 </div>
 
 <script>
+    // Ảnh dự phòng theo mã sản phẩm.
+    // Các mã chưa được khai báo sẽ dùng ảnh dự phòng chung.
+    const productImages = {
+        "1": "https://images.unsplash.com/photo-1542291026-7eec264c27ff",
+        "2": "https://images.unsplash.com/photo-1581655353564-df123a1eb820",
+        "4": "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500",
+        "5": "https://images.unsplash.com/photo-1518091043644-c1d4457512c6?w=500",
+        "6": "https://plus.unsplash.com/premium_photo-1781205755096-6caab3faf2a1?w=500",
+        "12": "https://images.unsplash.com/photo-1611308725032-74f0a551d018?w=500",
+        "13": "https://plus.unsplash.com/premium_photo-1747861981617-1512bc2c06e8?w=500",
+        "15": "https://images.unsplash.com/photo-1579338559194-a162d19bf842",
+        "17": "https://images.unsplash.com/photo-1511886929837-354d827aae26?q=80&w=764",
+        "18": "https://images.unsplash.com/photo-1562183241-b937e95585b6?w=500"
+    };
+
+    const fallbackImage =
+        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500";
+
     document.addEventListener("DOMContentLoaded", function () {
         renderCart();
     });
 
+    function getProductImage(item) {
+        // Ưu tiên ảnh đã lưu khi thêm sản phẩm vào giỏ hàng.
+        if (item.image && item.image.trim() !== "") {
+            return item.image;
+        }
+
+        // Nếu ảnh cũ bị trống, thử lấy ảnh dự phòng theo ID.
+        return productImages[String(item.id)] || fallbackImage;
+    }
+
     function renderCart() {
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        let tbody = document.getElementById('cart-items');
-        let totalSpan = document.getElementById('cart-total');
-        let checkoutBtn = document.getElementById('checkout-btn');
+        let cart = [];
 
-        tbody.innerHTML = '';
+        try {
+            cart = JSON.parse(localStorage.getItem("cart")) || [];
+            if (!Array.isArray(cart)) {
+                cart = [];
+            }
+        } catch (error) {
+            cart = [];
+        }
 
-        // Xử lý khi giỏ hàng trống: ẩn nút thanh toán
+        const tbody = document.getElementById("cart-items");
+        const totalSpan = document.getElementById("cart-total");
+        const checkoutBtn = document.getElementById("checkout-btn");
+
+        tbody.innerHTML = "";
+
         if (cart.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 30px; color: #64748b;">Giỏ hàng của bạn đang trống!</td></tr>`;
-            totalSpan.innerText = '0 đ';
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align:center; padding:30px; color:#64748b;">
+                        Giỏ hàng của bạn đang trống!
+                    </td>
+                </tr>`;
+
+            totalSpan.innerText = "0 đ";
 
             if (checkoutBtn) {
-                checkoutBtn.style.display = 'none';
+                checkoutBtn.style.display = "none";
             }
+
             return;
         }
 
-        // Có sản phẩm: đảm bảo nút thanh toán luôn hiện rõ
         if (checkoutBtn) {
-            checkoutBtn.style.display = 'inline-block';
+            checkoutBtn.style.display = "inline-block";
         }
 
         let grandTotal = 0;
 
-        cart.forEach((item, index) => {
-            let itemTotal = (item.price || 0) * (item.quantity || 1);
+        cart.forEach(function (item, index) {
+            const price = Number(item.price) || 0;
+            const quantity = Math.max(1, parseInt(item.quantity, 10) || 1);
+            const itemTotal = price * quantity;
+
             grandTotal += itemTotal;
 
-            // Xử lý hiển thị hình ảnh dự phòng nếu item.image trống
-            let imgSrc = (item.image && item.image.trim() !== "") ? item.image : 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500';
+            const imgSrc = getProductImage(item);
 
-            let row = `
-                <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 15px; display: flex; align-items: center; gap: 15px;">
-                        <img src="${imgSrc}" alt="${item.name}" style="width: 70px; height: 70px; object-fit: contain; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 5px;" onerror="this.src='https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500'" />
-                        <span style="font-weight: 600; color: #0f172a;">${item.name || 'Sản phẩm thể thao'}</span>
-                    </td>
-                    <td style="padding: 15px; font-weight: 600; color: #334155;">${Number(item.price || 0).toLocaleString('vi-VN')} đ</td>
-                    <td style="padding: 15px;">
-                        <input type="number" min="1" value="${item.quantity || 1}" style="width: 60px; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-weight: bold;" onchange="updateQuantity(${index}, this.value)" />
-                    </td>
-                    <td style="padding: 15px; font-weight: 700; color: #ef4444;">${Number(itemTotal).toLocaleString('vi-VN')} đ</td>
-                    <td style="padding: 15px;">
-                        <button type="button" onclick="removeItem(${index})" style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 600;">Xóa</button>
-                    </td>
-                </tr>
-            `;
-            tbody.innerHTML += row;
+            // Tạo các phần tử DOM để tránh chèn tên sản phẩm trực tiếp vào HTML.
+            const row = document.createElement("tr");
+            row.style.borderBottom = "1px solid #eee";
+
+            const productCell = document.createElement("td");
+            productCell.style.cssText =
+                "padding:15px; vertical-align:middle;";
+
+            const productWrapper = document.createElement("div");
+            productWrapper.style.cssText =
+                "display:flex; align-items:center; gap:15px;";
+
+            const img = document.createElement("img");
+            img.src = imgSrc;
+            img.alt = item.name || "Sản phẩm thể thao";
+            img.style.cssText =
+                "width:70px; height:70px; object-fit:contain; border-radius:8px; background:#f8fafc; border:1px solid #e2e8f0; padding:5px;";
+
+            img.onerror = function () {
+                // Nếu ảnh riêng không tải được, thử ảnh dự phòng chung.
+                if (img.src !== fallbackImage) {
+                    img.src = fallbackImage;
+                } else {
+                    img.onerror = null;
+                }
+            };
+
+            const name = document.createElement("span");
+            name.textContent = item.name || "Sản phẩm thể thao";
+            name.style.cssText =
+                "font-weight:600; color:#0f172a;";
+
+            productWrapper.appendChild(img);
+            productWrapper.appendChild(name);
+            productCell.appendChild(productWrapper);
+
+            const priceCell = document.createElement("td");
+            priceCell.style.cssText =
+                "padding:15px; font-weight:600; color:#334155;";
+            priceCell.textContent = price.toLocaleString("vi-VN") + " đ";
+
+            const quantityCell = document.createElement("td");
+            quantityCell.style.padding = "15px";
+
+            const quantityInput = document.createElement("input");
+            quantityInput.type = "number";
+            quantityInput.min = "1";
+            quantityInput.value = quantity;
+            quantityInput.style.cssText =
+                "width:60px; padding:6px; border:1px solid #cbd5e1; border-radius:4px; text-align:center; font-weight:bold;";
+            quantityInput.addEventListener("change", function () {
+                updateQuantity(index, quantityInput.value);
+            });
+
+            quantityCell.appendChild(quantityInput);
+
+            const totalCell = document.createElement("td");
+            totalCell.style.cssText =
+                "padding:15px; font-weight:700; color:#ef4444;";
+            totalCell.textContent = itemTotal.toLocaleString("vi-VN") + " đ";
+
+            const actionCell = document.createElement("td");
+            actionCell.style.padding = "15px";
+
+            const deleteButton = document.createElement("button");
+            deleteButton.type = "button";
+            deleteButton.textContent = "Xóa";
+            deleteButton.style.cssText =
+                "background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-weight:600;";
+            deleteButton.addEventListener("click", function () {
+                removeItem(index);
+            });
+
+            actionCell.appendChild(deleteButton);
+
+            row.appendChild(productCell);
+            row.appendChild(priceCell);
+            row.appendChild(quantityCell);
+            row.appendChild(totalCell);
+            row.appendChild(actionCell);
+
+            tbody.appendChild(row);
         });
 
-        totalSpan.innerText = grandTotal.toLocaleString('vi-VN') + ' đ';
+        totalSpan.innerText = grandTotal.toLocaleString("vi-VN") + " đ";
     }
 
     function updateQuantity(index, newQty) {
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        let qty = parseInt(newQty);
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        const qty = parseInt(newQty, 10);
+
+        if (!cart[index]) {
+            return;
+        }
+
         if (qty > 0) {
             cart[index].quantity = qty;
         } else {
             cart.splice(index, 1);
         }
-        localStorage.setItem('cart', JSON.stringify(cart));
+
+        localStorage.setItem("cart", JSON.stringify(cart));
         renderCart();
     }
 
     function removeItem(index) {
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+        if (index < 0 || index >= cart.length) {
+            return;
+        }
+
         cart.splice(index, 1);
-        localStorage.setItem('cart', JSON.stringify(cart));
+        localStorage.setItem("cart", JSON.stringify(cart));
         renderCart();
     }
 </script>

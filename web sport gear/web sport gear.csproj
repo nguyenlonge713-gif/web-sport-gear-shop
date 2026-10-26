@@ -167,6 +167,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\main.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Views\Account\Register.cshtml" />
     <None Include="Views\Home\Details.cshtml" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
@@ -189,6 +190,7 @@
     <Content Include="Views\Home\GiayDaBong.cshtml" />
     <Content Include="Views\Home\PhuKien.cshtml" />
     <Content Include="Views\Account\Login.cshtml" />
+    <Content Include="Views\Home\Search.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

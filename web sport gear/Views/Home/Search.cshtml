@@ -1,0 +1,151 @@
+﻿
+@model IEnumerable<web_sport_gear.Controllers.ProductSearchItem>
+
+@{
+    ViewBag.Title = "Kết quả tìm kiếm - Gear Sport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string keyword = ViewBag.Keyword as string ?? "";
+}
+
+<style>
+    .search-page {
+        max-width: 1200px;
+        margin: 35px auto;
+        padding: 0 20px;
+    }
+
+    .search-heading {
+        margin-bottom: 25px;
+        border-left: 5px solid #ff5722;
+        padding-left: 12px;
+    }
+
+    .search-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 22px;
+    }
+
+    .search-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        overflow: hidden;
+        background: white;
+        transition: transform .2s, box-shadow .2s;
+    }
+
+        .search-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 18px rgba(0,0,0,.08);
+        }
+
+        .search-card img {
+            width: 100%;
+            height: 210px;
+            object-fit: contain;
+            padding: 15px;
+            background: #f8fafc;
+        }
+
+    .search-card-content {
+        padding: 15px;
+    }
+
+    .search-card h3 {
+        font-size: 15px;
+        line-height: 1.5;
+        min-height: 45px;
+        margin: 0 0 10px;
+    }
+
+    .search-price {
+        color: #ef4444;
+        font-weight: 800;
+        margin-bottom: 15px;
+    }
+
+    .search-detail {
+        display: block;
+        text-align: center;
+        background: #ff5722;
+        color: white;
+        padding: 10px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .search-empty {
+        padding: 35px 15px;
+        text-align: center;
+        background: #f8fafc;
+        border-radius: 8px;
+        color: #64748b;
+    }
+
+    @@media (max-width: 900px) {
+        .search-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .search-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="search-page">
+    <h2 class="search-heading">Kết quả tìm kiếm</h2>
+
+    @if (!string.IsNullOrWhiteSpace(keyword))
+    {
+        <p>
+            Từ khóa:
+            <strong>@keyword</strong>
+            — Tìm thấy @Model.Count() sản phẩm.
+        </p>
+    }
+    else
+    {
+        <p>Nhập tên sản phẩm hoặc thương hiệu vào thanh tìm kiếm.</p>
+    }
+
+    @if (Model.Any())
+    {
+        <div class="search-grid">
+            @foreach (var product in Model)
+            {
+                <div class="search-card">
+                    <img src="@product.Image"
+                         alt="@product.Name"
+                         onerror="this.style.visibility='hidden';" />
+
+                    <div class="search-card-content">
+                        <h3>@product.Name</h3>
+
+                        <div class="search-price">
+                            @product.Price.ToString("N0") đ
+                        </div>
+
+                        <a class="search-detail"
+                           href="@Url.Action("Details", "Home",
+                                new { id = product.Id })">
+                            Xem chi tiết
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else if (!string.IsNullOrWhiteSpace(keyword))
+    {
+        <div class="search-empty">
+            <i class="fas fa-search" style="font-size:30px;"></i>
+            <h3>Không tìm thấy sản phẩm phù hợp</h3>
+            <p>Hãy thử từ khóa khác, ví dụ Adidas, Nike hoặc Giày.</p>
+        </div>
+    }
+</div>
