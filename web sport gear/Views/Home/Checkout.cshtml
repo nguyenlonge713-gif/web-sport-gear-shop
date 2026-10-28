@@ -1,27 +1,168 @@
-﻿@{
+﻿
+@{
     ViewBag.Title = "Thanh Toán - Gear Sport";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div style="max-width: 600px; margin: 30px auto; background: white; padding: 30px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-    <h2 style="margin-bottom: 20px; border-left: 5px solid #ff4500; padding-left: 10px;">Thông Tin Giao Hàng</h2>
+<div id="checkout-container"
+     style="max-width:600px; margin:30px auto; background:white; padding:30px; border-radius:6px; box-shadow:0 2px 5px rgba(0,0,0,0.1); display:none;">
 
-    <form onsubmit="alert('Đặt hàng thành công!'); return false;">
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Họ và tên người nhận</label>
-            <input type="text" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Nhập họ và tên...">
+    <h2 style="margin-bottom:20px; border-left:5px solid #ff4500; padding-left:10px;">
+        Thông Tin Giao Hàng
+    </h2>
+
+    <div id="checkout-total"
+         style="margin-bottom:20px; padding:12px; background:#fff7ed; border-radius:5px; font-weight:bold;">
+        Tổng thanh toán: <span id="total-amount" style="color:#ff4500;">0 đ</span>
+    </div>
+
+    <form id="checkout-form">
+        <div style="margin-bottom:15px;">
+            <label for="receiver-name" style="display:block; margin-bottom:5px; font-weight:500;">
+                Họ và tên người nhận
+            </label>
+            <input id="receiver-name"
+                   type="text"
+                   required
+                   maxlength="100"
+                   autocomplete="name"
+                   style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px;"
+                   placeholder="Nhập họ và tên...">
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Số điện thoại</label>
-            <input type="tel" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Nhập số điện thoại...">
+        <div style="margin-bottom:15px;">
+            <label for="receiver-phone" style="display:block; margin-bottom:5px; font-weight:500;">
+                Số điện thoại
+            </label>
+            <input id="receiver-phone"
+                   type="tel"
+                   required
+                   maxlength="15"
+                   autocomplete="tel"
+                   pattern="[0-9+(). -]{9,15}"
+                   style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px;"
+                   placeholder="Nhập số điện thoại...">
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Địa chỉ giao hàng chi tiết</label>
-            <textarea required rows="3" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Số nhà, tên đường, phường/xã..."></textarea>
+        <div style="margin-bottom:15px;">
+            <label for="delivery-address" style="display:block; margin-bottom:5px; font-weight:500;">
+                Địa chỉ giao hàng chi tiết
+            </label>
+            <textarea id="delivery-address"
+                      required
+                      maxlength="300"
+                      rows="3"
+                      autocomplete="street-address"
+                      style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px;"
+                      placeholder="Số nhà, tên đường, phường/xã..."></textarea>
         </div>
 
-        <button type="submit" class="btn" style="width: 100%; padding: 12px; font-size: 16px;">Xác Nhận Đặt Hàng</button>
+        <button id="submit-order"
+                type="submit"
+                class="btn"
+                style="width:100%; padding:12px; font-size:16px; background:#ff4500; color:white; border:none; border-radius:5px; font-weight:bold;">
+            Xác Nhận Đặt Hàng
+        </button>
+
+        <a href="@Url.Action("Cart", "Home")"
+           style="display:block; text-align:center; margin-top:15px; color:#555; text-decoration:none;">
+            Quay lại giỏ hàng
+        </a>
     </form>
 </div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const container = document.getElementById("checkout-container");
+        const form = document.getElementById("checkout-form");
+        const totalAmount = document.getElementById("total-amount");
+        const submitButton = document.getElementById("submit-order");
+
+        // Đọc dữ liệu giỏ hàng từ localStorage.
+        function getValidCart() {
+            try {
+                const rawCart = localStorage.getItem("cart");
+
+                if (!rawCart) return [];
+
+                const cart = JSON.parse(rawCart);
+
+                if (!Array.isArray(cart)) return [];
+
+                return cart.filter(function (item) {
+                    if (!item) return false;
+
+                    const price = Number(item.price);
+                    const quantity = Number(item.quantity);
+
+                    return Number.isFinite(price) &&
+                        price > 0 &&
+                        Number.isInteger(quantity) &&
+                        quantity > 0;
+                });
+            } catch (error) {
+                console.error("Lỗi đọc giỏ hàng:", error);
+                return [];
+            }
+        }
+
+        function formatCurrency(amount) {
+            return amount.toLocaleString("vi-VN") + " đ";
+        }
+
+        function validateCart() {
+            const cart = getValidCart();
+
+            if (cart.length === 0) {
+                container.style.display = "block";
+                container.innerHTML = `
+                    <h2>Giỏ hàng đang trống</h2>
+                    <p>Vui lòng thêm sản phẩm trước khi thanh toán.</p>
+                    <a href="/Home/Cart">Quay lại giỏ hàng</a>
+                `;
+                return null;
+            }
+
+            const total = cart.reduce(function (sum, item) {
+                return sum + Number(item.price) * Number(item.quantity);
+            }, 0);
+
+            return { cart: cart, total: total };
+        }
+
+        // Hiển thị trang thanh toán khi có sản phẩm hợp lệ.
+        const initialData = validateCart();
+
+        if (!initialData) return;
+
+        totalAmount.textContent = formatCurrency(initialData.total);
+        container.style.display = "block";
+
+        // Xử lý xác nhận đặt hàng.
+        form.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const currentData = validateCart();
+
+            if (!currentData) return;
+
+            alert(
+                "Đặt hàng thành công!\n" +
+                "Tổng thanh toán: " +
+                formatCurrency(currentData.total) 
+                
+            );
+
+            // Chỉ xóa giỏ hàng sau khi xác nhận đặt hàng.
+            localStorage.removeItem("cart");
+            updateCartCount();
+        });
+    });
+</script>
+

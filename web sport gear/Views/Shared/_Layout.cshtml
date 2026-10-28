@@ -478,9 +478,20 @@
         <p>&copy; 2026 - Gear Sport Store. All rights reserved.</p>
     </footer>
 
+
     <!-- ==================== JAVASCRIPT ==================== -->
+
+    <script>
+    // Kiểm tra đăng nhập bằng Session của ASP.NET MVC
+    window.isUserLoggedIn = @(Session["UserID"] != null ? "true" : "false");
+
+    // Tạo URL đăng nhập theo đúng cấu hình route của dự án
+    window.loginUrl = '@Url.Action("Login", "Account")';
+    </script>
+
     <script src="@Url.Content("~/Scripts/main.js")"></script>
 
     @RenderSection("scripts", required: false)
+
 </body>
 </html>

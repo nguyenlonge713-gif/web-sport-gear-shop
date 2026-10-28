@@ -3,32 +3,34 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div style="background: white; padding: 30px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-top: 20px;">
-    <h2 style="margin-bottom: 20px; border-left: 5px solid #ff4500; padding-left: 10px;">Giỏ Hàng Của Bạn</h2>
+<div style="background:white; padding:30px; border-radius:6px; box-shadow:0 2px 5px rgba(0,0,0,0.1); margin-top:20px;">
+    <h2 style="margin-bottom:20px; border-left:5px solid #ff4500; padding-left:10px;">
+        Giỏ Hàng Của Bạn
+    </h2>
 
-    <table style="width: 100%; border-collapse: collapse; text-align: left; margin-bottom: 20px;">
+    <table style="width:100%; border-collapse:collapse; text-align:left; margin-bottom:20px;">
         <thead>
-            <tr style="border-bottom: 2px solid #ddd; background: #f9f9f9;">
-                <th style="padding: 12px;">Sản phẩm</th>
-                <th style="padding: 12px;">Đơn giá</th>
-                <th style="padding: 12px;">Số lượng</th>
-                <th style="padding: 12px;">Thành tiền</th>
-                <th style="padding: 12px;">Thao tác</th>
+            <tr style="border-bottom:2px solid #ddd; background:#f9f9f9;">
+                <th style="padding:12px;">Sản phẩm</th>
+                <th style="padding:12px;">Đơn giá</th>
+                <th style="padding:12px;">Số lượng</th>
+                <th style="padding:12px;">Thành tiền</th>
+                <th style="padding:12px;">Thao tác</th>
             </tr>
         </thead>
         <tbody id="cart-items"></tbody>
     </table>
 
-    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 2px solid #ddd; padding-top: 20px;">
-        <h3 style="font-size: 20px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; border-top:2px solid #ddd; padding-top:20px;">
+        <h3 style="font-size:20px; margin:0;">
             Tổng thanh toán:
-            <span id="cart-total" style="color: #ff4500;">0 đ</span>
+            <span id="cart-total" style="color:#ff4500;">0 đ</span>
         </h3>
 
         <a href="@Url.Action("Checkout", "Home")"
            id="checkout-btn"
            class="btn"
-           style="text-decoration: none; padding: 12px 25px; font-size: 16px; background-color: #ff4500; color: white; border-radius: 6px; font-weight: bold; display: inline-block;">
+           style="text-decoration:none; padding:12px 25px; font-size:16px; background-color:#999; color:white; border-radius:6px; font-weight:bold; display:inline-block; cursor:pointer;">
             Tiến Hành Thanh Toán
         </a>
     </div>
@@ -36,7 +38,6 @@
 
 <script>
     // Ảnh dự phòng theo mã sản phẩm.
-    // Các mã chưa được khai báo sẽ dùng ảnh dự phòng chung.
     const productImages = {
         "1": "https://images.unsplash.com/photo-1542291026-7eec264c27ff",
         "2": "https://images.unsplash.com/photo-1581655353564-df123a1eb820",
@@ -55,33 +56,91 @@
 
     document.addEventListener("DOMContentLoaded", function () {
         renderCart();
+
+        const checkoutBtn = document.getElementById("checkout-btn");
+
+        // Chặn thanh toán ngay tại trang giỏ hàng.
+        checkoutBtn.addEventListener("click", function (event) {
+            const cart = getCart();
+
+            if (!hasValidCart(cart)) {
+                event.preventDefault();
+                renderCart();
+
+                alert("Giỏ hàng đang trống! Vui lòng thêm sản phẩm trước khi thanh toán.");
+                return;
+            }
+        });
     });
 
+    // Đọc giỏ hàng an toàn từ localStorage.
+    function getCart() {
+        try {
+            const storedCart = localStorage.getItem("cart");
+
+            if (!storedCart) {
+                return [];
+            }
+
+            const cart = JSON.parse(storedCart);
+            return Array.isArray(cart) ? cart : [];
+        } catch (error) {
+            return [];
+        }
+    }
+
+    // Chỉ cho phép thanh toán khi có sản phẩm hợp lệ.
+    function hasValidCart(cart) {
+        if (!Array.isArray(cart) || cart.length === 0) {
+            return false;
+        }
+
+        return cart.some(function (item) {
+            const price = Number(item.price);
+            const quantity = parseInt(item.quantity, 10);
+
+            return item &&
+                Number.isFinite(price) &&
+                price > 0 &&
+                Number.isInteger(quantity) &&
+                quantity > 0;
+        });
+    }
+
+    // Cập nhật trạng thái nút thanh toán.
+    function updateCheckoutButton(enabled) {
+        const checkoutBtn = document.getElementById("checkout-btn");
+
+        if (!checkoutBtn) {
+            return;
+        }
+
+        if (enabled) {
+            checkoutBtn.style.display = "inline-block";
+            checkoutBtn.style.backgroundColor = "#ff4500";
+            checkoutBtn.style.cursor = "pointer";
+            checkoutBtn.setAttribute("aria-disabled", "false");
+        } else {
+            checkoutBtn.style.display = "inline-block";
+            checkoutBtn.style.backgroundColor = "#999";
+            checkoutBtn.style.cursor = "not-allowed";
+            checkoutBtn.setAttribute("aria-disabled", "true");
+        }
+    }
+
     function getProductImage(item) {
-        // Ưu tiên ảnh đã lưu khi thêm sản phẩm vào giỏ hàng.
         if (item.image && item.image.trim() !== "") {
             return item.image;
         }
 
-        // Nếu ảnh cũ bị trống, thử lấy ảnh dự phòng theo ID.
         return productImages[String(item.id)] || fallbackImage;
     }
 
     function renderCart() {
-        let cart = [];
-
-        try {
-            cart = JSON.parse(localStorage.getItem("cart")) || [];
-            if (!Array.isArray(cart)) {
-                cart = [];
-            }
-        } catch (error) {
-            cart = [];
-        }
+        const cart = getCart();
 
         const tbody = document.getElementById("cart-items");
         const totalSpan = document.getElementById("cart-total");
-        const checkoutBtn = document.getElementById("checkout-btn");
 
         tbody.innerHTML = "";
 
@@ -94,36 +153,39 @@
                 </tr>`;
 
             totalSpan.innerText = "0 đ";
-
-            if (checkoutBtn) {
-                checkoutBtn.style.display = "none";
-            }
-
+            updateCheckoutButton(false);
             return;
         }
 
-        if (checkoutBtn) {
-            checkoutBtn.style.display = "inline-block";
-        }
-
         let grandTotal = 0;
+        let validItemCount = 0;
 
         cart.forEach(function (item, index) {
-            const price = Number(item.price) || 0;
-            const quantity = Math.max(1, parseInt(item.quantity, 10) || 1);
-            const itemTotal = price * quantity;
+            const price = Number(item.price);
+            const quantity = parseInt(item.quantity, 10);
 
+            // Bỏ qua sản phẩm có dữ liệu không hợp lệ.
+            if (!item ||
+                !Number.isFinite(price) ||
+                price <= 0 ||
+                !Number.isInteger(quantity) ||
+                quantity <= 0) {
+                return;
+            }
+
+            validItemCount++;
+
+            const itemTotal = price * quantity;
             grandTotal += itemTotal;
 
             const imgSrc = getProductImage(item);
 
-            // Tạo các phần tử DOM để tránh chèn tên sản phẩm trực tiếp vào HTML.
             const row = document.createElement("tr");
             row.style.borderBottom = "1px solid #eee";
 
+            // Cột sản phẩm.
             const productCell = document.createElement("td");
-            productCell.style.cssText =
-                "padding:15px; vertical-align:middle;";
+            productCell.style.cssText = "padding:15px; vertical-align:middle;";
 
             const productWrapper = document.createElement("div");
             productWrapper.style.cssText =
@@ -136,7 +198,6 @@
                 "width:70px; height:70px; object-fit:contain; border-radius:8px; background:#f8fafc; border:1px solid #e2e8f0; padding:5px;";
 
             img.onerror = function () {
-                // Nếu ảnh riêng không tải được, thử ảnh dự phòng chung.
                 if (img.src !== fallbackImage) {
                     img.src = fallbackImage;
                 } else {
@@ -146,38 +207,43 @@
 
             const name = document.createElement("span");
             name.textContent = item.name || "Sản phẩm thể thao";
-            name.style.cssText =
-                "font-weight:600; color:#0f172a;";
+            name.style.cssText = "font-weight:600; color:#0f172a;";
 
             productWrapper.appendChild(img);
             productWrapper.appendChild(name);
             productCell.appendChild(productWrapper);
 
+            // Cột đơn giá.
             const priceCell = document.createElement("td");
             priceCell.style.cssText =
                 "padding:15px; font-weight:600; color:#334155;";
             priceCell.textContent = price.toLocaleString("vi-VN") + " đ";
 
+            // Cột số lượng.
             const quantityCell = document.createElement("td");
             quantityCell.style.padding = "15px";
 
             const quantityInput = document.createElement("input");
             quantityInput.type = "number";
             quantityInput.min = "1";
+            quantityInput.step = "1";
             quantityInput.value = quantity;
             quantityInput.style.cssText =
                 "width:60px; padding:6px; border:1px solid #cbd5e1; border-radius:4px; text-align:center; font-weight:bold;";
+
             quantityInput.addEventListener("change", function () {
                 updateQuantity(index, quantityInput.value);
             });
 
             quantityCell.appendChild(quantityInput);
 
+            // Cột thành tiền.
             const totalCell = document.createElement("td");
             totalCell.style.cssText =
                 "padding:15px; font-weight:700; color:#ef4444;";
             totalCell.textContent = itemTotal.toLocaleString("vi-VN") + " đ";
 
+            // Cột thao tác.
             const actionCell = document.createElement("td");
             actionCell.style.padding = "15px";
 
@@ -186,6 +252,7 @@
             deleteButton.textContent = "Xóa";
             deleteButton.style.cssText =
                 "background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-weight:600;";
+
             deleteButton.addEventListener("click", function () {
                 removeItem(index);
             });
@@ -202,20 +269,23 @@
         });
 
         totalSpan.innerText = grandTotal.toLocaleString("vi-VN") + " đ";
+
+        // Không cho thanh toán nếu không còn sản phẩm hợp lệ.
+        updateCheckoutButton(validItemCount > 0 && grandTotal > 0);
     }
 
     function updateQuantity(index, newQty) {
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
-        const qty = parseInt(newQty, 10);
+        const cart = getCart();
+        const qty = Number(newQty);
 
         if (!cart[index]) {
             return;
         }
 
-        if (qty > 0) {
-            cart[index].quantity = qty;
-        } else {
+        if (!Number.isInteger(qty) || qty <= 0) {
             cart.splice(index, 1);
+        } else {
+            cart[index].quantity = qty;
         }
 
         localStorage.setItem("cart", JSON.stringify(cart));
@@ -223,7 +293,7 @@
     }
 
     function removeItem(index) {
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        const cart = getCart();
 
         if (index < 0 || index >= cart.length) {
             return;
