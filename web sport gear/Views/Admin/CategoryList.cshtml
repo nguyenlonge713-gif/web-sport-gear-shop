@@ -1,0 +1,83 @@
+﻿@model IEnumerable<web_sport_gear.Models.Category>
+
+@{
+    ViewBag.Title = "Quản lý danh mục";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <h2>QUẢN LÝ DANH MỤC</h2>
+
+    <hr />
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+    <p>
+        <a href="@Url.Action("Index", "Admin")"
+           class="btn btn-default">
+            Quay lại Dashboard
+        </a>
+        <a href="@Url.Action("CreateCategory", "Admin")"
+           class="btn btn-success">
+            <i class="glyphicon glyphicon-plus"></i>
+            Thêm danh mục
+        </a>
+    </p>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Mã danh mục</th>
+                <th>Tên danh mục</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.CategoryID</td>
+                    <td>@item.CategoryName</td>
+                    <td>
+                        <a href="@Url.Action("EditCategory", "Admin",
+            new { id = item.CategoryID })"
+                           class="btn btn-primary btn-sm">
+                            <i class="glyphicon glyphicon-edit"></i>
+                            Sửa
+                        </a>
+
+                        @using (Html.BeginForm("DeleteCategory", "Admin",
+                            new { id = item.CategoryID }, FormMethod.Post,
+                            new { style = "display:inline;" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit"
+                                    class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Bạn có chắc muốn xóa danh mục này?');">
+                                <i class="glyphicon glyphicon-trash"></i>
+                                Xóa
+                            </button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <p>
+        Tổng số danh mục:
+        <strong>@Model.Count()</strong>
+    </p>
+</div>

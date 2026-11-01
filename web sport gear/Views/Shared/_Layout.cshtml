@@ -423,13 +423,18 @@
             @if (Session["UserID"] != null)
             {
                 <!-- HIỂN THỊ KHI ĐÃ ĐĂNG NHẬP -->
-                <div class="header-user">
-                    <i class="fa-regular fa-user"></i>
+            <div class="header-user">
+                <i class="fa-regular fa-user"></i>
 
-                    <span class="header-user-name">
-                        Xin chào, @(Session["FullName"] ?? "Khách hàng")
-                    </span>
-                </div>
+                <span class="header-user-name">
+                    Xin chào, @(Session["FullName"] ?? "Khách hàng")
+
+                </span>
+                <!-- KIỂM TRA VAI TRÒ -->
+                <span class="header-user-role">
+                    (@Session["Role"])
+                </span>
+            </div>
 
                 <!-- FORM ĐĂNG XUẤT -->
                 using (Html.BeginForm(

@@ -1,7 +1,11 @@
-﻿@{
+﻿
+@model IEnumerable<web_sport_gear.Models.Product>
+
+@{
     ViewBag.Title = "Áo Thể Thao - Gear Sport";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
 
 <style>
     /* ==========================================
@@ -201,10 +205,14 @@
     </a>
 </div>
 
+
 <!-- 3. KHU VỰC HIỂN THỊ SẢN PHẨM CHÍNH -->
 <div class="adidas-catalog-container">
     <div class="adidas-toolbar">
-        <span class="adidas-count">Hiển thị 3 sản phẩm chính hãng</span>
+        <span class="adidas-count">
+            Hiển thị @Model.Count() sản phẩm chính hãng
+        </span>
+        
         <div class="adidas-sort">
             <select>
                 <option>Sắp xếp: Mới nhất</option>
@@ -217,32 +225,31 @@
     <section class="featured-products">
         <div class="product-container product-grid">
 
-            <div class="product-item product-card">
-                <img src="https://images.unsplash.com/photo-1581655353564-df123a1eb820" alt="Áo thun thể thao" class="product-img" />
-                <div class="product-info">
-                    <h3 class="product-title">Áo Thun Thể Thao Nam</h3>
-                    <p class="product-price">350.000 đ</p>
-                    <button class="btn add-to-cart-btn" data-id="2" data-name="Áo Thun Thể Thao Nam" data-price="350000">Thêm vào giỏ</button>
-                </div>
-            </div>
+            @foreach (var product in Model)
+            {
+                <div class="product-item product-card">
+                    <img src="@product.ImageUrl"
+                         alt="@product.ProductName"
+                         class="product-img" />
 
-            <div class="product-item product-card">
-                <img src="https://images.unsplash.com/photo-1611308725032-74f0a551d018?q=80&w=722&auto=format&fit=crop" alt="Áo khoác gió thể thao" class="product-img" />
-                <div class="product-info">
-                    <h3 class="product-title">Áo Khoác Gió Thể Thao Nam</h3>
-                    <p class="product-price">550.000 đ</p>
-                    <button class="btn add-to-cart-btn" data-id="9" data-name="Áo Khoác Gió Thể Thao Nam" data-price="550000">Thêm vào giỏ</button>
-                </div>
-            </div>
+                    <div class="product-info">
+                        <h3 class="product-title">
+                            @product.ProductName
+                        </h3>
 
-            <div class="product-item product-card">
-                <img src="https://plus.unsplash.com/premium_photo-1747861981617-1512bc2c06e8?q=80&w=687&auto=format&fit=crop" alt="Áo polo thể thao" class="product-img" />
-                <div class="product-info">
-                    <h3 class="product-title">Áo Polo Thể Thao Nam</h3>
-                    <p class="product-price">290.000 đ</p>
-                    <button class="btn add-to-cart-btn" data-id="16" data-name="Áo Polo Thể Thao Nam" data-price="290000">Thêm vào giỏ</button>
+                        <p class="product-price">
+                            @product.Price.ToString("N0") đ
+                        </p>
+
+                        <button class="btn add-to-cart-btn"
+                                data-id="@product.ProductID"
+                                data-name="@product.ProductName"
+                                data-price="@product.Price">
+                            Thêm vào giỏ
+                        </button>
+                    </div>
                 </div>
-            </div>
+            }
 
         </div>
     </section>

@@ -1,0 +1,41 @@
+﻿
+@{
+    ViewBag.Title = "Đặt Hàng Thành Công - Gear Sport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div style="max-width:650px; margin:60px auto; padding:40px 25px;
+            background:white; border-radius:12px; text-align:center;
+            box-shadow:0 3px 12px rgba(0,0,0,0.1);">
+
+    <div style="font-size:65px; color:#16a34a; margin-bottom:20px;">
+        <i class="fa-solid fa-circle-check"></i>
+    </div>
+
+    <h2 style="color:#16a34a; font-weight:800;">
+        ĐẶT HÀNG THÀNH CÔNG!
+    </h2>
+
+    <p style="color:#475569; margin:20px 0; line-height:1.8;">
+        @ViewBag.Message
+        <br />
+        Cảm ơn bạn đã tin tưởng và mua sắm tại Gear Sport.
+    </p>
+
+    <p style="color:#64748b;">
+        Đơn hàng của bạn đang chờ xác nhận.
+        Bạn sẽ thanh toán khi nhận được hàng.
+    </p>
+
+    <a href="@Url.Action("Index", "Home")"
+       style="display:inline-block; margin-top:20px; padding:13px 25px;
+              background:#ff5722; color:white; text-decoration:none;
+              border-radius:6px; font-weight:700;">
+        <i class="fa-solid fa-house"></i>
+        Tiếp tục mua sắm
+    </a>
+    <script>
+    // Chỉ xóa giỏ hàng khi người dùng đến trang đặt hàng thành công
+    localStorage.removeItem("cart");
+    </script>
+</div>

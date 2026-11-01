@@ -1,0 +1,58 @@
+﻿
+@{
+    ViewBag.Title = "Admin Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container" style="padding: 40px 0;">
+    <h2>TRANG QUẢN TRỊ GEAR SPORT</h2>
+    <p>Xin chào, @Session["FullName"]!</p>
+
+    <hr />
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    Quản lý sản phẩm
+                </div>
+                <div class="panel-body">
+                    Thêm, sửa, xóa và quản lý sản phẩm.
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    Quản lý danh mục
+                </div>
+                <div class="panel-body">
+                    Quản lý các danh mục sản phẩm.
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="panel panel-warning">
+                <div class="panel-heading">
+                    Quản lý đơn hàng
+                </div>
+                <div class="panel-body">
+                    Theo dõi và cập nhật đơn hàng.
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="panel panel-danger">
+                <div class="panel-heading">
+                    Quản lý tài khoản
+                </div>
+                <div class="panel-body">
+                    Quản lý tài khoản người dùng.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,55 @@
+﻿@model web_sport_gear.Models.Category
+
+@{
+    ViewBag.Title = "Sửa danh mục";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <h2>SỬA DANH MỤC</h2>
+
+    <hr />
+
+    @using (Html.BeginForm("EditCategory", "Admin", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        @Html.HiddenFor(m => m.CategoryID)
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.CategoryID, "Mã danh mục")
+
+            @Html.TextBoxFor(m => m.CategoryID, new
+            {
+                @class = "form-control",
+                @readonly = "readonly"
+            })
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.CategoryName, "Tên danh mục")
+
+            @Html.TextBoxFor(m => m.CategoryName, new
+            {
+                @class = "form-control",
+                placeholder = "Nhập tên danh mục..."
+            })
+
+            @Html.ValidationMessageFor(
+                m => m.CategoryName,
+                "",
+                new { @class = "text-danger" }
+            )
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            <i class="glyphicon glyphicon-save"></i>
+            Lưu thay đổi
+        </button>
+
+        <a href="@Url.Action("CategoryList", "Admin")"
+           class="btn btn-default">
+            Hủy
+        </a>
+    }
+</div>

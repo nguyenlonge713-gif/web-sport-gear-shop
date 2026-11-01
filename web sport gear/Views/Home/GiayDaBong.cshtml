@@ -1,4 +1,6 @@
-﻿@{
+﻿@model IEnumerable<web_sport_gear.Models.Product>
+
+@{
     ViewBag.Title = "Giày Đá Bóng & Thể Thao - Gear Sport";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -204,7 +206,10 @@
 <!-- 3. KHU VỰC HIỂN THỊ SẢN PHẨM CHÍNH -->
 <div class="shoes-catalog-container">
     <div class="shoes-toolbar">
-        <span class="shoes-count">Hiển thị <strong>4</strong> sản phẩm chính hãng</span>
+        <span class="shoes-count">
+            Hiển thị <strong>@Model.Count()</strong> sản phẩm chính hãng
+        </span>
+
         <div class="shoes-sort">
             <select id="sortSelect">
                 <option>Sắp xếp: Mới nhất</option>
@@ -217,45 +222,31 @@
     <section class="featured-products">
         <div class="product-container product-grid">
 
-            <!-- Giày Chạy Bộ Nike Air -->
-            <div class="product-item product-card">
-                <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff" alt="Giày chạy bộ" class="product-img" />
-                <div class="product-info">
-                    <h3 class="product-title">Giày Chạy Bộ Nike Air</h3>
-                    <p class="product-price">1.500.000 đ</p>
-                    <button class="btn add-to-cart-btn" data-id="1" data-name="Giày Chạy Bộ Nike Air" data-price="1500000">Thêm vào giỏ</button>
-                </div>
-            </div>
+            @foreach (var product in Model)
+            {
+                <div class="product-item product-card">
+                    <img src="@product.ImageUrl"
+                         alt="@product.ProductName"
+                         class="product-img" />
 
-            <!-- Giày Bóng Rổ Nam Cao Cấp -->
-            <div class="product-item product-card">
-                <img src="https://images.unsplash.com/photo-1579338559194-a162d19bf842" alt="Giày bóng rổ" class="product-img" />
-                <div class="product-info">
-                    <h3 class="product-title">Giày Bóng Rổ Nam Cao Cấp</h3>
-                    <p class="product-price">1.650.000 đ</p>
-                    <button class="btn add-to-cart-btn" data-id="15" data-name="Giày Bóng Rổ Nam Cao Cấp" data-price="1650000">Thêm vào giỏ</button>
-                </div>
-            </div>
+                    <div class="product-info">
+                        <h3 class="product-title">
+                            @product.ProductName
+                        </h3>
 
-            <!-- Giày Đá Banh Sân Cỏ Nhân Tạo -->
-            <div class="product-item product-card">
-                <img src="https://images.unsplash.com/photo-1511886929837-354d827aae26?q=80&w=764&auto=format&fit=crop" alt="Giày đá banh" class="product-img" />
-                <div class="product-info">
-                    <h3 class="product-title">Giày Đá Banh Sân Cỏ Nhân Tạo</h3>
-                    <p class="product-price">890.000 đ</p>
-                    <button class="btn add-to-cart-btn" data-id="17" data-name="Giày Đá Banh Sân Cỏ Nhân Tạo" data-price="890000">Thêm vào giỏ</button>
-                </div>
-            </div>
+                        <p class="product-price">
+                            @product.Price.ToString("N0") đ
+                        </p>
 
-            <!-- Giày Chạy Bộ Nam Lightweight -->
-            <div class="product-item product-card">
-                <img src="https://images.unsplash.com/photo-1562183241-b937e95585b6?w=500&auto=format&fit=crop" alt="Giày chạy bộ nam" class="product-img" />
-                <div class="product-info">
-                    <h3 class="product-title">Giày Chạy Bộ Nam Lightweight</h3>
-                    <p class="product-price">1.350.000 đ</p>
-                    <button class="btn add-to-cart-btn" data-id="18" data-name="Giày Chạy Bộ Nam Lightweight" data-price="1350000">Thêm vào giỏ</button>
+                        <button class="btn add-to-cart-btn"
+                                data-id="@product.ProductID"
+                                data-name="@product.ProductName"
+                                data-price="@product.Price">
+                            Thêm vào giỏ
+                        </button>
+                    </div>
                 </div>
-            </div>
+            }
 
         </div>
     </section>

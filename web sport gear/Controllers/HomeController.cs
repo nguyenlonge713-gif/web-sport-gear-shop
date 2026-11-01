@@ -139,20 +139,22 @@ namespace web_sport_gear.Controllers
             return View();
         }
 
+
         public ActionResult AoTheThao()
         {
-            return View();
+            return RedirectToAction("AOTHETHAO", "Product");
         }
 
         public ActionResult GiayDaBong()
         {
-            return View();
+            return RedirectToAction("GiayDaBong", "Product");
         }
 
         public ActionResult PhuKien()
         {
-            return View();
+            return RedirectToAction("PHUKIEN", "Product");
         }
+
 
         public ActionResult Details(int? id)
         {

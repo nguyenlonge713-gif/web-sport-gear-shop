@@ -1,0 +1,76 @@
+﻿
+@model web_sport_gear.Models.Order
+
+@{
+    ViewBag.Title = "Chi tiết đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4 mb-5">
+    <h2 class="mb-4">CHI TIẾT ĐƠN HÀNG #@Model.OrderID</h2>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <strong>Thông tin đơn hàng</strong>
+        </div>
+
+        <div class="card-body">
+            <p><strong>Người nhận:</strong> @Model.ReceiverName</p>
+            <p><strong>Số điện thoại:</strong> @Model.ReceiverPhone</p>
+            <p><strong>Địa chỉ giao hàng:</strong> @Model.ShippingAddress</p>
+            <p><strong>Phương thức thanh toán:</strong> @Model.PaymentMethod</p>
+            <p><strong>Trạng thái thanh toán:</strong> @Model.PaymentStatus</p>
+            <p><strong>Trạng thái đơn hàng:</strong> @Model.OrderStatus</p>
+            <p><strong>Ngày đặt:</strong> @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+            <p>
+                <strong>Ghi chú:</strong>
+                @(string.IsNullOrWhiteSpace(Model.Note) ? "Không có" : Model.Note)
+            </p>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <strong>Danh sách sản phẩm đã mua</strong>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Mã sản phẩm</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Số lượng</th>
+                            <th>Đơn giá</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model.OrderDetails)
+                        {
+                            <tr>
+                                <td>@item.ProductID</td>
+                                <td>@item.ProductName</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.UnitPrice.ToString("N0") đ</td>
+                                <td>@item.SubTotal.ToString("N0") đ</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <h4 class="text-end mt-3">
+                Tổng tiền:
+                <strong>@Model.TotalAmount.ToString("N0") đ</strong>
+            </h4>
+        </div>
+    </div>
+
+    <a href="@Url.Action("Index", "OrderHistory")"
+       class="btn btn-secondary">
+        Quay lại lịch sử mua hàng
+    </a>
+</div>

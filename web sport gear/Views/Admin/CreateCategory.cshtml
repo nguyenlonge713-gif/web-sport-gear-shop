@@ -1,0 +1,42 @@
+﻿@model web_sport_gear.Models.Category
+
+@{
+    ViewBag.Title = "Thêm danh mục";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <h2>THÊM DANH MỤC</h2>
+
+    <hr />
+
+    @using (Html.BeginForm("CreateCategory", "Admin", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.CategoryName, "Tên danh mục")
+
+            @Html.TextBoxFor(m => m.CategoryName, new
+            {
+                @class = "form-control",
+                placeholder = "Nhập tên danh mục..."
+            })
+
+            @Html.ValidationMessageFor(
+                m => m.CategoryName,
+                "",
+                new { @class = "text-danger" }
+            )
+        </div>
+
+        <button type="submit" class="btn btn-success">
+            Thêm danh mục
+        </button>
+
+        <a href="@Url.Action("CategoryList", "Admin")"
+           class="btn btn-default">
+            Quay lại
+        </a>
+    }
+</div>

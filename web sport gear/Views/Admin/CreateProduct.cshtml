@@ -1,0 +1,100 @@
+﻿
+@model web_sport_gear.Models.Product
+
+@{
+    ViewBag.Title = "Thêm sản phẩm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container" style="padding: 35px 0; max-width: 850px;">
+
+    <h2>THÊM SẢN PHẨM MỚI</h2>
+    <p>Nhập thông tin sản phẩm vào hệ thống Gear Sport.</p>
+
+    <hr />
+
+    @using (Html.BeginForm("CreateProduct", "Admin", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-group">
+            <label>Tên sản phẩm</label>
+            @Html.TextBoxFor(m => m.ProductName, new
+            {
+                @class = "form-control",
+                placeholder = "Nhập tên sản phẩm..."
+            })
+            @Html.ValidationMessageFor(m => m.ProductName, "", new
+            {
+                @class = "text-danger"
+            })
+        </div>
+
+        <div class="form-group">
+            <label>Giá sản phẩm (VNĐ)</label>
+            @Html.TextBoxFor(m => m.Price, new
+            {
+                @class = "form-control",
+                type = "number",
+                min = "1",
+                step = "0.01",
+                placeholder = "Ví dụ: 250000"
+            })
+            @Html.ValidationMessageFor(m => m.Price, "", new
+            {
+                @class = "text-danger"
+            })
+        </div>
+
+        <div class="form-group">
+            <label>Danh mục</label>
+            @Html.DropDownListFor(
+                m => m.CategoryID,
+                (IEnumerable<SelectListItem>)ViewBag.Categories,
+                "-- Chọn danh mục --",
+                new { @class = "form-control" }
+            )
+            @Html.ValidationMessageFor(m => m.CategoryID, "", new
+            {
+                @class = "text-danger"
+            })
+        </div>
+
+        <div class="form-group">
+            <label>URL hình ảnh</label>
+            @Html.TextBoxFor(m => m.ImageUrl, new
+            {
+                @class = "form-control",
+                placeholder = "https://example.com/image.jpg"
+            })
+        </div>
+
+        <div class="form-group">
+            <label>Mô tả sản phẩm</label>
+            @Html.TextAreaFor(m => m.Description, new
+            {
+                @class = "form-control",
+                rows = "4",
+                placeholder = "Nhập mô tả sản phẩm..."
+            })
+        </div>
+
+        <div class="checkbox">
+            <label>
+                @Html.CheckBoxFor(m => m.IsActive)
+                Hiển thị sản phẩm trên website
+            </label>
+        </div>
+
+        <hr />
+
+        <button type="submit" class="btn btn-success">
+            Thêm sản phẩm
+        </button>
+
+        <a href="@Url.Action("ProductList", "Admin")"
+           class="btn btn-default">
+            Quay lại danh sách
+        </a>
+    }
+</div>

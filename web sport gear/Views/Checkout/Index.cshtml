@@ -1,0 +1,385 @@
+﻿
+@model web_sport_gear.Models.CheckoutViewModel
+
+@{
+    ViewBag.Title = "Thanh Toán - Gear Sport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .checkout-container {
+        max-width: 1100px;
+        margin: 30px auto;
+        padding: 25px;
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 25px;
+    }
+
+    .checkout-box {
+        background: #fff;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .checkout-title {
+        font-size: 22px;
+        font-weight: 800;
+        border-left: 5px solid #ff5722;
+        padding-left: 12px;
+        margin-bottom: 25px;
+    }
+
+    .checkout-group {
+        margin-bottom: 18px;
+    }
+
+        .checkout-group label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #334155;
+        }
+
+        .checkout-group input,
+        .checkout-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .checkout-group textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+            .checkout-group input:focus,
+            .checkout-group textarea:focus {
+                outline: none;
+                border-color: #ff5722;
+            }
+
+    .checkout-error {
+        color: #dc2626;
+        font-size: 13px;
+        margin-top: 5px;
+        display: block;
+    }
+
+    .checkout-summary {
+        background: #f8fafc;
+        padding: 18px;
+        border-radius: 8px;
+    }
+
+    .checkout-total {
+        display: flex;
+        justify-content: space-between;
+        border-top: 1px solid #cbd5e1;
+        margin-top: 15px;
+        padding-top: 15px;
+        font-size: 19px;
+        font-weight: 800;
+        color: #ff5722;
+    }
+
+    .checkout-payment {
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+
+    .checkout-submit {
+        width: 100%;
+        border: none;
+        background: #ff5722;
+        color: white;
+        padding: 15px;
+        border-radius: 7px;
+        font-size: 16px;
+        font-weight: 800;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+
+        .checkout-submit:hover {
+            background: #e64a19;
+        }
+
+    .checkout-back {
+        display: inline-block;
+        margin-top: 15px;
+        color: #475569;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    @@media (max-width: 768px) {
+        .checkout-container {
+            grid-template-columns: 1fr;
+            padding: 15px;
+        }
+    }
+</style>
+
+<div class="checkout-container">
+
+    <!-- THÔNG TIN GIAO HÀNG -->
+    <div class="checkout-box">
+
+        <h2 class="checkout-title">Thông Tin Giao Hàng</h2>
+
+        @using (Html.BeginForm(
+            "Index",
+            "Checkout",
+            FormMethod.Post,
+            new { id = "checkout-form" }))
+        {
+            @Html.AntiForgeryToken()
+
+            @Html.Hidden("cartJson", "", new { id = "cartJson" })
+
+            @Html.ValidationSummary(
+                false,
+                "",
+                new { @class = "checkout-error" })
+
+            <div class="checkout-group">
+                <label>Họ và tên người nhận *</label>
+
+                @Html.TextBoxFor(
+                    m => m.ReceiverName,
+                    new
+                         {
+                        placeholder = "Nhập họ tên người nhận",
+                        autocomplete = "name"
+                    })
+
+                @Html.ValidationMessageFor(
+                    m => m.ReceiverName,
+                    "",
+                    new { @class = "checkout-error" })
+            </div>
+
+            <div class="checkout-group">
+                <label>Số điện thoại *</label>
+
+                @Html.TextBoxFor(
+                    m => m.ReceiverPhone,
+                    new
+                         {
+                        placeholder = "Nhập số điện thoại",
+                        type = "tel",
+                        autocomplete = "tel"
+                    })
+
+                @Html.ValidationMessageFor(
+                    m => m.ReceiverPhone,
+                    "",
+                    new { @class = "checkout-error" })
+            </div>
+
+            <div class="checkout-group">
+                <label>Địa chỉ giao hàng *</label>
+
+                @Html.TextAreaFor(
+                    m => m.ShippingAddress,
+                    new
+                         {
+                        placeholder = "Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố",
+                        autocomplete = "street-address"
+                    })
+
+                @Html.ValidationMessageFor(
+                    m => m.ShippingAddress,
+                    "",
+                    new { @class = "checkout-error" })
+            </div>
+
+            <div class="checkout-group">
+                <label>Ghi chú đơn hàng</label>
+
+                @Html.TextAreaFor(
+                    m => m.Note,
+                    new
+                         {
+                        placeholder = "Ghi chú thêm cho người giao hàng (nếu có)"
+                    })
+
+                @Html.ValidationMessageFor(
+                    m => m.Note,
+                    "",
+                    new { @class = "checkout-error" })
+            </div>
+
+            <div class="checkout-payment">
+                <strong>
+                    <i class="fa-solid fa-money-bill-wave"></i>
+                    Thanh toán khi nhận hàng (COD)
+                </strong>
+
+                <p style="margin:8px 0 0;color:#92400e;font-size:13px;">
+                    Bạn sẽ thanh toán trực tiếp cho nhân viên giao hàng
+                    khi nhận được sản phẩm.
+                </p>
+            </div>
+
+            <button type="submit" class="checkout-submit">
+                <i class="fa-solid fa-check"></i>
+                XÁC NHẬN ĐẶT HÀNG
+            </button>
+
+            <a href="@Url.Action("Cart", "Home")" class="checkout-back">
+                <i class="fa-solid fa-arrow-left"></i>
+                Quay lại giỏ hàng
+            </a>
+        }
+    </div>
+
+    <!-- TÓM TẮT ĐƠN HÀNG -->
+    <div class="checkout-box">
+
+        <h2 class="checkout-title">Đơn Hàng Của Bạn</h2>
+
+        <div id="checkout-items">
+            <p style="color:#64748b;">Đang tải giỏ hàng...</p>
+        </div>
+
+        <div class="checkout-summary">
+            <div class="checkout-total">
+                <span>Tổng tiền:</span>
+                <span id="checkout-total">0 đ</span>
+            </div>
+        </div>
+
+        <p style="font-size:13px;color:#64748b;margin-top:15px;">
+            Giá hiển thị là giá tham khảo từ giỏ hàng.
+            Tổng tiền chính thức sẽ được máy chủ kiểm tra
+            lại từ cơ sở dữ liệu khi bạn đặt hàng.
+        </p>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const checkoutForm = document.getElementById("checkout-form");
+        const cartJsonInput = document.getElementById("cartJson");
+        const checkoutItems = document.getElementById("checkout-items");
+        const checkoutTotal = document.getElementById("checkout-total");
+
+        function getCart() {
+            try {
+                const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+                return Array.isArray(cart) ? cart : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function renderCheckout() {
+            const cart = getCart();
+
+            checkoutItems.innerHTML = "";
+
+            let total = 0;
+            let validItems = [];
+
+            cart.forEach(function (item) {
+                if (!item) return;
+
+                const id = Number(item.id);
+                const quantity = Number(item.quantity);
+                const price = Number(item.price);
+
+                if (!Number.isInteger(id) || id <= 0 ||
+                    !Number.isInteger(quantity) || quantity <= 0 ||
+                    !Number.isFinite(price) || price <= 0) {
+                    return;
+                }
+
+                validItems.push({
+                    id: id,
+                    quantity: quantity
+                });
+
+                const subtotal = price * quantity;
+                total += subtotal;
+
+                const row = document.createElement("div");
+                row.style.cssText =
+                    "display:flex;justify-content:space-between;gap:12px;" +
+                    "padding:12px 0;border-bottom:1px solid #e2e8f0;";
+
+                const name = document.createElement("div");
+                name.style.cssText = "font-weight:600;color:#334155;";
+                name.textContent =
+                    (item.name || "Sản phẩm") + " × " + quantity;
+
+                const amount = document.createElement("div");
+                amount.style.cssText =
+                    "font-weight:700;color:#0f172a;white-space:nowrap;";
+                amount.textContent =
+                    subtotal.toLocaleString("vi-VN") + " đ";
+
+                row.appendChild(name);
+                row.appendChild(amount);
+
+                checkoutItems.appendChild(row);
+            });
+
+            checkoutTotal.textContent =
+                total.toLocaleString("vi-VN") + " đ";
+
+            cartJsonInput.value = JSON.stringify(validItems);
+
+            if (validItems.length === 0) {
+                checkoutItems.innerHTML =
+                    '<p style="color:#dc2626;">Giỏ hàng đang trống hoặc không hợp lệ.</p>';
+
+                checkoutTotal.textContent = "0 đ";
+            }
+
+            return validItems.length > 0;
+        }
+
+        const hasItems = renderCheckout();
+
+        checkoutForm.addEventListener("submit", function (event) {
+            if (!renderCheckout()) {
+                event.preventDefault();
+
+                alert("Giỏ hàng đang trống! Vui lòng quay lại thêm sản phẩm.");
+
+                window.location.href = '@Url.Action("Cart", "Home")';
+                return;
+            }
+
+            // Cập nhật cartJson ngay trước khi gửi form.
+            cartJsonInput.value = JSON.stringify(
+                getCart()
+                    .filter(function (item) {
+                        return item &&
+                            Number.isInteger(Number(item.id)) &&
+                            Number(item.id) > 0 &&
+                            Number.isInteger(Number(item.quantity)) &&
+                            Number(item.quantity) > 0;
+                    })
+                    .map(function (item) {
+                        return {
+                            Id: Number(item.id),
+                            Quantity: Number(item.quantity)
+                        };
+                    })
+            );
+        });
+    });
+</script>
+
+

@@ -1,0 +1,68 @@
+﻿
+@model List<web_sport_gear.Models.OrderListViewModel>
+
+@{
+    ViewBag.Title = "Quản lý đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4 mb-5">
+    <h2 class="mb-4">QUẢN LÝ ĐƠN HÀNG</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="alert alert-info">
+            Hiện chưa có đơn hàng nào.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Khách hàng</th>
+                        <th>Người nhận</th>
+                        <th>Số điện thoại</th>
+                        <th>Tổng tiền</th>
+                        <th>Thanh toán</th>
+                        <th>Trạng thái đơn</th>
+                        <th>Ngày đặt</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var order in Model)
+                    {
+                        <tr>
+                            <td>
+                                <a href="@Url.Action("OrderDetails", "Admin", new { id = order.OrderID })">
+                                    #@order.OrderID
+                                </a>
+                            </td>
+                            <td>@order.CustomerName</td>
+                            <td>@order.ReceiverName</td>
+                            <td>@order.ReceiverPhone</td>
+                            <td>
+                                @order.TotalAmount.ToString("N0") đ
+                            </td>
+                            <td>@order.PaymentMethod</td>
+                            <td>@order.OrderStatus</td>
+                            <td>
+                                @order.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

@@ -1,0 +1,56 @@
+﻿
+@model List<web_sport_gear.Models.OrderHistoryViewModel>
+
+@{
+    ViewBag.Title = "Lịch sử mua hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4 mb-5">
+    <h2 class="mb-4">LỊCH SỬ MUA HÀNG</h2>
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="alert alert-info">
+            Bạn chưa có đơn hàng nào.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Thanh toán</th>
+                        <th>Trạng thái thanh toán</th>
+                        <th>Trạng thái đơn hàng</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var order in Model)
+                    {
+                        <tr>
+                           <td>
+                               <a href="@Url.Action("Details", "OrderHistory", new { id = order.OrderID })"
+                                  class="text-primary fw-bold">
+                                   #@order.OrderID
+                               </a>
+                           </td>
+                            <td>@order.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@order.TotalAmount.ToString("N0") đ</td>
+                            <td>@order.PaymentMethod</td>
+                            <td>@order.PaymentStatus</td>
+                            <td>
+                                <strong>@order.OrderStatus</strong>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
