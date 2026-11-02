@@ -65,6 +65,7 @@ namespace web_sport_gear.Controllers
                     p.CategoryID,
                     p.Description,
                     p.IsActive,
+                    p.stockQuantity,
                     c.CategoryName
                 FROM dbo.Products p
                 INNER JOIN dbo.Categories c
@@ -94,6 +95,7 @@ namespace web_sport_gear.Controllers
                                 ? null
                                 : reader["Description"].ToString(),
                             IsActive = Convert.ToBoolean(reader["IsActive"]),
+                            StockQuantity = Convert.ToInt32(reader["StockQuantity"]),
                             CategoryName = reader["CategoryName"].ToString()
                         });
                     }
@@ -454,24 +456,26 @@ namespace web_sport_gear.Controllers
             }
 
             string sql = @"
-                INSERT INTO dbo.Products
-                (
-                    ProductName,
-                    Price,
-                    ImageUrl,
-                    CategoryID,
-                    Description,
-                    IsActive
-                )
-                VALUES
-                (
-                    @ProductName,
-                    @Price,
-                    @ImageUrl,
-                    @CategoryID,
-                    @Description,
-                    @IsActive
-                )";
+    INSERT INTO dbo.Products
+    (
+        ProductName,
+        Price,
+        ImageUrl,
+        CategoryID,
+        Description,
+        IsActive,
+        StockQuantity
+    )
+    VALUES
+    (
+        @ProductName,
+        @Price,
+        @ImageUrl,
+        @CategoryID,
+        @Description,
+        @IsActive,
+        @StockQuantity
+    )";
 
             using (SqlConnection connection =
                 new SqlConnection(ConnectionString))
@@ -501,6 +505,8 @@ namespace web_sport_gear.Controllers
 
                 command.Parameters.Add("@IsActive", SqlDbType.Bit)
                     .Value = product.IsActive;
+                command.Parameters.Add("@StockQuantity", SqlDbType.Int)
+    .Value = product.StockQuantity;
 
                 connection.Open();
                 command.ExecuteNonQuery();
@@ -524,16 +530,17 @@ namespace web_sport_gear.Controllers
             Product product = null;
 
             string sql = @"
-                SELECT
-                    ProductID,
-                    ProductName,
-                    Price,
-                    ImageUrl,
-                    CategoryID,
-                    Description,
-                    IsActive
-                FROM dbo.Products
-                WHERE ProductID = @ProductID";
+    SELECT
+        ProductID,
+        ProductName,
+        Price,
+        ImageUrl,
+        CategoryID,
+        Description,
+        IsActive,
+        StockQuantity
+    FROM dbo.Products
+    WHERE ProductID = @ProductID";
 
             using (SqlConnection connection =
                 new SqlConnection(ConnectionString))
@@ -560,7 +567,8 @@ namespace web_sport_gear.Controllers
                             Description = reader["Description"] == DBNull.Value
                                 ? null
                                 : reader["Description"].ToString(),
-                            IsActive = Convert.ToBoolean(reader["IsActive"])
+                            IsActive = Convert.ToBoolean(reader["IsActive"]),
+                            StockQuantity = Convert.ToInt32(reader["StockQuantity"])
                         };
                     }
                 }
@@ -601,7 +609,12 @@ namespace web_sport_gear.Controllers
                     "Price",
                     "Giá sản phẩm phải lớn hơn 0.");
             }
-
+            if (product.StockQuantity < 0)
+            {
+                ModelState.AddModelError(
+                    "StockQuantity",
+                    "Số lượng tồn kho không được âm.");
+            }
             if (product.CategoryID <= 0)
             {
                 ModelState.AddModelError(
@@ -647,7 +660,8 @@ namespace web_sport_gear.Controllers
                     ImageUrl = @ImageUrl,
                     CategoryID = @CategoryID,
                     Description = @Description,
-                    IsActive = @IsActive
+                    IsActive = @IsActive,
+                    StockQuantity = @StockQuantity
                 WHERE ProductID = @ProductID";
 
             int rowsAffected;
@@ -683,6 +697,8 @@ namespace web_sport_gear.Controllers
 
                 command.Parameters.Add("@IsActive", SqlDbType.Bit)
                     .Value = product.IsActive;
+                command.Parameters.Add("@StockQuantity", SqlDbType.Int)
+    .Value = product.StockQuantity;
 
                 connection.Open();
                 rowsAffected = command.ExecuteNonQuery();
@@ -897,6 +913,7 @@ namespace web_sport_gear.Controllers
             return View(order);
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult UpdateOrderStatus(int orderId, string orderStatus)
@@ -906,7 +923,6 @@ namespace web_sport_gear.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            // Danh sách trạng thái hợp lệ
             string[] allowedStatuses =
             {
         "Chờ xác nhận",
@@ -916,7 +932,6 @@ namespace web_sport_gear.Controllers
         "Đã hủy"
     };
 
-            // Kiểm tra trạng thái được gửi lên
             if (string.IsNullOrWhiteSpace(orderStatus) ||
                 !allowedStatuses.Contains(orderStatus))
             {
@@ -924,33 +939,110 @@ namespace web_sport_gear.Controllers
                 return RedirectToAction("OrderDetails", new { id = orderId });
             }
 
-            string sql = @"
-        UPDATE dbo.Orders
-        SET OrderStatus = @OrderStatus
-        WHERE OrderID = @OrderID";
-
             using (SqlConnection connection = new SqlConnection(ConnectionString))
-            using (SqlCommand command = new SqlCommand(sql, connection))
             {
-                command.Parameters.AddWithValue("@OrderStatus", orderStatus);
-                command.Parameters.AddWithValue("@OrderID", orderId);
-
                 connection.Open();
 
-                int rowsAffected = command.ExecuteNonQuery();
+                using (SqlTransaction transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        // Lấy trạng thái hiện tại và khóa đơn hàng
+                        string checkSql = @"
+                    SELECT OrderStatus
+                    FROM dbo.Orders WITH (UPDLOCK, HOLDLOCK)
+                    WHERE OrderID = @OrderID";
 
-                if (rowsAffected > 0)
-                {
-                    TempData["SuccessMessage"] = "Cập nhật trạng thái đơn hàng thành công!";
-                }
-                else
-                {
-                    TempData["ErrorMessage"] = "Không tìm thấy đơn hàng.";
+                        string currentStatus = null;
+
+                        using (SqlCommand command = new SqlCommand(
+                            checkSql, connection, transaction))
+                        {
+                            command.Parameters.Add("@OrderID", SqlDbType.Int)
+                                .Value = orderId;
+
+                            object result = command.ExecuteScalar();
+
+                            if (result != null && result != DBNull.Value)
+                            {
+                                currentStatus = result.ToString();
+                            }
+                        }
+
+                        if (currentStatus == null)
+                        {
+                            throw new Exception("Không tìm thấy đơn hàng.");
+                        }
+
+                        // Không cho phép thay đổi đơn đã hủy
+                        if (currentStatus == "Đã hủy" && orderStatus != "Đã hủy")
+                        {
+                            throw new Exception(
+                                "Đơn hàng đã hủy, không thể thay đổi trạng thái.");
+                        }
+
+                        // Chỉ hoàn kho khi chuyển từ trạng thái khác sang Đã hủy
+                        if (currentStatus != "Đã hủy" &&
+                            orderStatus == "Đã hủy")
+                        {
+                            string restoreSql = @"
+                        UPDATE p
+                        SET p.StockQuantity = p.StockQuantity + d.Quantity
+                        FROM dbo.Products p
+                        INNER JOIN
+                        (
+                            SELECT ProductID, SUM(Quantity) AS Quantity
+                            FROM dbo.OrderDetails
+                            WHERE OrderID = @OrderID
+                            GROUP BY ProductID
+                        ) d ON p.ProductID = d.ProductID";
+
+                            using (SqlCommand command = new SqlCommand(
+                                restoreSql, connection, transaction))
+                            {
+                                command.Parameters.Add("@OrderID", SqlDbType.Int)
+                                    .Value = orderId;
+
+                                command.ExecuteNonQuery();
+                            }
+                        }
+
+                        // Cập nhật trạng thái đơn hàng
+                        string updateSql = @"
+                    UPDATE dbo.Orders
+                    SET OrderStatus = @OrderStatus
+                    WHERE OrderID = @OrderID";
+
+                        using (SqlCommand command = new SqlCommand(
+                            updateSql, connection, transaction))
+                        {
+                            command.Parameters.Add("@OrderStatus", SqlDbType.NVarChar, 50)
+                                .Value = orderStatus;
+
+                            command.Parameters.Add("@OrderID", SqlDbType.Int)
+                                .Value = orderId;
+
+                            command.ExecuteNonQuery();
+                        }
+
+                        transaction.Commit();
+
+                        TempData["SuccessMessage"] =
+                            orderStatus == "Đã hủy" && currentStatus != "Đã hủy"
+                            ? "Hủy đơn hàng và hoàn kho thành công!"
+                            : "Cập nhật trạng thái đơn hàng thành công!";
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        TempData["ErrorMessage"] = ex.Message;
+                    }
                 }
             }
 
             return RedirectToAction("OrderDetails", new { id = orderId });
         }
+
 
     }
 }

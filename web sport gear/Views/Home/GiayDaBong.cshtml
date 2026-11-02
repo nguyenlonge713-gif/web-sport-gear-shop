@@ -1,4 +1,5 @@
-﻿@model IEnumerable<web_sport_gear.Models.Product>
+﻿
+@model IEnumerable<web_sport_gear.Models.Product>
 
 @{
     ViewBag.Title = "Giày Đá Bóng & Thể Thao - Gear Sport";
@@ -38,7 +39,7 @@
     .shoes-hero-overlay {
         position: absolute;
         inset: 0;
-        background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.25) 60%, transparent 100%);
+        background: linear-gradient( to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.25) 60%, transparent 100% );
     }
 
     .shoes-hero-content {
@@ -75,7 +76,7 @@
         letter-spacing: 0.5px;
     }
 
-    /* 2. Dải danh mục phụ dạng thẻ ảnh thu nhỏ (Sub-category Cards) */
+    /* 2. Dải danh mục phụ */
     .sub-categories-bar {
         max-width: 1300px;
         margin: 0 auto 40px auto;
@@ -125,11 +126,12 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.6);
         }
 
-        .sub-cat-card.active, .sub-cat-card:hover {
+        .sub-cat-card.active,
+        .sub-cat-card:hover {
             border-color: #ff5722;
         }
 
-    /* 3. Bố cục chính Full-width không có sidebar rườm rà */
+    /* 3. Bố cục sản phẩm */
     .shoes-catalog-container {
         max-width: 1300px;
         margin: 0 auto 60px auto;
@@ -164,47 +166,104 @@
         cursor: pointer;
     }
 
-    /* Lưới sản phẩm rộng rãi */
     .shoes-catalog-container .product-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 30px;
     }
+
+    /* 4. Hiển thị tồn kho */
+    .product-stock {
+        font-size: 13px;
+        margin: 8px 0;
+        font-weight: 600;
+        color: #16a34a;
+    }
+
+        .product-stock.out-of-stock {
+            color: #dc2626;
+        }
+
+    /* 5. Nút thêm giỏ hàng khi hết hàng */
+    .add-to-cart-btn:disabled {
+        background: #9ca3af;
+        border-color: #9ca3af;
+        color: #ffffff;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    /* 6. Responsive */
+    @@media (max-width: 768px) {
+        .shoes-hero-campaign {
+            height: 350px;
+        }
+
+        .shoes-toolbar {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .shoes-catalog-container .product-grid {
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 18px;
+        }
+    }
 </style>
 
-<!-- 1. HERO CAMPAIGN BANNER TRÀN VIỀN -->
+<!-- 1. HERO CAMPAIGN BANNER -->
 <div class="shoes-hero-campaign">
-    <img src="https://plus.unsplash.com/premium_photo-1663133611323-69d98d17de90?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" alt="Football Shoes Campaign" />
+    <img src="https://plus.unsplash.com/premium_photo-1663133611323-69d98d17de90?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+         alt="Football Shoes Campaign" />
+
     <div class="shoes-hero-overlay"></div>
+
     <div class="shoes-hero-content">
-        <div class="shoes-breadcrumb">Trang chủ / Giày Đá Bóng & Thể Thao</div>
-        <h1 class="shoes-hero-title">Bộ Sưu Tập Giày Thể Thao</h1>
-        <p class="shoes-hero-desc">Bứt phá tốc độ, làm chủ sân cỏ và chinh phục mọi giới hạn cùng các dòng giày chuyên nghiệp chính hãng.</p>
+        <div class="shoes-breadcrumb">
+            Trang chủ / Giày Đá Bóng & Thể Thao
+        </div>
+
+        <h1 class="shoes-hero-title">
+            Bộ Sưu Tập Giày Thể Thao
+        </h1>
+
+        <p class="shoes-hero-desc">
+            Bứt phá tốc độ, làm chủ sân cỏ và chinh phục mọi giới hạn cùng các dòng giày chuyên nghiệp chính hãng.
+        </p>
     </div>
 </div>
 
-<!-- 2. THANH CHUYỂN NHANH DANH MỤC PHỤ DẠNG THẺ ẢNH -->
+<!-- 2. THANH CHUYỂN NHANH DANH MỤC PHỤ -->
 <div class="sub-categories-bar">
     <a href="#" class="sub-cat-card active">
-        <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400" alt="Tất cả giày" />
+        <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400"
+             alt="Tất cả giày" />
         <span>Tất cả giày</span>
     </a>
+
     <a href="#" class="sub-cat-card">
-        <img src="https://images.unsplash.com/photo-1511886929837-354d827aae26?w=400" alt="Giày Đá Banh" />
+        <img src="https://images.unsplash.com/photo-1511886929837-354d827aae26?w=400"
+             alt="Giày Đá Banh" />
         <span>Giày Đá Banh</span>
     </a>
+
     <a href="#" class="sub-cat-card">
-        <img src="https://images.unsplash.com/photo-1562183241-b937e95585b6?w=400" alt="Giày Chạy Bộ" />
+        <img src="https://images.unsplash.com/photo-1562183241-b937e95585b6?w=400"
+             alt="Giày Chạy Bộ" />
         <span>Giày Chạy Bộ</span>
     </a>
+
     <a href="#" class="sub-cat-card">
-        <img src="https://images.unsplash.com/photo-1579338559194-a162d19bf842?w=400" alt="Giày Bóng Rổ" />
+        <img src="https://images.unsplash.com/photo-1579338559194-a162d19bf842?w=400"
+             alt="Giày Bóng Rổ" />
         <span>Giày Bóng Rổ</span>
     </a>
 </div>
 
-<!-- 3. KHU VỰC HIỂN THỊ SẢN PHẨM CHÍNH -->
+<!-- 3. KHU VỰC HIỂN THỊ SẢN PHẨM -->
 <div class="shoes-catalog-container">
+
     <div class="shoes-toolbar">
         <span class="shoes-count">
             Hiển thị <strong>@Model.Count()</strong> sản phẩm chính hãng
@@ -225,11 +284,13 @@
             @foreach (var product in Model)
             {
                 <div class="product-item product-card">
+
                     <img src="@product.ImageUrl"
                          alt="@product.ProductName"
                          class="product-img" />
 
                     <div class="product-info">
+
                         <h3 class="product-title">
                             @product.ProductName
                         </h3>
@@ -238,12 +299,31 @@
                             @product.Price.ToString("N0") đ
                         </p>
 
+                        @if (product.StockQuantity > 0)
+                        {
+                            <p class="product-stock">
+                                Còn hàng: @product.StockQuantity sản phẩm
+                            </p>
+                        }
+                        else
+                        {
+                            <p class="product-stock out-of-stock">
+                                Hết hàng
+                            </p>
+                        }
+
                         <button class="btn add-to-cart-btn"
                                 data-id="@product.ProductID"
                                 data-name="@product.ProductName"
-                                data-price="@product.Price">
-                            Thêm vào giỏ
+                                data-price="@product.Price"
+                                data-image="@product.ImageUrl"
+                                data-stock="@product.StockQuantity"
+                                disabled="@(product.StockQuantity <= 0)">
+                            @(product.StockQuantity > 0
+                                ? "Thêm vào giỏ"
+                                : "Hết hàng")
                         </button>
+
                     </div>
                 </div>
             }

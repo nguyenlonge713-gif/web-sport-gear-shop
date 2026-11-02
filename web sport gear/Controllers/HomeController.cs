@@ -1,4 +1,5 @@
-﻿
+﻿using System.Configuration;
+using System.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -109,6 +110,21 @@ namespace web_sport_gear.Controllers
 
         public ActionResult Index()
         {
+            try
+            {
+                ViewBag.ProductStocks = GetProductStocks();
+            }
+            catch (Exception ex)
+            {
+                // Ghi log để kiểm tra nếu không lấy được dữ liệu tồn kho
+                System.Diagnostics.Debug.WriteLine(
+                    "Lỗi lấy tồn kho: " + ex.Message
+                );
+
+                // Không cho phép thêm hàng nếu không lấy được tồn kho
+                ViewBag.ProductStocks = new Dictionary<int, int>();
+            }
+
             return View();
         }
 
@@ -180,6 +196,41 @@ namespace web_sport_gear.Controllers
 
             ViewBag.Keyword = q;
             return View(results);
+        }
+        // Lấy số lượng tồn kho của các sản phẩm hiển thị trên trang chủ
+        private Dictionary<int, int> GetProductStocks()
+        {
+            var stocks = new Dictionary<int, int>();
+
+            string connectionString =
+                ConfigurationManager.ConnectionStrings["GearSportDB"].ConnectionString;
+
+            int[] productIds = { 1, 18, 17, 15, 2, 12, 4, 5, 6, 13 };
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                string sql = @"
+            SELECT ProductID, StockQuantity
+            FROM dbo.Products
+            WHERE ProductID IN
+                (1, 18, 17, 15, 2, 12, 4, 5, 6, 13)";
+
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int id = Convert.ToInt32(reader["ProductID"]);
+                        int stock = Convert.ToInt32(reader["StockQuantity"]);
+
+                        stocks[id] = stock;
+                    }
+                }
+            }
+
+            return stocks;
         }
     }
 }

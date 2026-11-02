@@ -1,6 +1,12 @@
 ﻿@{
     ViewBag.Title = "Trang Chủ - Gear Sport";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var productStocks = ViewBag.ProductStocks as Dictionary<int, int>
+                        ?? new Dictionary<int, int>();
+
+    Func<int, int> GetStock = id =>
+        productStocks.ContainsKey(id) ? productStocks[id] : 0;
 }
 
 <style>
@@ -8,7 +14,6 @@
        GEAR SPORT - TOP HERO & BANNER STYLES
        ========================================== */
 
-    /* 1. Thanh Tiêu Chuẩn Service Bar */
     .top-service-bar {
         background: #fafafa;
         border-bottom: 1px solid #eee;
@@ -39,7 +44,6 @@
             font-size: 14px;
         }
 
-    /* 2. Hero Banner Lớn (Slider/Campaign) */
     .hero-banner-wrapper {
         max-width: 1300px;
         margin: 20px auto;
@@ -63,7 +67,6 @@
             object-position: center;
         }
 
-    /* 3. Bộ 3 Banner Phụ (3 Columns Grid) */
     .sub-banners-grid {
         max-width: 1300px;
         margin: 20px auto 40px auto;
@@ -116,7 +119,7 @@
         font-weight: 900;
         text-transform: uppercase;
         margin: 0;
-        color: #facc15; /* Màu vàng nổi bật */
+        color: #facc15;
         text-shadow: 0 2px 4px rgba(0,0,0,0.5);
     }
 
@@ -141,7 +144,6 @@
         box-shadow: 0 3px 8px rgba(0,0,0,0.2);
     }
 
-    /* Layout Sections */
     .home-section {
         max-width: 1300px;
         margin: 0 auto 50px auto;
@@ -179,7 +181,8 @@
         transition: all 0.2s;
     }
 
-        .tab-btn.active, .tab-btn:hover {
+        .tab-btn.active,
+        .tab-btn:hover {
             color: #ff5722;
             border-bottom: 2px solid #ff5722;
         }
@@ -191,7 +194,6 @@
         margin-bottom: 25px;
     }
 
-    /* Thẻ sản phẩm mini */
     .product-card-mini {
         background: #ffffff;
         border-radius: 8px;
@@ -282,6 +284,19 @@
         margin-bottom: 10px;
     }
 
+    /* Hiển thị tồn kho */
+    .mini-stock {
+        display: block;
+        font-size: 12px;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #16a34a;
+    }
+
+        .mini-stock.out-of-stock {
+            color: #dc2626;
+        }
+
     .product-card-mini .add-to-cart-btn {
         margin-top: 5px;
         padding: 8px 0;
@@ -289,6 +304,14 @@
         width: 100%;
         border-radius: 6px;
     }
+
+        .product-card-mini .add-to-cart-btn:disabled {
+            background: #9ca3af;
+            border-color: #9ca3af;
+            color: #fff;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
 
     .btn-view-more {
         display: block;
@@ -423,7 +446,7 @@
     }
 </style>
 
-<!-- 1. THANH SERVICE BAR TẠO LÒNG TIN -->
+<!-- 1. THANH SERVICE BAR -->
 <div class="top-service-bar">
     <div class="service-container">
         <div class="service-item">
@@ -438,16 +461,15 @@
     </div>
 </div>
 
-<!-- 2. MAIN HERO BANNER (SLIDER NỔI BẬT) -->
+<!-- 2. MAIN HERO BANNER -->
 <div class="hero-banner-wrapper">
     <div class="main-hero-banner">
         <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=1600&auto=format&fit=crop" alt="NEW OUTFIT - NEW SEASON" />
     </div>
 </div>
 
-<!-- 3. BỘ 3 BANNER PHỤ CHO CÁC BST CHÍNH -->
+<!-- 3. BỘ 3 BANNER PHỤ -->
 <div class="sub-banners-grid">
-    <!-- Banner 1: Thời trang Nam -->
     <a href="@Url.Action("AoTheThao", "Home")" class="sub-banner-card">
         <img src="https://images.unsplash.com/photo-1633655442432-620aa55d7ac1?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" alt="Thời trang Nam" />
         <div class="sub-banner-content">
@@ -459,7 +481,6 @@
         </div>
     </a>
 
-    <!-- Banner 2: giày đá bóng -->
     <a href="@Url.Action("GiayDaBong", "Home")" class="sub-banner-card">
         <img src="https://plus.unsplash.com/premium_photo-1682435561654-20d84cef00eb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" alt="BST Giày thể thao" />
         <div class="sub-banner-content">
@@ -471,7 +492,6 @@
         </div>
     </a>
 
-    <!-- Banner 3: Giá mới mùa mới -->
     <a href="@Url.Action("PhuKien", "Home")" class="sub-banner-card">
         <img src="https://plus.unsplash.com/premium_photo-1664536967999-f75d4f4b95fb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" alt="Giá mới mùa mới" />
         <div class="sub-banner-content">
@@ -484,7 +504,7 @@
     </a>
 </div>
 
-<!-- KHỐI 4: CHUẨN BỊ MÙA MỚI (HELLO WINTER) -->
+<!-- KHỐI 4: HELLO WINTER -->
 <section class="home-section" id="helloWinterSection">
     <h2 class="section-header-title">HELLO WINTER ❄️</h2>
 
@@ -495,7 +515,8 @@
     </div>
 
     <div class="product-grid-5" id="winterProductGrid">
-        <!-- Sản phẩm 1 -->
+
+        <!-- Sản phẩm ID 1 -->
         <div class="product-card-mini" data-product-id="1">
             <span class="badge-tag">-20%</span>
             <span class="badge-tag new">NEW</span>
@@ -508,11 +529,22 @@
                     <h3 class="mini-title">Giày Tennis/Pickleball Nike Zoom Vapor 12</h3>
                 </a>
                 <span class="mini-price">1.500.000 đ</span>
+                <span class="mini-stock @(GetStock(1) <= 0 ? "out-of-stock" : "")">
+                    @(GetStock(1) > 0 ? "Còn " + GetStock(1) + " sản phẩm" : "Hết hàng")
+                </span>
             </div>
-            <button class="btn add-to-cart-btn" data-id="1" data-name="Giày Tennis/Pickleball Nike Zoom Vapor 12" data-image="https://images.unsplash.com/photo-1542291026-7eec264c27ff" data-price="1500000">Thêm vào giỏ</button>
+            <button class="btn add-to-cart-btn"
+                    data-id="1"
+                    data-name="Giày Tennis/Pickleball Nike Zoom Vapor 12"
+                    data-image="https://images.unsplash.com/photo-1542291026-7eec264c27ff"
+                    data-price="1500000"
+                    data-stock="@GetStock(1)"
+                    @(GetStock(1) <= 0 ? "disabled" : "")>
+                @(GetStock(1) > 0 ? "Thêm vào giỏ" : "Hết hàng")
+            </button>
         </div>
 
-        <!-- Sản phẩm 2 -->
+        <!-- Sản phẩm ID 18 -->
         <div class="product-card-mini" data-product-id="18">
             <span class="badge-tag">-15%</span>
             <a href="@Url.Action("Details", "Home", new { id = 18 })">
@@ -524,11 +556,22 @@
                     <h3 class="mini-title">Giày Chạy Bộ Nam Adidas Supernova</h3>
                 </a>
                 <span class="mini-price">1.350.000 đ</span>
+                <span class="mini-stock @(GetStock(18) <= 0 ? "out-of-stock" : "")">
+                    @(GetStock(18) > 0 ? "Còn " + GetStock(18) + " sản phẩm" : "Hết hàng")
+                </span>
             </div>
-            <button class="btn add-to-cart-btn" data-id="18" data-name="Giày Chạy Bộ Nam Adidas Supernova" data-image="https://images.unsplash.com/photo-1562183241-b937e95585b6?w=500" data-price="1350000">Thêm vào giỏ</button>
+            <button class="btn add-to-cart-btn"
+                    data-id="18"
+                    data-name="Giày Chạy Bộ Nam Adidas Supernova"
+                    data-image="https://images.unsplash.com/photo-1562183241-b937e95585b6?w=500"
+                    data-price="1350000"
+                    data-stock="@GetStock(18)"
+                    @(GetStock(18) <= 0 ? "disabled" : "")>
+                @(GetStock(18) > 0 ? "Thêm vào giỏ" : "Hết hàng")
+            </button>
         </div>
 
-        <!-- Sản phẩm 3 -->
+        <!-- Sản phẩm ID 17 -->
         <div class="product-card-mini" data-product-id="17">
             <span class="badge-tag">-25%</span>
             <a href="@Url.Action("Details", "Home", new { id = 17 })">
@@ -540,11 +583,22 @@
                     <h3 class="mini-title">Giày Đá Banh Sân Cỏ Nhân Tạo Pro</h3>
                 </a>
                 <span class="mini-price">890.000 đ</span>
+                <span class="mini-stock @(GetStock(17) <= 0 ? "out-of-stock" : "")">
+                    @(GetStock(17) > 0 ? "Còn " + GetStock(17) + " sản phẩm" : "Hết hàng")
+                </span>
             </div>
-            <button class="btn add-to-cart-btn" data-id="17" data-name="Giày Đá Banh Sân Cỏ Nhân Tạo Pro" data-image="https://images.unsplash.com/photo-1511886929837-354d827aae26?q=80&w=764" data-price="890000">Thêm vào giỏ</button>
+            <button class="btn add-to-cart-btn"
+                    data-id="17"
+                    data-name="Giày Đá Banh Sân Cỏ Nhân Tạo Pro"
+                    data-image="https://images.unsplash.com/photo-1511886929837-354d827aae26?q=80&w=764"
+                    data-price="890000"
+                    data-stock="@GetStock(17)"
+                    @(GetStock(17) <= 0 ? "disabled" : "")>
+                @(GetStock(17) > 0 ? "Thêm vào giỏ" : "Hết hàng")
+            </button>
         </div>
 
-        <!-- Sản phẩm 4 -->
+        <!-- Sản phẩm ID 15 -->
         <div class="product-card-mini" data-product-id="15">
             <span class="badge-tag new">NEW</span>
             <a href="@Url.Action("Details", "Home", new { id = 15 })">
@@ -556,11 +610,22 @@
                     <h3 class="mini-title">Giày Thể Thao Nam Asics Court FF 3</h3>
                 </a>
                 <span class="mini-price">1.650.000 đ</span>
+                <span class="mini-stock @(GetStock(15) <= 0 ? "out-of-stock" : "")">
+                    @(GetStock(15) > 0 ? "Còn " + GetStock(15) + " sản phẩm" : "Hết hàng")
+                </span>
             </div>
-            <button class="btn add-to-cart-btn" data-id="15" data-name="Giày Thể Thao Nam Asics Court FF 3" data-image="https://images.unsplash.com/photo-1579338559194-a162d19bf842" data-price="1650000">Thêm vào giỏ</button>
+            <button class="btn add-to-cart-btn"
+                    data-id="15"
+                    data-name="Giày Thể Thao Nam Asics Court FF 3"
+                    data-image="https://images.unsplash.com/photo-1579338559194-a162d19bf842"
+                    data-price="1650000"
+                    data-stock="@GetStock(15)"
+                    @(GetStock(15) <= 0 ? "disabled" : "")>
+                @(GetStock(15) > 0 ? "Thêm vào giỏ" : "Hết hàng")
+            </button>
         </div>
 
-        <!-- Sản phẩm 5 -->
+        <!-- Sản phẩm ID 2 -->
         <div class="product-card-mini" data-product-id="2">
             <span class="badge-tag">-10%</span>
             <a href="@Url.Action("Details", "Home", new { id = 2 })">
@@ -572,8 +637,19 @@
                     <h3 class="mini-title">Áo Thun Thể Thao Nam Dry-Fit</h3>
                 </a>
                 <span class="mini-price">350.000 đ</span>
+                <span class="mini-stock @(GetStock(2) <= 0 ? "out-of-stock" : "")">
+                    @(GetStock(2) > 0 ? "Còn " + GetStock(2) + " sản phẩm" : "Hết hàng")
+                </span>
             </div>
-            <button class="btn add-to-cart-btn" data-id="2" data-name="Áo Thun Thể Thao Nam Dry-Fit" data-image="https://images.unsplash.com/photo-1581655353564-df123a1eb820" data-price="350000">Thêm vào giỏ</button>
+            <button class="btn add-to-cart-btn"
+                    data-id="2"
+                    data-name="Áo Thun Thể Thao Nam Dry-Fit"
+                    data-image="https://images.unsplash.com/photo-1581655353564-df123a1eb820"
+                    data-price="350000"
+                    data-stock="@GetStock(2)"
+                    @(GetStock(2) <= 0 ? "disabled" : "")>
+                @(GetStock(2) > 0 ? "Thêm vào giỏ" : "Hết hàng")
+            </button>
         </div>
     </div>
 
@@ -606,7 +682,7 @@
     </div>
 </section>
 
-<!-- KHỐI 6: TRẦN SẢN PHẨM XU HƯỚNG (TRENDING) -->
+<!-- KHỐI 6: TRENDING -->
 <section class="home-section">
     <h2 class="section-header-title">🔥 TRENDING 🔥</h2>
 
@@ -616,7 +692,8 @@
     </div>
 
     <div class="product-grid-5" id="trendingProductGrid">
-        <!-- Sản phẩm 6 -->
+
+        <!-- Sản phẩm ID 12 -->
         <div class="product-card-mini" data-product-id="12">
             <a href="@Url.Action("Details", "Home", new { id = 12 })">
                 <img src="https://images.unsplash.com/photo-1611308725032-74f0a551d018?w=500" alt="Áo khoác" />
@@ -627,11 +704,22 @@
                     <h3 class="mini-title">Áo Khoác Gió Thể Thao Nam</h3>
                 </a>
                 <span class="mini-price">550.000 đ</span>
+                <span class="mini-stock @(GetStock(12) <= 0 ? "out-of-stock" : "")">
+                    @(GetStock(12) > 0 ? "Còn " + GetStock(12) + " sản phẩm" : "Hết hàng")
+                </span>
             </div>
-            <button class="btn add-to-cart-btn" data-id="12" data-name="Áo Khoác Gió Thể Thao Nam" data-image="https://images.unsplash.com/photo-1611308725032-74f0a551d018?w=500" data-price="550000">Thêm vào giỏ</button>
+            <button class="btn add-to-cart-btn"
+                    data-id="12"
+                    data-name="Áo Khoác Gió Thể Thao Nam"
+                    data-image="https://images.unsplash.com/photo-1611308725032-74f0a551d018?w=500"
+                    data-price="550000"
+                    data-stock="@GetStock(12)"
+                    @(GetStock(12) <= 0 ? "disabled" : "")>
+                @(GetStock(12) > 0 ? "Thêm vào giỏ" : "Hết hàng")
+            </button>
         </div>
 
-        <!-- Sản phẩm 7 -->
+        <!-- Sản phẩm ID 4 -->
         <div class="product-card-mini" data-product-id="4">
             <a href="@Url.Action("Details", "Home", new { id = 4 })">
                 <img src="https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500" alt="Bình nước" />
@@ -642,11 +730,22 @@
                     <h3 class="mini-title">Bình Nước Thể Thao Cao Cấp 1L</h3>
                 </a>
                 <span class="mini-price">180.000 đ</span>
+                <span class="mini-stock @(GetStock(4) <= 0 ? "out-of-stock" : "")">
+                    @(GetStock(4) > 0 ? "Còn " + GetStock(4) + " sản phẩm" : "Hết hàng")
+                </span>
             </div>
-            <button class="btn add-to-cart-btn" data-id="4" data-name="Bình Nước Thể Thao Cao Cấp 1L" data-image="https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500" data-price="180000">Thêm vào giỏ</button>
+            <button class="btn add-to-cart-btn"
+                    data-id="4"
+                    data-name="Bình Nước Thể Thao Cao Cấp 1L"
+                    data-image="https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500"
+                    data-price="180000"
+                    data-stock="@GetStock(4)"
+                    @(GetStock(4) <= 0 ? "disabled" : "")>
+                @(GetStock(4) > 0 ? "Thêm vào giỏ" : "Hết hàng")
+            </button>
         </div>
 
-        <!-- Sản phẩm 8 -->
+        <!-- Sản phẩm ID 5 -->
         <div class="product-card-mini" data-product-id="5">
             <a href="@Url.Action("Details", "Home", new { id = 5 })">
                 <img src="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?w=500" alt="Bóng đá" />
@@ -657,11 +756,22 @@
                     <h3 class="mini-title">Bóng Đá Tiêu Chuẩn FIFA Pro</h3>
                 </a>
                 <span class="mini-price">650.000 đ</span>
+                <span class="mini-stock @(GetStock(5) <= 0 ? "out-of-stock" : "")">
+                    @(GetStock(5) > 0 ? "Còn " + GetStock(5) + " sản phẩm" : "Hết hàng")
+                </span>
             </div>
-            <button class="btn add-to-cart-btn" data-id="5" data-name="Bóng Đá Tiêu Chuẩn FIFA Pro" data-image="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?w=500" data-price="650000">Thêm vào giỏ</button>
+            <button class="btn add-to-cart-btn"
+                    data-id="5"
+                    data-name="Bóng Đá Tiêu Chuẩn FIFA Pro"
+                    data-image="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?w=500"
+                    data-price="650000"
+                    data-stock="@GetStock(5)"
+                    @(GetStock(5) <= 0 ? "disabled" : "")>
+                @(GetStock(5) > 0 ? "Thêm vào giỏ" : "Hết hàng")
+            </button>
         </div>
 
-        <!-- Sản phẩm 9 -->
+        <!-- Sản phẩm ID 6 -->
         <div class="product-card-mini" data-product-id="6">
             <a href="@Url.Action("Details", "Home", new { id = 6 })">
                 <img src="https://plus.unsplash.com/premium_photo-1781205755096-6caab3faf2a1?w=500" alt="Găng tay" />
@@ -672,11 +782,22 @@
                     <h3 class="mini-title">Găng Tay Thủ Môn Dính Xương</h3>
                 </a>
                 <span class="mini-price">450.000 đ</span>
+                <span class="mini-stock @(GetStock(6) <= 0 ? "out-of-stock" : "")">
+                    @(GetStock(6) > 0 ? "Còn " + GetStock(6) + " sản phẩm" : "Hết hàng")
+                </span>
             </div>
-            <button class="btn add-to-cart-btn" data-id="6" data-name="Găng Tay Thủ Môn Dính Xương" data-image="https://plus.unsplash.com/premium_photo-1781205755096-6caab3faf2a1?w=500" data-price="450000">Thêm vào giỏ</button>
+            <button class="btn add-to-cart-btn"
+                    data-id="6"
+                    data-name="Găng Tay Thủ Môn Dính Xương"
+                    data-image="https://plus.unsplash.com/premium_photo-1781205755096-6caab3faf2a1?w=500"
+                    data-price="450000"
+                    data-stock="@GetStock(6)"
+                    @(GetStock(6) <= 0 ? "disabled" : "")>
+                @(GetStock(6) > 0 ? "Thêm vào giỏ" : "Hết hàng")
+            </button>
         </div>
 
-        <!-- Sản phẩm 10 -->
+        <!-- Sản phẩm ID 13 -->
         <div class="product-card-mini" data-product-id="13">
             <a href="@Url.Action("Details", "Home", new { id = 13 })">
                 <img src="https://plus.unsplash.com/premium_photo-1747861981617-1512bc2c06e8?w=500" alt="Áo polo" />
@@ -687,20 +808,32 @@
                     <h3 class="mini-title">Áo Polo Thể Thao Nam Lịch Lãm</h3>
                 </a>
                 <span class="mini-price">290.000 đ</span>
+                <span class="mini-stock @(GetStock(13) <= 0 ? "out-of-stock" : "")">
+                    @(GetStock(13) > 0 ? "Còn " + GetStock(13) + " sản phẩm" : "Hết hàng")
+                </span>
             </div>
-            <button class="btn add-to-cart-btn" data-id="13" data-name="Áo Polo Thể Thao Nam Lịch Lãm" data-image="https://plus.unsplash.com/premium_photo-1747861981617-1512bc2c06e8?w=500" data-price="290000">Thêm vào giỏ</button>
+            <button class="btn add-to-cart-btn"
+                    data-id="13"
+                    data-name="Áo Polo Thể Thao Nam Lịch Lãm"
+                    data-image="https://plus.unsplash.com/premium_photo-1747861981617-1512bc2c06e8?w=500"
+                    data-price="290000"
+                    data-stock="@GetStock(13)"
+                    @(GetStock(13) <= 0 ? "disabled" : "")>
+                @(GetStock(13) > 0 ? "Thêm vào giỏ" : "Hết hàng")
+            </button>
         </div>
     </div>
 
     <a href="#" class="btn-view-more">Xem tất cả</a>
 </section>
 
-<!-- KHỐI 7: TIN TỨC & TIN KHUYẾN MẠI (2 CỘT) -->
+<!-- KHỐI 7: TIN TỨC & KHUYẾN MẠI -->
 <section class="home-section">
     <div class="news-promo-container">
-        <!-- Cột Tin tức -->
+
         <div>
             <div class="news-block-title">TIN TỨC</div>
+
             <div class="news-item">
                 <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=300" alt="Tin 1" />
                 <div class="news-info">
@@ -708,6 +841,7 @@
                     <p>Trải nghiệm dòng sản phẩm thể thao mới giúp tối ưu hóa hiệu suất vận động của bạn.</p>
                 </div>
             </div>
+
             <div class="news-item">
                 <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300" alt="Tin 2" />
                 <div class="news-info">
@@ -715,12 +849,13 @@
                     <p>Khám phá các thiết kế đế đệm êm ái chống trơn trượt hiệu quả nhất mùa này.</p>
                 </div>
             </div>
+
             <a href="#" class="btn-view-more" style="margin-top: 15px;">Xem tất cả</a>
         </div>
 
-        <!-- Cột Khuyến mại -->
         <div>
             <div class="news-block-title">TIN KHUYẾN MẠI</div>
+
             <div class="news-item">
                 <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=300" alt="KM 1" />
                 <div class="news-info">
@@ -728,6 +863,7 @@
                     <p>Giảm ngay cho hóa đơn từ 500k khi đăng ký thành viên mới tại cửa hàng.</p>
                 </div>
             </div>
+
             <div class="news-item">
                 <img src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=300" alt="KM 2" />
                 <div class="news-info">
@@ -735,6 +871,7 @@
                     <p>Ưu đãi cực sốc dành riêng cho bộ sưu tập giày bóng đá và quần áo tập gym.</p>
                 </div>
             </div>
+
             <a href="#" class="btn-view-more" style="margin-top: 15px;">Xem tất cả</a>
         </div>
     </div>
@@ -744,6 +881,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     // Lưu vị trí ban đầu của các thẻ để chuyển tab rồi khôi phục đúng khu vực.
     const allCards = Array.from(document.querySelectorAll('.product-card-mini'));
+
     const originalPositions = allCards.map(function (card) {
         const marker = document.createComment('product-card-position');
         card.parentNode.insertBefore(marker, card);
@@ -758,6 +896,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function restoreCards() {
         originalPositions.forEach(function (item) {
             item.card.style.display = '';
+
             if (item.marker.parentNode) {
                 item.marker.parentNode.insertBefore(item.card, item.marker);
             }
@@ -766,26 +905,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function setActiveTab(container, selected) {
         if (!container) return;
+
         container.querySelectorAll('.tab-btn').forEach(function (tab) {
             tab.classList.toggle('active', tab === selected);
         });
     }
 
     function titleOf(card) {
-        return (card.querySelector('.mini-title')?.textContent || '').trim().toLowerCase();
+        return (card.querySelector('.mini-title')?.textContent || '')
+            .trim()
+            .toLowerCase();
     }
 
     function discountOf(card) {
         const badges = Array.from(card.querySelectorAll('.badge-tag'));
+
         for (const badge of badges) {
             const match = badge.textContent.match(/-\s*(\d+)\s*%/);
-            if (match) return Number(match[1]);
+
+            if (match) {
+                return Number(match[1]);
+            }
         }
+
         return 0;
     }
 
     function showEmptyMessage(grid, message) {
         let notice = grid.querySelector('.tab-empty-message');
+
         if (!notice) {
             notice = document.createElement('p');
             notice.className = 'tab-empty-message';
@@ -794,12 +942,16 @@ document.addEventListener('DOMContentLoaded', function () {
             notice.style.padding = '20px';
             grid.appendChild(notice);
         }
+
         notice.textContent = message;
     }
 
     function clearEmptyMessage(grid) {
         const notice = grid.querySelector('.tab-empty-message');
-        if (notice) notice.remove();
+
+        if (notice) {
+            notice.remove();
+        }
     }
 
     if (winterTabs && winterGrid) {
@@ -814,10 +966,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (filter === 'limited') {
                     selected = originalPositions
-                        .filter(function (item) { return item.marker.parentNode === winterGrid; })
-                        .map(function (item) { return item.card; });
+                        .filter(function (item) {
+                            return item.marker.parentNode === winterGrid;
+                        })
+                        .map(function (item) {
+                            return item.card;
+                        });
                 } else if (filter === 'extra') {
-                    // Áo thun, áo khoác, áo polo trên trang chủ.
                     selected = allCards.filter(function (card) {
                         return /áo|polo|t-shirt|shirt|jacket|hoodie/.test(titleOf(card));
                     });
@@ -828,7 +983,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
                 }
 
-                // Ẩn các sản phẩm gốc của HELLO WINTER trước khi đưa kết quả vào lưới.
                 originalPositions.forEach(function (item) {
                     if (item.marker.parentNode === winterGrid) {
                         item.card.style.display = 'none';
@@ -839,8 +993,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     card.style.display = '';
                     winterGrid.appendChild(card);
                 });
+
                 if (selected.length === 0) {
-                    showEmptyMessage(winterGrid, 'Chưa có sản phẩm phù hợp với mục này.');
+                    showEmptyMessage(
+                        winterGrid,
+                        'Chưa có sản phẩm phù hợp với mục này.'
+                    );
                 }
             });
         });
@@ -858,7 +1016,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 if (tab.dataset.filter === 'racket') {
-                    // Danh sách vợt nằm ở trang danh mục riêng; mở đúng trang hiện có.
                     window.location.href = '@Url.Action("PhuKien", "Home")';
                 }
             });
@@ -869,6 +1026,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.add-to-cart-btn').forEach(function (button) {
         const card = button.closest('.product-card-mini');
         const img = card ? card.querySelector('img') : null;
+
         if ((!button.dataset.image || !button.dataset.image.trim()) && img) {
             button.dataset.image = img.getAttribute('src') || '';
         }

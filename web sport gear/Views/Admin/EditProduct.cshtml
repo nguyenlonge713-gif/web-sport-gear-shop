@@ -46,6 +46,23 @@
                 @class = "text-danger"
             })
         </div>
+        <div class="form-group">
+            <label>Số lượng tồn kho</label>
+            @Html.TextBoxFor(m => m.StockQuantity, new
+            {
+                @class = "form-control",
+                type = "number",
+                min = "0",
+                step = "1"
+            })
+            @Html.ValidationMessageFor(m => m.StockQuantity, "", new
+            {
+                @class = "text-danger"
+            })
+            <small class="text-muted">
+                Cập nhật số lượng sản phẩm hiện có trong kho.
+            </small>
+        </div>
 
         <div class="form-group">
             <label>Danh mục</label>

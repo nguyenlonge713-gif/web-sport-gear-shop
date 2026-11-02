@@ -27,6 +27,7 @@ namespace web_sport_gear.Controllers
                     p.CategoryID,
                     p.Description,
                     p.IsActive,
+                    p.StockQuantity,
                     c.CategoryName
                 FROM Products p
                 INNER JOIN Categories c
@@ -53,10 +54,16 @@ namespace web_sport_gear.Controllers
                             Price = Convert.ToDecimal(reader["Price"]),
                             ImageUrl = reader["ImageUrl"].ToString(),
                             CategoryID = Convert.ToInt32(reader["CategoryID"]),
+
                             Description = reader["Description"] == DBNull.Value
                                 ? null
                                 : reader["Description"].ToString(),
+
                             IsActive = Convert.ToBoolean(reader["IsActive"]),
+
+                            // Lấy số lượng tồn kho từ SQL Server
+                            StockQuantity = Convert.ToInt32(reader["StockQuantity"]),
+
                             CategoryName = reader["CategoryName"].ToString()
                         };
 

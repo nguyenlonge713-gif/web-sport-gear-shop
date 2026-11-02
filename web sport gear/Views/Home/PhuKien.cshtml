@@ -1,4 +1,5 @@
-﻿@model IEnumerable<web_sport_gear.Models.Product>
+﻿
+@model IEnumerable<web_sport_gear.Models.Product>
 
 @{
     ViewBag.Title = "Phụ Kiện & Dụng Cụ - Gear Sport";
@@ -38,7 +39,7 @@
     .acc-hero-overlay {
         position: absolute;
         inset: 0;
-        background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.25) 60%, transparent 100%);
+        background: linear-gradient( to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.25) 60%, transparent 100% );
     }
 
     .acc-hero-content {
@@ -75,7 +76,7 @@
         letter-spacing: 0.5px;
     }
 
-    /* 2. Dải danh mục phụ dạng thẻ ảnh thu nhỏ (Sub-category Cards) */
+    /* 2. Dải danh mục phụ */
     .sub-categories-bar {
         max-width: 1300px;
         margin: 0 auto 40px auto;
@@ -127,11 +128,12 @@
             padding: 0 10px;
         }
 
-        .sub-cat-card.active, .sub-cat-card:hover {
+        .sub-cat-card.active,
+        .sub-cat-card:hover {
             border-color: #ff5722;
         }
 
-    /* 3. Bố cục chính Full-width không có sidebar rườm rà */
+    /* 3. Bố cục chính */
     .acc-catalog-container {
         max-width: 1300px;
         margin: 0 auto 60px auto;
@@ -166,47 +168,104 @@
         cursor: pointer;
     }
 
-    /* Lưới sản phẩm rộng rãi */
     .acc-catalog-container .product-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 30px;
     }
+
+    /* 4. Hiển thị tồn kho */
+    .product-stock {
+        font-size: 13px;
+        margin: 8px 0;
+        font-weight: 600;
+        color: #16a34a;
+    }
+
+        .product-stock.out-of-stock {
+            color: #dc2626;
+        }
+
+    /* 5. Nút thêm giỏ hàng khi hết hàng */
+    .add-to-cart-btn:disabled {
+        background: #9ca3af;
+        border-color: #9ca3af;
+        color: #ffffff;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    /* 6. Responsive */
+    @@media (max-width: 768px) {
+        .acc-hero-campaign {
+            height: 350px;
+        }
+
+        .acc-toolbar {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .acc-catalog-container .product-grid {
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 18px;
+        }
+    }
 </style>
 
-<!-- 1. HERO CAMPAIGN BANNER TRÀN VIỀN -->
+<!-- 1. HERO CAMPAIGN BANNER -->
 <div class="acc-hero-campaign">
-    <img src="https://images.unsplash.com/photo-1637666544359-0e88de7b3206?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" alt="Sports Accessories Campaign" />
+    <img src="https://images.unsplash.com/photo-1637666544359-0e88de7b3206?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+         alt="Sports Accessories Campaign" />
+
     <div class="acc-hero-overlay"></div>
+
     <div class="acc-hero-content">
-        <div class="acc-breadcrumb">Trang chủ / Phụ Kiện & Dụng Cụ</div>
-        <h1 class="acc-hero-title">Bộ Sưu Tập Phụ Kiện Thể Thao</h1>
-        <p class="acc-hero-desc">Trang bị hoàn hảo từ bình nước, bóng thi đấu, túi xách đến dụng cụ tập luyện chuyên nghiệp chính hãng.</p>
+        <div class="acc-breadcrumb">
+            Trang chủ / Phụ Kiện & Dụng Cụ
+        </div>
+
+        <h1 class="acc-hero-title">
+            Bộ Sưu Tập Phụ Kiện Thể Thao
+        </h1>
+
+        <p class="acc-hero-desc">
+            Trang bị hoàn hảo từ bình nước, bóng thi đấu, túi xách đến dụng cụ tập luyện chuyên nghiệp chính hãng.
+        </p>
     </div>
 </div>
 
-<!-- 2. THANH CHUYỂN NHANH DANH MỤC PHỤ DẠNG THẺ ẢNH -->
+<!-- 2. THANH CHUYỂN NHANH DANH MỤC PHỤ -->
 <div class="sub-categories-bar">
     <a href="#" class="sub-cat-card active">
-        <img src="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?w=400" alt="Tất cả phụ kiện" />
+        <img src="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?w=400"
+             alt="Tất cả phụ kiện" />
         <span>Tất cả phụ kiện</span>
     </a>
+
     <a href="#" class="sub-cat-card">
-        <img src="https://images.unsplash.com/photo-1623285512357-ff3b9a7579ea?w=400" alt="Trang Phục Thể Thao" />
+        <img src="https://images.unsplash.com/photo-1623285512357-ff3b9a7579ea?w=400"
+             alt="Trang Phục Thể Thao" />
         <span>Trang Phục</span>
     </a>
+
     <a href="#" class="sub-cat-card">
-        <img src="https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400" alt="Bình Nước & Balo" />
+        <img src="https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400"
+             alt="Bình Nước & Balo" />
         <span>Bình Nước & Balo</span>
     </a>
+
     <a href="#" class="sub-cat-card">
-        <img src="https://images.unsplash.com/photo-1687597778602-624a9438fe0b?w=400" alt="Dụng Cụ Thi Đấu" />
+        <img src="https://images.unsplash.com/photo-1687597778602-624a9438fe0b?w=400"
+             alt="Dụng Cụ Thi Đấu" />
         <span>Dụng Cụ Thi Đấu</span>
     </a>
 </div>
 
-<!-- 3. KHU VỰC HIỂN THỊ SẢN PHẨM CHÍNH -->
+<!-- 3. KHU VỰC HIỂN THỊ SẢN PHẨM -->
 <div class="acc-catalog-container">
+
     <div class="acc-toolbar">
         <span class="acc-count">
             Hiển thị <strong>@Model.Count()</strong> sản phẩm chính hãng
@@ -227,11 +286,13 @@
             @foreach (var product in Model)
             {
                 <div class="product-item product-card">
+
                     <img src="@product.ImageUrl"
                          alt="@product.ProductName"
                          class="product-img" />
 
                     <div class="product-info">
+
                         <h3 class="product-title">
                             @product.ProductName
                         </h3>
@@ -240,12 +301,43 @@
                             @product.Price.ToString("N0") đ
                         </p>
 
-                        <button class="btn add-to-cart-btn"
-                                data-id="@product.ProductID"
-                                data-name="@product.ProductName"
-                                data-price="@product.Price">
-                            Thêm vào giỏ
-                        </button>
+                        @if (product.StockQuantity > 0)
+                        {
+                            <p class="product-stock">
+                                Còn hàng: @product.StockQuantity sản phẩm
+                            </p>
+                        }
+                        else
+                        {
+                            <p class="product-stock out-of-stock">
+                                Hết hàng
+                            </p>
+                        }
+
+                        @if (product.StockQuantity > 0)
+                        {
+                            <button class="btn add-to-cart-btn"
+                                    data-id="@product.ProductID"
+                                    data-name="@product.ProductName"
+                                    data-price="@product.Price"
+                                    data-image="@product.ImageUrl"
+                                    data-stock="@product.StockQuantity">
+                                Thêm vào giỏ
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn add-to-cart-btn"
+                                    data-id="@product.ProductID"
+                                    data-name="@product.ProductName"
+                                    data-price="@product.Price"
+                                    data-image="@product.ImageUrl"
+                                    data-stock="0"
+                                    disabled>
+                                Hết hàng
+                            </button>
+                        }
+
                     </div>
                 </div>
             }

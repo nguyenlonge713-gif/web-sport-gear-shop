@@ -17,6 +17,8 @@ namespace web_sport_gear.Models
 
         public bool IsActive { get; set; }
 
+        public int StockQuantity { get; set; }
+
         public string CategoryName { get; set; }
     }
 }

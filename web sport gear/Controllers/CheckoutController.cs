@@ -140,6 +140,32 @@ namespace web_sport_gear.Controllers
                                     totalAmount += detail.SubTotal;
                                 }
                             }
+                            // Kiểm tra và trừ tồn kho an toàn
+                            string stockSql = @"
+    UPDATE dbo.Products
+    SET StockQuantity = StockQuantity - @Quantity
+    WHERE ProductID = @ProductID
+      AND IsActive = 1
+      AND StockQuantity >= @Quantity";
+
+                            using (SqlCommand stockCommand = new SqlCommand(
+                                stockSql, connection, transaction))
+                            {
+                                stockCommand.Parameters.Add("@ProductID", SqlDbType.Int)
+                                    .Value = item.Id;
+
+                                stockCommand.Parameters.Add("@Quantity", SqlDbType.Int)
+                                    .Value = item.Quantity;
+
+                                int stockRowsAffected = stockCommand.ExecuteNonQuery();
+
+                                if (stockRowsAffected == 0)
+                                {
+                                    throw new Exception(
+                                        "Sản phẩm " + orderDetails.Last().ProductName +
+                                        " không đủ số lượng tồn kho. Vui lòng kiểm tra lại giỏ hàng.");
+                                }
+                            }
                         }
 
                         // Tạo đơn hàng

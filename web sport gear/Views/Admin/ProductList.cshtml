@@ -20,9 +20,6 @@
         </div>
     }
 
-    <table class="table table-bordered table-striped">
-        @* Nội dung bảng sản phẩm giữ nguyên ở đây *@
-    </table>
 
     <!-- Khu vực nút chức năng -->
     <div style="margin-bottom: 20px;">
@@ -46,6 +43,7 @@
                 <th>Tên sản phẩm</th>
                 <th>Danh mục</th>
                 <th>Giá</th>
+                <th>Tồn kho</th>
                 <th>Trạng thái</th>
                 <th>Thao tác</th>
             </tr>
@@ -71,6 +69,18 @@
                     <td>@item.CategoryName</td>
 
                     <td>@item.Price.ToString("N0") đ</td>
+                    <td>
+                        @if (item.StockQuantity > 0)
+                        {
+                            <span class="label label-success">
+                                @item.StockQuantity
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="label label-danger">Hết hàng</span>
+                        }
+                    </td>
 
                     <td>
                         @if (item.IsActive)
