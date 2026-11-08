@@ -1,0 +1,277 @@
+﻿
+@model IEnumerable<web_sport_gear.Models.CustomerOrderHistoryViewModel>
+
+@{
+    ViewBag.Title = "Lịch Sử Mua Hàng - Gear Sport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .history-container {
+        max-width: 1100px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .history-title {
+        font-size: 28px;
+        font-weight: 800;
+        color: #222;
+        margin-bottom: 8px;
+    }
+
+    .history-subtitle {
+        color: #777;
+        margin-bottom: 30px;
+    }
+
+    .order-card {
+        background: #fff;
+        border: 1px solid #e8e8e8;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        overflow: hidden;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.04);
+    }
+
+    .order-header {
+        background: #f8f9fa;
+        padding: 18px 22px;
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .order-code {
+        font-weight: 800;
+        font-size: 17px;
+        color: #222;
+    }
+
+    .order-date {
+        color: #777;
+        font-size: 13px;
+        margin-top: 5px;
+    }
+
+    .order-status {
+        font-weight: 700;
+        color: #e67e22;
+    }
+
+    .order-body {
+        padding: 22px;
+    }
+
+    .customer-info {
+        background: #fafafa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        line-height: 1.8;
+    }
+
+    .product-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+        .product-table th,
+        .product-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+
+        .product-table th {
+            background: #f8f9fa;
+            font-weight: 700;
+            color: #555;
+        }
+
+    .order-total {
+        text-align: right;
+        font-size: 19px;
+        font-weight: 800;
+        color: #e63946;
+        margin-top: 15px;
+    }
+
+    .payment-info {
+        color: #666;
+        font-size: 14px;
+        line-height: 1.8;
+    }
+
+    .empty-history {
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 12px;
+        padding: 60px 20px;
+        text-align: center;
+    }
+
+        .empty-history i {
+            font-size: 55px;
+            color: #ccc;
+            margin-bottom: 15px;
+        }
+
+        .empty-history h3 {
+            font-weight: 700;
+            color: #333;
+        }
+
+    .btn-shopping {
+        display: inline-block;
+        background: #e63946;
+        color: #fff;
+        padding: 11px 25px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 700;
+        margin-top: 15px;
+    }
+
+        .btn-shopping:hover {
+            background: #c92d39;
+            color: #fff;
+            text-decoration: none;
+        }
+
+    @@media (max-width: 600px) {
+        .product-table {
+            font-size: 13px;
+        }
+
+            .product-table th,
+            .product-table td {
+                padding: 9px 5px;
+            }
+
+        .order-body {
+            padding: 15px;
+        }
+    }
+</style>
+
+<div class="history-container">
+
+    <h1 class="history-title">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        Lịch sử mua hàng
+    </h1>
+
+    <p class="history-subtitle">
+        Theo dõi và xem lại những đơn hàng bạn đã đặt tại Gear Sport.
+    </p>
+
+    @if (Model != null && Model.Any())
+    {
+        foreach (var order in Model)
+        {
+            <div class="order-card">
+
+                <div class="order-header">
+                    <div>
+                        <div class="order-code">
+                            Đơn hàng #@order.OrderID
+                        </div>
+
+                        <div class="order-date">
+                            Ngày đặt:
+                            @order.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                        </div>
+                    </div>
+
+                    <div class="order-status">
+                        @order.OrderStatus
+                    </div>
+                </div>
+
+                <div class="order-body">
+
+                    <div class="customer-info">
+                        <strong>Thông tin nhận hàng</strong><br />
+
+                        Người nhận: @order.ReceiverName<br />
+
+                        Số điện thoại: @order.ReceiverPhone<br />
+
+                        Địa chỉ: @order.ShippingAddress
+                    </div>
+
+                    <h4>Danh sách sản phẩm</h4>
+
+                    <div style="overflow-x:auto;">
+                        <table class="product-table">
+                            <thead>
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th>Đơn giá</th>
+                                    <th>Số lượng</th>
+                                    <th>Thành tiền</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach (var item in order.Items)
+                                {
+                                    <tr>
+                                        <td>@item.ProductName</td>
+
+                                        <td>
+                                            @item.UnitPrice.ToString("N0") ₫
+                                        </td>
+
+                                        <td>@item.Quantity</td>
+
+                                        <td>
+                                            @item.SubTotal.ToString("N0") ₫
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="payment-info">
+                        Phương thức thanh toán:
+                        <strong>@order.PaymentMethod</strong><br />
+
+                        Trạng thái thanh toán:
+                        <strong>@order.PaymentStatus</strong>
+                    </div>
+
+                    <div class="order-total">
+                        Tổng tiền:
+                        @order.TotalAmount.ToString("N0") ₫
+                    </div>
+
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="empty-history">
+            <i class="fa-solid fa-bag-shopping"></i>
+
+            <h3>Bạn chưa có đơn hàng nào</h3>
+
+            <p>
+                Hãy khám phá các sản phẩm thể thao tại Gear Sport
+                và bắt đầu mua sắm nhé!
+            </p>
+
+            <a href="@Url.Action("Index", "Home")"
+               class="btn-shopping">
+                Tiếp tục mua sắm
+            </a>
+        </div>
+    }
+
+</div>

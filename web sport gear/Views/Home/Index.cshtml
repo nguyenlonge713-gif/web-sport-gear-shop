@@ -693,29 +693,34 @@
 
     <div class="product-grid-5" id="trendingProductGrid">
 
-        <!-- Sản phẩm ID 12 -->
-        <div class="product-card-mini" data-product-id="12">
-            <a href="@Url.Action("Details", "Home", new { id = 12 })">
+        <!-- Sản phẩm ID 9 -->
+        <div class="product-card-mini" data-product-id="9">
+            <a href="@Url.Action("Details", "Home", new { id = 9 })">
                 <img src="https://images.unsplash.com/photo-1611308725032-74f0a551d018?w=500" alt="Áo khoác" />
             </a>
+
             <div>
                 <span class="mini-brand">ADIDAS</span>
-                <a href="@Url.Action("Details", "Home", new { id = 12 })">
+
+                <a href="@Url.Action("Details", "Home", new { id = 9 })">
                     <h3 class="mini-title">Áo Khoác Gió Thể Thao Nam</h3>
                 </a>
+
                 <span class="mini-price">550.000 đ</span>
-                <span class="mini-stock @(GetStock(12) <= 0 ? "out-of-stock" : "")">
-                    @(GetStock(12) > 0 ? "Còn " + GetStock(12) + " sản phẩm" : "Hết hàng")
+
+                <span class="mini-stock @(GetStock(9) <= 0 ? "out-of-stock" : "")">
+                    @(GetStock(9) > 0 ? "Còn " + GetStock(9) + " sản phẩm" : "Hết hàng")
                 </span>
             </div>
+
             <button class="btn add-to-cart-btn"
-                    data-id="12"
+                    data-id="9"
                     data-name="Áo Khoác Gió Thể Thao Nam"
                     data-image="https://images.unsplash.com/photo-1611308725032-74f0a551d018?w=500"
                     data-price="550000"
-                    data-stock="@GetStock(12)"
-                    @(GetStock(12) <= 0 ? "disabled" : "")>
-                @(GetStock(12) > 0 ? "Thêm vào giỏ" : "Hết hàng")
+                    data-stock="@GetStock(9)"
+                    @(GetStock(9) <= 0 ? "disabled" : "")>
+                @(GetStock(9) > 0 ? "Thêm vào giỏ" : "Hết hàng")
             </button>
         </div>
 
@@ -797,29 +802,34 @@
             </button>
         </div>
 
-        <!-- Sản phẩm ID 13 -->
-        <div class="product-card-mini" data-product-id="13">
-            <a href="@Url.Action("Details", "Home", new { id = 13 })">
+        <!-- Sản phẩm ID 16 -->
+        <div class="product-card-mini" data-product-id="16">
+            <a href="@Url.Action("Details", "Home", new { id = 16 })">
                 <img src="https://plus.unsplash.com/premium_photo-1747861981617-1512bc2c06e8?w=500" alt="Áo polo" />
             </a>
+
             <div>
                 <span class="mini-brand">NIKE</span>
-                <a href="@Url.Action("Details", "Home", new { id = 13 })">
-                    <h3 class="mini-title">Áo Polo Thể Thao Nam Lịch Lãm</h3>
+
+                <a href="@Url.Action("Details", "Home", new { id = 16 })">
+                    <h3 class="mini-title">Áo Polo Thể Thao Nam</h3>
                 </a>
+
                 <span class="mini-price">290.000 đ</span>
-                <span class="mini-stock @(GetStock(13) <= 0 ? "out-of-stock" : "")">
-                    @(GetStock(13) > 0 ? "Còn " + GetStock(13) + " sản phẩm" : "Hết hàng")
+
+                <span class="mini-stock @(GetStock(16) <= 0 ? "out-of-stock" : "")">
+                    @(GetStock(16) > 0 ? "Còn " + GetStock(16) + " sản phẩm" : "Hết hàng")
                 </span>
             </div>
+
             <button class="btn add-to-cart-btn"
-                    data-id="13"
-                    data-name="Áo Polo Thể Thao Nam Lịch Lãm"
+                    data-id="16"
+                    data-name="Áo Polo Thể Thao Nam"
                     data-image="https://plus.unsplash.com/premium_photo-1747861981617-1512bc2c06e8?w=500"
                     data-price="290000"
-                    data-stock="@GetStock(13)"
-                    @(GetStock(13) <= 0 ? "disabled" : "")>
-                @(GetStock(13) > 0 ? "Thêm vào giỏ" : "Hết hàng")
+                    data-stock="@GetStock(16)"
+                    @(GetStock(16) <= 0 ? "disabled" : "")>
+                @(GetStock(16) > 0 ? "Thêm vào giỏ" : "Hết hàng")
             </button>
         </div>
     </div>

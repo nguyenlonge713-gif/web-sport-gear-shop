@@ -1,0 +1,705 @@
+﻿
+@model web_sport_gear.Models.UserProfileViewModel
+
+@{
+    ViewBag.Title = "Tài Khoản Của Tôi - Gear Sport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string avatarUrl = string.IsNullOrWhiteSpace(Model.Avatar)
+        ? Url.Content("~/Content/Images/default-avatar.png")
+        : Url.Content(Model.Avatar);
+}
+
+<style>
+    .profile-page {
+        background: #f5f5f5;
+        padding: 45px 0 70px;
+        min-height: 75vh;
+    }
+
+    .profile-container {
+        max-width: 1150px;
+        margin: auto;
+        padding: 0 20px;
+    }
+
+    .profile-heading {
+        margin-bottom: 30px;
+    }
+
+        .profile-heading h2 {
+            font-size: 30px;
+            font-weight: 800;
+            color: #171717;
+            margin-bottom: 8px;
+        }
+
+        .profile-heading p {
+            color: #777;
+            font-size: 14px;
+        }
+
+    .profile-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 25px;
+        align-items: start;
+    }
+
+    .profile-sidebar,
+    .profile-content {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 3px 15px rgba(0,0,0,0.06);
+    }
+
+    .profile-sidebar {
+        padding: 30px 20px;
+        text-align: center;
+    }
+
+    .avatar-wrapper {
+        width: 125px;
+        height: 125px;
+        margin: 0 auto 18px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid #f1f1f1;
+        background: #eee;
+    }
+
+        .avatar-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .profile-sidebar h3 {
+        font-size: 19px;
+        font-weight: 700;
+        color: #222;
+        margin-bottom: 6px;
+        overflow-wrap: anywhere;
+    }
+
+    .profile-email {
+        color: #888;
+        font-size: 13px;
+        overflow-wrap: anywhere;
+    }
+
+    .profile-role {
+        display: inline-block;
+        margin-top: 15px;
+        padding: 6px 16px;
+        border-radius: 20px;
+        background: #fff0f0;
+        color: #dc2626;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .profile-menu {
+        margin-top: 30px;
+        border-top: 1px solid #eee;
+        padding-top: 15px;
+        text-align: left;
+    }
+
+        .profile-menu a {
+            display: block;
+            padding: 12px 14px;
+            color: #555;
+            text-decoration: none;
+            border-radius: 7px;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+            .profile-menu a:hover,
+            .profile-menu a.active {
+                background: #fff0f0;
+                color: #dc2626;
+            }
+
+            .profile-menu a i {
+                width: 25px;
+                text-align: center;
+                margin-right: 5px;
+            }
+
+    .profile-content {
+        padding: 30px;
+    }
+
+    .profile-section-title {
+        font-size: 21px;
+        font-weight: 800;
+        color: #222;
+        margin-bottom: 8px;
+    }
+
+    .profile-section-description {
+        font-size: 13px;
+        color: #888;
+        margin-bottom: 25px;
+    }
+
+    .profile-divider {
+        border: 0;
+        border-top: 1px solid #eee;
+        margin: 25px 0;
+    }
+
+    .profile-form .form-group {
+        margin-bottom: 20px;
+    }
+
+    .profile-form label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #444;
+        margin-bottom: 8px;
+    }
+
+    .profile-form .form-control {
+        height: 44px;
+        border: 1px solid #ddd;
+        border-radius: 7px;
+        padding: 10px 13px;
+        box-shadow: none;
+        font-size: 14px;
+        width: 100%;
+        background: #fff;
+    }
+
+        .profile-form .form-control:focus {
+            border-color: #dc2626;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(220,38,38,0.08);
+        }
+
+        .profile-form .form-control[readonly] {
+            background: #f5f5f5;
+            color: #777;
+            cursor: not-allowed;
+        }
+
+    .profile-form textarea.form-control {
+        height: 95px;
+        resize: vertical;
+    }
+
+    .profile-form select.form-control {
+        cursor: pointer;
+    }
+
+    .field-error {
+        color: #dc2626;
+        font-size: 12px;
+        margin-top: 5px;
+        display: block;
+    }
+
+    .validation-summary-errors {
+        color: #dc2626;
+        background: #fff0f0;
+        border: 1px solid #fecaca;
+        padding: 12px 15px;
+        border-radius: 7px;
+        margin-bottom: 20px;
+        font-size: 13px;
+    }
+
+        .validation-summary-errors ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+    .profile-alert {
+        padding: 13px 16px;
+        border-radius: 7px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+        .profile-alert.success {
+            background: #ecfdf5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+        }
+
+        .profile-alert.error {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+    .profile-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 25px;
+        flex-wrap: wrap;
+    }
+
+    .btn-profile-save {
+        background: #dc2626;
+        color: white;
+        border: none;
+        border-radius: 7px;
+        padding: 12px 25px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .btn-profile-save:hover {
+            background: #b91c1c;
+        }
+
+    .btn-profile-cancel {
+        display: inline-block;
+        background: #eee;
+        color: #444;
+        border-radius: 7px;
+        padding: 12px 25px;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+        .btn-profile-cancel:hover {
+            background: #ddd;
+            color: #222;
+            text-decoration: none;
+        }
+
+    .profile-note {
+        margin-top: 20px;
+        padding: 13px 15px;
+        background: #f8f8f8;
+        border-radius: 7px;
+        color: #777;
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    @@media (max-width: 768px) {
+        .profile-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-content {
+            padding: 22px 18px;
+        }
+
+        .profile-heading h2 {
+            font-size: 25px;
+        }
+    }
+    .avatar-upload {
+        margin-top: 15px;
+    }
+
+    .btn-avatar-upload {
+        display: inline-block;
+        background: #dc2626;
+        color: white;
+        padding: 9px 17px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .btn-avatar-upload:hover {
+            background: #b91c1c;
+            color: white;
+        }
+
+    .avatar-file-input {
+        display: none;
+    }
+
+    .avatar-file-name {
+        font-size: 11px;
+        color: #888;
+        margin-top: 8px;
+        overflow-wrap: anywhere;
+    }
+
+    .btn-avatar-submit {
+        display: none;
+        margin: 10px auto 0;
+        background: #222;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 15px;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+        .btn-avatar-submit:hover {
+            background: #444;
+        }
+</style>
+
+<div class="profile-page">
+    <div class="profile-container">
+
+        <div class="profile-heading">
+            <h2>TÀI KHOẢN CỦA TÔI</h2>
+            <p>Quản lý thông tin cá nhân và tài khoản Gear Sport của bạn.</p>
+        </div>
+
+        <div class="profile-layout">
+
+            <!-- SIDEBAR -->
+            <div class="profile-sidebar">
+
+                <div class="avatar-wrapper">
+                    <img id="avatarPreview"
+                         src="@avatarUrl"
+                         alt="Ảnh đại diện"
+                         onerror="this.onerror=null;this.src='@Url.Content("~/Content/Images/default-avatar.png")';" />
+                </div>
+
+                <!-- FORM UPLOAD AVATAR -->
+                @using (Html.BeginForm(
+                    "UploadAvatar",
+                    "Account",
+                    FormMethod.Post,
+                    new { enctype = "multipart/form-data", id = "avatarForm" }))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <div class="avatar-upload">
+
+                        <label for="avatarFile" class="btn-avatar-upload">
+                            <i class="glyphicon glyphicon-camera"></i>
+                            Chọn ảnh đại diện
+                        </label>
+
+                        <input type="file"
+                               id="avatarFile"
+                               name="avatarFile"
+                               class="avatar-file-input"
+                               accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+
+                        <div id="avatarFileName" class="avatar-file-name">
+                            Chưa chọn ảnh
+                        </div>
+
+                        <button type="submit"
+                                id="btnAvatarSubmit"
+                                class="btn-avatar-submit">
+                            <i class="glyphicon glyphicon-upload"></i>
+                            Tải ảnh lên
+                        </button>
+
+                    </div>
+                }
+
+                <h3>@Model.FullName</h3>
+
+                <div class="profile-email">
+                    @Model.Email
+                </div>
+
+                <div class="profile-role">
+                    THÀNH VIÊN GEAR SPORT
+                </div>
+
+                <div class="profile-menu">
+                    <a href="@Url.Action("Profile", "Account")"
+                       class="active">
+                        <i class="glyphicon glyphicon-user"></i>
+                        Thông tin cá nhân
+                    </a>
+
+                    <a href="@Url.Action("ChangePassword", "Account")">
+                        <i class="glyphicon glyphicon-lock"></i>
+                        Đổi mật khẩu
+                    </a>
+
+                    <a href="@Url.Action("Index", "Home")">
+                        <i class="glyphicon glyphicon-home"></i>
+                        Trang chủ
+                    </a>
+
+                    <a href="@Url.Action("Index", "Home")">
+                        <i class="glyphicon glyphicon-shopping-cart"></i>
+                        Tiếp tục mua sắm
+                    </a>
+                </div>
+
+            </div>
+
+            <!-- PROFILE FORM -->
+            <div class="profile-content">
+
+                <h3 class="profile-section-title">
+                    Thông tin cá nhân
+                </h3>
+
+                <p class="profile-section-description">
+                    Cập nhật thông tin để Gear Sport phục vụ bạn tốt hơn.
+                </p>
+
+                @if (TempData["ProfileSuccess"] != null)
+                {
+                    <div class="profile-alert success">
+                        <strong>Thành công!</strong>
+                        @TempData["ProfileSuccess"]
+                    </div>
+                }
+
+                @if (TempData["ProfileError"] != null)
+                {
+                    <div class="profile-alert error">
+                        @TempData["ProfileError"]
+                    </div>
+                }
+
+                @using (Html.BeginForm(
+                    "UpdateProfile",
+                    "Account",
+                    FormMethod.Post,
+                    new { @class = "profile-form" }))
+                {
+                    @Html.AntiForgeryToken()
+
+                    @Html.HiddenFor(model => model.UserID)
+                    @Html.HiddenFor(model => model.Email)
+
+                    @Html.ValidationSummary(
+                        false,
+                        "",
+                        new { @class = "validation-summary-errors" })
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Họ và tên *</label>
+
+                                @Html.TextBoxFor(
+                                    model => model.FullName,
+                                    new
+                                    {
+                                        @class = "form-control",
+                                        placeholder = "Nhập họ và tên"
+                                    })
+
+                                @Html.ValidationMessageFor(
+                                    model => model.FullName,
+                                    "",
+                                    new { @class = "field-error" })
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Email</label>
+
+                                @Html.TextBoxFor(
+                                    model => model.Email,
+                                    new
+                                    {
+                                        @class = "form-control",
+                                        @readonly = "readonly"
+                                    })
+
+                                <small class="field-error">
+                                    Email hiện chưa hỗ trợ thay đổi.
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Số điện thoại</label>
+
+                                @Html.TextBoxFor(
+                                    model => model.Phone,
+                                    new
+                                    {
+                                        @class = "form-control",
+                                        placeholder = "Nhập số điện thoại",
+                                        maxlength = "20"
+                                    })
+
+                                @Html.ValidationMessageFor(
+                                    model => model.Phone,
+                                    "",
+                                    new { @class = "field-error" })
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Ngày sinh</label>
+
+                                @Html.TextBoxFor(
+                                    model => model.DateOfBirth,
+                                    "{0:yyyy-MM-dd}",
+                                    new
+                                    {
+                                        @class = "form-control",
+                                        type = "date"
+                                    })
+
+                                @Html.ValidationMessageFor(
+                                    model => model.DateOfBirth,
+                                    "",
+                                    new { @class = "field-error" })
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Giới tính</label>
+
+                                @Html.DropDownListFor(
+                                    model => model.Gender,
+                                    new List<SelectListItem>
+                                    {
+                                        new SelectListItem
+                                        {
+                                            Text = "Chọn giới tính",
+                                            Value = ""
+                                        },
+                                        new SelectListItem
+                                        {
+                                            Text = "Nam",
+                                            Value = "Nam"
+                                        },
+                                        new SelectListItem
+                                        {
+                                            Text = "Nữ",
+                                            Value = "Nu"
+                                        },
+                                        new SelectListItem
+                                        {
+                                            Text = "Khác",
+                                            Value = "Khac"
+                                        }
+                                    },
+                                    new { @class = "form-control" })
+
+                                @Html.ValidationMessageFor(
+                                    model => model.Gender,
+                                    "",
+                                    new { @class = "field-error" })
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Địa chỉ</label>
+
+                                @Html.TextAreaFor(
+                                    model => model.Address,
+                                    new
+                                    {
+                                        @class = "form-control",
+                                        placeholder = "Nhập địa chỉ của bạn",
+                                        maxlength = "255"
+                                    })
+
+                                @Html.ValidationMessageFor(
+                                    model => model.Address,
+                                    "",
+                                    new { @class = "field-error" })
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <hr class="profile-divider" />
+
+                    <div class="profile-actions">
+
+                        <button type="submit" class="btn-profile-save">
+                            <i class="glyphicon glyphicon-floppy-disk"></i>
+                            Lưu thay đổi
+                        </button>
+
+                        <a href="@Url.Action("Index", "Home")"
+                           class="btn-profile-cancel">
+                            Hủy
+                        </a>
+
+                    </div>
+                }
+
+            <div class="profile-note">
+                <strong>Lưu ý:</strong>
+                Email đăng nhập hiện được giữ cố định.
+                Ảnh đại diện chỉ chấp nhận định dạng JPG, JPEG hoặc PNG
+                và dung lượng tối đa 2MB.
+            </div>
+
+            </div>
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+
+                    var avatarInput = document.getElementById("avatarFile");
+                    var avatarPreview = document.getElementById("avatarPreview");
+                    var avatarFileName = document.getElementById("avatarFileName");
+                    var btnAvatarSubmit = document.getElementById("btnAvatarSubmit");
+
+                    if (!avatarInput || !avatarPreview ||
+                        !avatarFileName || !btnAvatarSubmit) {
+                        return;
+                    }
+
+                    avatarInput.addEventListener("change", function () {
+
+                        var file = this.files[0];
+
+                        if (!file) {
+                            avatarFileName.textContent = "Chưa chọn ảnh";
+                            btnAvatarSubmit.style.display = "none";
+                            return;
+                        }
+
+                        var allowedTypes = ["image/jpeg", "image/png"];
+
+                        if (!allowedTypes.includes(file.type)) {
+                            alert("Vui lòng chọn ảnh JPG, JPEG hoặc PNG.");
+                            this.value = "";
+                            avatarFileName.textContent = "Chưa chọn ảnh";
+                            btnAvatarSubmit.style.display = "none";
+                            return;
+                        }
+
+                        if (file.size > 2 * 1024 * 1024) {
+                            alert("Ảnh không được vượt quá 2MB.");
+                            this.value = "";
+                            avatarFileName.textContent = "Chưa chọn ảnh";
+                            btnAvatarSubmit.style.display = "none";
+                            return;
+                        }
+
+                        var reader = new FileReader();
+
+                        reader.onload = function (event) {
+                            avatarPreview.src = event.target.result;
+                        };
+
+                        reader.readAsDataURL(file);
+
+                        avatarFileName.textContent = file.name;
+                        btnAvatarSubmit.style.display = "inline-block";
+                    });
+
+                });
+            </script>
+        </div>
+    </div>
+</div>

@@ -1,10 +1,13 @@
-﻿
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
+using System.IO;
 using System.Text.RegularExpressions;
+using System.Web;
 using System.Web.Helpers;
 using System.Web.Mvc;
+using web_sport_gear.Models;
 
 namespace web_sport_gear.Controllers
 {
@@ -58,7 +61,6 @@ namespace web_sport_gear.Controllers
                 {
                     connection.Open();
 
-                    // Tim tai khoan bang email hoac so dien thoai
                     string sql = @"
                         SELECT UserID, FullName, PasswordHash, Role, IsActive
                         FROM dbo.Users
@@ -89,7 +91,6 @@ namespace web_sport_gear.Controllers
                         }
                     }
 
-                    // Khong tim thay tai khoan
                     if (userId == 0)
                     {
                         ModelState.AddModelError(
@@ -99,7 +100,6 @@ namespace web_sport_gear.Controllers
                         return View();
                     }
 
-                    // Kiem tra tai khoan co dang hoat dong khong
                     if (!isActive)
                     {
                         ModelState.AddModelError(
@@ -109,7 +109,6 @@ namespace web_sport_gear.Controllers
                         return View();
                     }
 
-                    // So sanh mat khau nhap vao voi mat khau da bam
                     bool passwordCorrect;
 
                     try
@@ -133,13 +132,12 @@ namespace web_sport_gear.Controllers
                         return View();
                     }
 
-                    // Dang nhap thanh cong: luu thong tin vao Session
+                    // Luu thong tin dang nhap vao Session
                     Session["UserID"] = userId;
                     Session["FullName"] = fullName;
                     Session["Role"] = role;
                 }
 
-                // Chuyen den trang chu sau khi dang nhap
                 return RedirectToAction("Index", "Home");
             }
             catch (SqlException)
@@ -168,12 +166,762 @@ namespace web_sport_gear.Controllers
             }
         }
 
+
+        public ActionResult OrderHistory()
+        {
+            // Kiểm tra người dùng đã đăng nhập chưa
+            if (Session["UserID"] == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            int userId;
+
+            if (!int.TryParse(Session["UserID"].ToString(), out userId))
+            {
+                Session.Clear();
+                Session.Abandon();
+                return RedirectToAction("Login", "Account");
+            }
+
+            List<CustomerOrderHistoryViewModel> orders =
+                new List<CustomerOrderHistoryViewModel>();
+
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            {
+                string query = @"
+            SELECT
+                o.OrderID,
+                o.ReceiverName,
+                o.ReceiverPhone,
+                o.ShippingAddress,
+                o.TotalAmount,
+                o.PaymentMethod,
+                o.PaymentStatus,
+                o.OrderStatus,
+                o.CreatedAt,
+
+                d.OrderDetailID,
+                d.ProductID,
+                d.ProductName,
+                d.Quantity,
+                d.UnitPrice
+
+            FROM dbo.Orders o
+
+            LEFT JOIN dbo.OrderDetails d
+                ON o.OrderID = d.OrderID
+
+            WHERE o.UserID = @UserID
+
+            ORDER BY
+                o.CreatedAt DESC,
+                o.OrderID DESC,
+                d.OrderDetailID ASC;
+        ";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@UserID", userId);
+
+                    connection.Open();
+
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        Dictionary<int, CustomerOrderHistoryViewModel> orderDictionary =
+                            new Dictionary<int, CustomerOrderHistoryViewModel>();
+
+                        while (reader.Read())
+                        {
+                            int orderId = reader.GetInt32(
+                                reader.GetOrdinal("OrderID"));
+
+                            CustomerOrderHistoryViewModel order;
+
+                            // Nếu đơn hàng chưa được thêm vào danh sách
+                            if (!orderDictionary.TryGetValue(orderId, out order))
+                            {
+                                order = new CustomerOrderHistoryViewModel();
+
+                                order.OrderID = orderId;
+                                order.ReceiverName = reader.GetString(
+                                    reader.GetOrdinal("ReceiverName"));
+
+                                order.ReceiverPhone = reader.GetString(
+                                    reader.GetOrdinal("ReceiverPhone"));
+
+                                order.ShippingAddress = reader.GetString(
+                                    reader.GetOrdinal("ShippingAddress"));
+
+                                order.TotalAmount = reader.GetDecimal(
+                                    reader.GetOrdinal("TotalAmount"));
+
+                                order.PaymentMethod = reader.GetString(
+                                    reader.GetOrdinal("PaymentMethod"));
+
+                                order.PaymentStatus = reader.GetString(
+                                    reader.GetOrdinal("PaymentStatus"));
+
+                                order.OrderStatus = reader.GetString(
+                                    reader.GetOrdinal("OrderStatus"));
+
+                                order.CreatedAt = reader.GetDateTime(
+                                    reader.GetOrdinal("CreatedAt"));
+
+                                orderDictionary.Add(orderId, order);
+                                orders.Add(order);
+                            }
+
+                            // Đọc sản phẩm thuộc đơn hàng
+                            int detailOrdinal = reader.GetOrdinal("OrderDetailID");
+
+                            if (!reader.IsDBNull(detailOrdinal))
+                            {
+                                CustomerOrderItemViewModel item =
+                                    new CustomerOrderItemViewModel();
+
+                                item.OrderDetailID = reader.GetInt32(detailOrdinal);
+
+                                item.ProductID = reader.GetInt32(
+                                    reader.GetOrdinal("ProductID"));
+
+                                item.ProductName = reader.GetString(
+                                    reader.GetOrdinal("ProductName"));
+
+                                item.Quantity = reader.GetInt32(
+                                    reader.GetOrdinal("Quantity"));
+
+                                item.UnitPrice = reader.GetDecimal(
+                                    reader.GetOrdinal("UnitPrice"));
+
+                                order.Items.Add(item);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return View(orders);
+        }
+
+
+        // GET: Account/Profile
+        [HttpGet]
+        public new ActionResult Profile()
+        {
+            // Kiem tra nguoi dung da dang nhap
+            if (Session["UserID"] == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            int userId = Convert.ToInt32(Session["UserID"]);
+
+            try
+            {
+                using (SqlConnection connection =
+                    new SqlConnection(ConnectionString))
+                {
+                    connection.Open();
+
+                    string sql = @"
+                        SELECT UserID, FullName, Email, Phone,
+                               DateOfBirth, Gender, Address, Avatar
+                        FROM dbo.Users
+                        WHERE UserID = @UserID AND IsActive = 1;";
+
+                    using (SqlCommand command =
+                        new SqlCommand(sql, connection))
+                    {
+                        command.Parameters.AddWithValue("@UserID", userId);
+
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            if (!reader.Read())
+                            {
+                                Session.Clear();
+                                Session.Abandon();
+
+                                return RedirectToAction("Login");
+                            }
+
+                            UserProfileViewModel model =
+                                new UserProfileViewModel
+                                {
+                                    UserID = Convert.ToInt32(reader["UserID"]),
+
+                                    FullName = reader["FullName"].ToString(),
+
+                                    Email = reader["Email"].ToString(),
+
+                                    Phone = reader["Phone"] == DBNull.Value
+                                        ? ""
+                                        : reader["Phone"].ToString(),
+
+                                    DateOfBirth =
+                                        reader["DateOfBirth"] == DBNull.Value
+                                        ? (DateTime?)null
+                                        : Convert.ToDateTime(reader["DateOfBirth"]),
+
+                                    Gender = reader["Gender"] == DBNull.Value
+                                        ? ""
+                                        : reader["Gender"].ToString(),
+
+                                    Address = reader["Address"] == DBNull.Value
+                                        ? ""
+                                        : reader["Address"].ToString(),
+
+                                    Avatar = reader["Avatar"] == DBNull.Value
+                                        ? ""
+                                        : reader["Avatar"].ToString()
+                                };
+
+                            return View(model);
+                        }
+                    }
+                }
+            }
+            catch (SqlException)
+            {
+                TempData["ProfileError"] =
+                    "Khong the tai thong tin ho so. Vui long thu lai.";
+
+                return RedirectToAction("Index", "Home");
+            }
+            catch (ConfigurationErrorsException)
+            {
+                TempData["ProfileError"] =
+                    "Khong tim thay cau hinh ket noi GearSportDB.";
+
+                return RedirectToAction("Index", "Home");
+            }
+            catch (InvalidOperationException)
+            {
+                TempData["ProfileError"] =
+                    "Khong the ket noi co so du lieu.";
+
+                return RedirectToAction("Index", "Home");
+            }
+        }
+
+        // POST: Account/UpdateProfile
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult UpdateProfile(UserProfileViewModel model)
+        {
+            // Kiem tra dang nhap
+            if (Session["UserID"] == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            // Luon lay UserID tu Session, khong lay tu form
+            int userId = Convert.ToInt32(Session["UserID"]);
+
+            // Chuan hoa du lieu
+            model.FullName = (model.FullName ?? "").Trim();
+            model.Phone = (model.Phone ?? "").Trim();
+            model.Gender = (model.Gender ?? "").Trim();
+            model.Address = (model.Address ?? "").Trim();
+
+            // Kiem tra ho va ten
+            if (string.IsNullOrWhiteSpace(model.FullName))
+            {
+                ModelState.AddModelError(
+                    "FullName",
+                    "Vui long nhap ho va ten.");
+            }
+            else if (model.FullName.Length > 100)
+            {
+                ModelState.AddModelError(
+                    "FullName",
+                    "Ho va ten khong duoc vuot qua 100 ky tu.");
+            }
+
+            // Kiem tra so dien thoai
+            if (!string.IsNullOrWhiteSpace(model.Phone))
+            {
+                if (model.Phone.Length > 20 ||
+                    !Regex.IsMatch(model.Phone, @"^[0-9+\-\s()]{7,20}$"))
+                {
+                    ModelState.AddModelError(
+                        "Phone",
+                        "So dien thoai khong hop le.");
+                }
+            }
+
+            // Kiem tra ngay sinh
+            if (model.DateOfBirth.HasValue &&
+                model.DateOfBirth.Value.Date > DateTime.Today)
+            {
+                ModelState.AddModelError(
+                    "DateOfBirth",
+                    "Ngay sinh khong duoc lon hon ngay hien tai.");
+            }
+
+            // Kiem tra gioi tinh
+            if (!string.IsNullOrWhiteSpace(model.Gender) &&
+                model.Gender != "Nam" &&
+                model.Gender != "Nu" &&
+                model.Gender != "Khac")
+            {
+                ModelState.AddModelError(
+                    "Gender",
+                    "Gioi tinh khong hop le.");
+            }
+
+            // Neu du lieu khong hop le, giu nguyen noi dung da nhap
+            if (!ModelState.IsValid)
+            {
+                return View("Profile", model);
+            }
+
+            try
+            {
+                using (SqlConnection connection =
+                    new SqlConnection(ConnectionString))
+                {
+                    connection.Open();
+
+                    string sql = @"
+                        UPDATE dbo.Users
+                        SET FullName = @FullName,
+                            Phone = @Phone,
+                            DateOfBirth = @DateOfBirth,
+                            Gender = @Gender,
+                            Address = @Address
+                        WHERE UserID = @UserID
+                          AND IsActive = 1;";
+
+                    using (SqlCommand command =
+                        new SqlCommand(sql, connection))
+                    {
+                        command.Parameters.AddWithValue(
+                            "@FullName", model.FullName);
+
+                        command.Parameters.AddWithValue(
+                            "@Phone",
+                            string.IsNullOrWhiteSpace(model.Phone)
+                                ? (object)DBNull.Value
+                                : model.Phone);
+
+                        command.Parameters.AddWithValue(
+                            "@DateOfBirth",
+                            model.DateOfBirth.HasValue
+                                ? (object)model.DateOfBirth.Value.Date
+                                : DBNull.Value);
+
+                        command.Parameters.AddWithValue(
+                            "@Gender",
+                            string.IsNullOrWhiteSpace(model.Gender)
+                                ? (object)DBNull.Value
+                                : model.Gender);
+
+                        command.Parameters.AddWithValue(
+                            "@Address",
+                            string.IsNullOrWhiteSpace(model.Address)
+                                ? (object)DBNull.Value
+                                : model.Address);
+
+                        command.Parameters.AddWithValue(
+                            "@UserID", userId);
+
+                        int rowsAffected = command.ExecuteNonQuery();
+
+                        if (rowsAffected == 0)
+                        {
+                            Session.Clear();
+                            Session.Abandon();
+
+                            return RedirectToAction("Login");
+                        }
+                    }
+                }
+
+                // Cap nhat ten hien thi trong Session
+                Session["FullName"] = model.FullName;
+
+                TempData["ProfileSuccess"] =
+                    "Cap nhat thong tin ca nhan thanh cong!";
+
+                return RedirectToAction("Profile");
+            }
+            catch (SqlException)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "Khong the cap nhat ho so. Vui long thu lai sau.");
+
+                return View("Profile", model);
+            }
+            catch (ConfigurationErrorsException)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "Khong tim thay cau hinh ket noi GearSportDB.");
+
+                return View("Profile", model);
+            }
+            catch (InvalidOperationException)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "Khong the ket noi co so du lieu.");
+
+                return View("Profile", model);
+            }
+        }
+
+
+
+        // POST: Account/UploadAvatar
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult UploadAvatar(HttpPostedFileBase avatarFile)
+        {
+            if (Session["UserID"] == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            int userId = Convert.ToInt32(Session["UserID"]);
+
+            // Kiem tra file
+            if (avatarFile == null || avatarFile.ContentLength == 0)
+            {
+                TempData["ProfileError"] = "Vui long chon anh dai dien.";
+                return RedirectToAction("Profile");
+            }
+
+            // Gioi han dung luong 2MB
+            if (avatarFile.ContentLength > 2 * 1024 * 1024)
+            {
+                TempData["ProfileError"] = "Anh khong duoc vuot qua 2MB.";
+                return RedirectToAction("Profile");
+            }
+
+            // Chi chap nhan JPG, JPEG, PNG
+            string extension = Path.GetExtension(avatarFile.FileName).ToLowerInvariant();
+
+            if (extension != ".jpg" &&
+                extension != ".jpeg" &&
+                extension != ".png")
+            {
+                TempData["ProfileError"] = "Chi chap nhan anh JPG, JPEG hoac PNG.";
+                return RedirectToAction("Profile");
+            }
+
+            // Kiem tra chu ky file de tranh doi ten file khong phai anh
+            byte[] header = new byte[8];
+            int bytesRead = avatarFile.InputStream.Read(header, 0, header.Length);
+
+            bool isJpeg = bytesRead >= 3 &&
+                          header[0] == 0xFF &&
+                          header[1] == 0xD8 &&
+                          header[2] == 0xFF;
+
+            bool isPng = bytesRead >= 8 &&
+                         header[0] == 0x89 &&
+                         header[1] == 0x50 &&
+                         header[2] == 0x4E &&
+                         header[3] == 0x47 &&
+                         header[4] == 0x0D &&
+                         header[5] == 0x0A &&
+                         header[6] == 0x1A &&
+                         header[7] == 0x0A;
+
+            avatarFile.InputStream.Position = 0;
+
+            if (!((extension == ".jpg" || extension == ".jpeg") && isJpeg) &&
+                !(extension == ".png" && isPng))
+            {
+                TempData["ProfileError"] = "Noi dung file khong phai anh JPG hoac PNG hop le.";
+                return RedirectToAction("Profile");
+            }
+
+            string folderPath = Server.MapPath("~/Content/Uploads/Avatars/");
+
+            string newFileName = Guid.NewGuid().ToString("N") + extension;
+
+            string newFilePath = Path.Combine(folderPath, newFileName);
+
+            string avatarUrl = "~/Content/Uploads/Avatars/" + newFileName;
+
+            try
+            {
+                // Tao thu muc neu chua ton tai
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                // Luu anh vao thu muc
+                avatarFile.SaveAs(newFilePath);
+
+                using (SqlConnection connection = new SqlConnection(ConnectionString))
+                {
+                    connection.Open();
+
+                    // Lay avatar cu cua tai khoan
+                    string oldAvatar = null;
+
+                    string selectSql = @"
+                SELECT Avatar
+                FROM dbo.Users
+                WHERE UserID = @UserID AND IsActive = 1;";
+
+                    using (SqlCommand command = new SqlCommand(selectSql, connection))
+                    {
+                        command.Parameters.AddWithValue("@UserID", userId);
+
+                        object result = command.ExecuteScalar();
+
+                        // Chi khi khong tim thay tai khoan moi chuyen ve Login
+                        if (result == null)
+                        {
+                            Session.Clear();
+                            Session.Abandon();
+
+                            System.IO.File.Delete(newFilePath);
+
+                            return RedirectToAction("Login");
+                        }
+
+                        // Tai khoan ton tai nhung chua co avatar thi oldAvatar = null
+                        oldAvatar = result == DBNull.Value
+                            ? null
+                            : result.ToString();
+                    }
+
+                    // Cap nhat duong dan anh moi vao database
+                    string updateSql = @"
+                UPDATE dbo.Users
+                SET Avatar = @Avatar
+                WHERE UserID = @UserID AND IsActive = 1;";
+
+                    using (SqlCommand command = new SqlCommand(updateSql, connection))
+                    {
+                        command.Parameters.AddWithValue("@Avatar", avatarUrl);
+                        command.Parameters.AddWithValue("@UserID", userId);
+
+                        command.ExecuteNonQuery();
+                    }
+
+                    // Xoa anh cu neu anh cu nam trong thu muc avatar cua website
+                    if (!string.IsNullOrWhiteSpace(oldAvatar) &&
+                        oldAvatar.StartsWith(
+                            "~/Content/Uploads/Avatars/",
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        string oldFileName = Path.GetFileName(oldAvatar);
+
+                        string oldFilePath = Path.Combine(folderPath, oldFileName);
+
+                        if (System.IO.File.Exists(oldFilePath) &&
+                            !string.Equals(
+                                oldFilePath,
+                                newFilePath,
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            System.IO.File.Delete(oldFilePath);
+                        }
+                    }
+                }
+
+                TempData["ProfileSuccess"] = "Cap nhat anh dai dien thanh cong!";
+
+                return RedirectToAction("Profile");
+            }
+            catch (Exception)
+            {
+                // Xoa file moi neu qua trinh cap nhat that bai
+                if (System.IO.File.Exists(newFilePath))
+                {
+                    System.IO.File.Delete(newFilePath);
+                }
+
+                TempData["ProfileError"] =
+                    "Khong the tai anh dai dien. Vui long thu lai.";
+
+                return RedirectToAction("Profile");
+            }
+        }
+
         // GET: Account/Register
         [HttpGet]
         public ActionResult Register()
         {
             return View();
         }
+
+
+        // GET: Account/ChangePassword
+        [HttpGet]
+        public ActionResult ChangePassword()
+        {
+            if (Session["UserID"] == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            return View(new ChangePasswordViewModel());
+        }
+
+
+        // POST: Account/ChangePassword
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ChangePassword(ChangePasswordViewModel model)
+        {
+            // Kiem tra dang nhap
+            if (Session["UserID"] == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            int userId = Convert.ToInt32(Session["UserID"]);
+
+            // Kiem tra du lieu dau vao
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                using (SqlConnection connection =
+                    new SqlConnection(ConnectionString))
+                {
+                    connection.Open();
+
+                    // Lay mat khau hien tai trong database
+                    string selectSql = @"
+                SELECT PasswordHash
+                FROM dbo.Users
+                WHERE UserID = @UserID
+                  AND IsActive = 1;";
+
+                    string passwordHash = null;
+
+                    using (SqlCommand command =
+                        new SqlCommand(selectSql, connection))
+                    {
+                        command.Parameters.AddWithValue("@UserID", userId);
+
+                        object result = command.ExecuteScalar();
+
+                        if (result == null || result == DBNull.Value)
+                        {
+                            Session.Clear();
+                            Session.Abandon();
+
+                            return RedirectToAction("Login");
+                        }
+
+                        passwordHash = result.ToString();
+                    }
+
+                    // Kiem tra mat khau hien tai
+                    bool currentPasswordCorrect = false;
+
+                    try
+                    {
+                        currentPasswordCorrect =
+                            Crypto.VerifyHashedPassword(
+                                passwordHash,
+                                model.CurrentPassword);
+                    }
+                    catch (FormatException)
+                    {
+                        currentPasswordCorrect = false;
+                    }
+
+                    if (!currentPasswordCorrect)
+                    {
+                        ModelState.AddModelError(
+                            "CurrentPassword",
+                            "Mat khau hien tai khong chinh xac.");
+
+                        return View(model);
+                    }
+
+                    // Khong cho phep dung lai mat khau cu
+                    if (Crypto.VerifyHashedPassword(
+                        passwordHash,
+                        model.NewPassword))
+                    {
+                        ModelState.AddModelError(
+                            "NewPassword",
+                            "Mat khau moi phai khac mat khau hien tai.");
+
+                        return View(model);
+                    }
+
+                    // Ma hoa mat khau moi
+                    string newPasswordHash =
+                        Crypto.HashPassword(model.NewPassword);
+
+                    // Cap nhat mat khau moi
+                    string updateSql = @"
+                UPDATE dbo.Users
+                SET PasswordHash = @PasswordHash
+                WHERE UserID = @UserID
+                  AND IsActive = 1;";
+
+                    using (SqlCommand command =
+                        new SqlCommand(updateSql, connection))
+                    {
+                        command.Parameters.AddWithValue(
+                            "@PasswordHash",
+                            newPasswordHash);
+
+                        command.Parameters.AddWithValue(
+                            "@UserID",
+                            userId);
+
+                        int rowsAffected = command.ExecuteNonQuery();
+
+                        if (rowsAffected == 0)
+                        {
+                            Session.Clear();
+                            Session.Abandon();
+
+                            return RedirectToAction("Login");
+                        }
+                    }
+                }
+
+                TempData["PasswordSuccess"] =
+                    "Doi mat khau thanh cong!";
+
+                return RedirectToAction("ChangePassword");
+            }
+            catch (SqlException)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "Khong the cap nhat mat khau. Vui long thu lai.");
+
+                return View(model);
+            }
+            catch (ConfigurationErrorsException)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "Khong tim thay cau hinh ket noi GearSportDB.");
+
+                return View(model);
+            }
+            catch (InvalidOperationException)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "Khong the ket noi co so du lieu.");
+
+                return View(model);
+            }
+        }
+
 
         // POST: Account/Register
         [HttpPost]
@@ -308,9 +1056,15 @@ namespace web_sport_gear.Controllers
                     using (SqlCommand command =
                         new SqlCommand(insertSql, connection))
                     {
-                        command.Parameters.AddWithValue("@FullName", FullName);
-                        command.Parameters.AddWithValue("@Email", Email);
-                        command.Parameters.AddWithValue("@Phone", Phone);
+                        command.Parameters.AddWithValue(
+                            "@FullName", FullName);
+
+                        command.Parameters.AddWithValue(
+                            "@Email", Email);
+
+                        command.Parameters.AddWithValue(
+                            "@Phone", Phone);
+
                         command.Parameters.AddWithValue(
                             "@PasswordHash", passwordHash);
 
@@ -319,7 +1073,7 @@ namespace web_sport_gear.Controllers
                 }
 
                 TempData["RegisterSuccess"] =
-      "Dang ky thanh cong! Ban co the dang nhap.";
+                    "Dang ky thanh cong! Ban co the dang nhap.";
 
                 return RedirectToAction("Login");
             }
@@ -370,4 +1124,3 @@ namespace web_sport_gear.Controllers
         }
     }
 }
-   

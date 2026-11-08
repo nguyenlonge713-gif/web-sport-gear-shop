@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -18,7 +19,6 @@
     <link href="@Url.Content("~/Content/style.css")" rel="stylesheet" />
     <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" />
 
-    <!-- CSS Header & Layout -->
     <style>
         * {
             box-sizing: border-box;
@@ -47,7 +47,6 @@
             z-index: 1000;
         }
 
-            /* LOGO */
             header > .logo {
                 font-size: 22px;
                 font-weight: 900;
@@ -180,18 +179,39 @@
                 transform: translateY(-2px);
             }
 
-        /* THÔNG TIN NGƯỜI DÙNG */
+        /* ==================== MENU TÀI KHOẢN ==================== */
+        .account-dropdown {
+            position: relative;
+        }
+
         .header-user {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
             color: #0f172a;
+            font-family: 'Montserrat', sans-serif;
             font-size: 13px;
             font-weight: 700;
             white-space: nowrap;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
         }
 
-            .header-user > i {
+            .header-user:hover {
+                background-color: #f1f5f9;
+            }
+
+            .header-user:focus {
+                outline: 2px solid #ff5722;
+                outline-offset: 2px;
+            }
+
+            .header-user > i:first-child {
                 font-size: 17px;
                 color: #ff5722;
             }
@@ -202,18 +222,85 @@
             text-overflow: ellipsis;
         }
 
-        /* FORM ĐĂNG XUẤT */
+        .account-arrow {
+            font-size: 11px !important;
+            color: #64748b !important;
+            transition: transform 0.2s ease;
+        }
+
+        .account-dropdown.is-open .account-arrow {
+            transform: rotate(180deg);
+        }
+
+        /* KHUNG MENU */
+        .account-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 240px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+            padding: 8px;
+            z-index: 2000;
+        }
+
+            .account-menu[hidden] {
+                display: none !important;
+            }
+
+            .account-menu a {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 12px;
+                color: #334155;
+                text-decoration: none;
+                font-size: 13px;
+                font-weight: 600;
+                border-radius: 6px;
+                transition: background-color 0.2s ease, color 0.2s ease;
+            }
+
+                .account-menu a i {
+                    width: 18px;
+                    color: #ff5722;
+                    text-align: center;
+                }
+
+                .account-menu a:hover {
+                    background-color: #fff1eb;
+                    color: #ff5722;
+                }
+
+        .account-menu-divider {
+            height: 1px;
+            background: #e5e7eb;
+            margin: 6px 0;
+        }
+
+        .account-role {
+            padding: 8px 12px;
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        /* ==================== ĐĂNG XUẤT ==================== */
         .logout-form {
-            display: inline-flex;
+            display: block;
+            width: 100%;
             margin: 0;
         }
 
         .header-logout-btn {
-            display: inline-flex;
+            display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            padding: 10px 14px;
+            width: 100%;
+            padding: 11px 14px;
             border: none;
             border-radius: 6px;
             background-color: #0f172a;
@@ -230,7 +317,7 @@
                 background-color: #334155;
             }
 
-        /* GIỎ HÀNG */
+        /* ==================== GIỎ HÀNG ==================== */
         .cart a {
             position: relative;
             color: #0f172a;
@@ -371,13 +458,20 @@
                 padding: 9px 10px;
                 font-size: 11px;
             }
+
+            .account-menu {
+                right: 50%;
+                transform: translateX(50%);
+            }
         }
     </style>
 </head>
 
 <body>
+
     <!-- ==================== HEADER GEAR SPORT ==================== -->
     <header>
+
         <!-- LOGO -->
         <a href="@Url.Action("Index", "Home")" class="logo">
             Gear Sport
@@ -405,12 +499,15 @@
                 <li>
                     <a href="@Url.Action("Index", "Home")">Trang Chủ</a>
                 </li>
+
                 <li>
                     <a href="@Url.Action("AoTheThao", "Home")">Áo Thể Thao</a>
                 </li>
+
                 <li>
                     <a href="@Url.Action("GiayDaBong", "Home")">Giày Đá Bóng</a>
                 </li>
+
                 <li>
                     <a href="@Url.Action("PhuKien", "Home")">Phụ Kiện</a>
                 </li>
@@ -422,40 +519,77 @@
 
             @if (Session["UserID"] != null)
             {
-                <!-- HIỂN THỊ KHI ĐÃ ĐĂNG NHẬP -->
-            <div class="header-user">
-                <i class="fa-regular fa-user"></i>
+                <div class="account-dropdown" id="accountDropdown">
 
-                <span class="header-user-name">
-                    Xin chào, @(Session["FullName"] ?? "Khách hàng")
+                    <!-- NÚT MỞ MENU -->
+                    <button type="button"
+                            class="header-user"
+                            id="accountToggle"
+                            aria-expanded="false"
+                            aria-controls="accountMenu">
 
-                </span>
-                <!-- KIỂM TRA VAI TRÒ -->
-                <span class="header-user-role">
-                    (@Session["Role"])
-                </span>
-            </div>
+                        <i class="fa-regular fa-user"></i>
 
-                <!-- FORM ĐĂNG XUẤT -->
-                using (Html.BeginForm(
-                    "Logout",
-                    "Account",
-                    FormMethod.Post,
-                    new { @class = "logout-form" }))
-                {
-                    @Html.AntiForgeryToken()
+                        <span class="header-user-name">
+                            Xin chào, @(Session["FullName"] ?? "Khách hàng")
+                        </span>
 
-                    <button type="submit" class="header-logout-btn">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                        Đăng xuất
+                        <i class="fa-solid fa-chevron-down account-arrow"></i>
                     </button>
-                }
+
+                    <!-- MENU TÀI KHOẢN -->
+                    <div class="account-menu"
+                         id="accountMenu"
+                         hidden>
+
+                        <!-- HỒ SƠ -->
+                        <a href="@Url.Action("Profile", "Account")">
+                            <i class="fa-regular fa-id-card"></i>
+                            Hồ sơ của tôi
+                        </a>
+
+                        <!-- LỊCH SỬ MUA HÀNG -->
+                        <a href="@Url.Action("OrderHistory", "Account")">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                            Lịch sử mua hàng
+                        </a>
+
+                        <!-- ĐỔI MẬT KHẨU -->
+                        <a href="@Url.Action("ChangePassword", "Account")">
+                            <i class="fa-solid fa-lock"></i>
+                            Đổi mật khẩu
+                        </a>
+
+                        <div class="account-menu-divider"></div>
+
+                        <div class="account-role">
+                            Vai trò: @(Session["Role"] ?? "Khách hàng")
+                        </div>
+
+                        <!-- FORM ĐĂNG XUẤT -->
+                        @using (Html.BeginForm(
+                            "Logout",
+                            "Account",
+                            FormMethod.Post,
+                            new { @class = "logout-form" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit" class="header-logout-btn">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                                Đăng xuất
+                            </button>
+                        }
+
+                    </div>
+                </div>
             }
             else
             {
                 <!-- HIỂN THỊ KHI CHƯA ĐĂNG NHẬP -->
                 <a href="@Url.Action("Login", "Account")"
                    class="header-login-btn">
+
                     <i class="fa-regular fa-user"></i>
                     <span>Đăng nhập</span>
                 </a>
@@ -465,6 +599,7 @@
             <div class="cart">
                 <a href="@Url.Action("Cart", "Home")"
                    aria-label="Giỏ hàng">
+
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-count">0</span>
                 </a>
@@ -483,15 +618,69 @@
         <p>&copy; 2026 - Gear Sport Store. All rights reserved.</p>
     </footer>
 
-
     <!-- ==================== JAVASCRIPT ==================== -->
-
     <script>
-    // Kiểm tra đăng nhập bằng Session của ASP.NET MVC
-    window.isUserLoggedIn = @(Session["UserID"] != null ? "true" : "false");
+        // Kiểm tra trạng thái đăng nhập bằng Session ASP.NET MVC
+        window.isUserLoggedIn = @(Session["UserID"] != null ? "true" : "false");
 
-    // Tạo URL đăng nhập theo đúng cấu hình route của dự án
-    window.loginUrl = '@Url.Action("Login", "Account")';
+        // URL đăng nhập
+        window.loginUrl = '@Url.Action("Login", "Account")';
+
+        // XỬ LÝ MENU TÀI KHOẢN
+        document.addEventListener("DOMContentLoaded", function () {
+
+            var dropdown = document.getElementById("accountDropdown");
+            var toggle = document.getElementById("accountToggle");
+            var menu = document.getElementById("accountMenu");
+
+            if (!dropdown || !toggle || !menu) {
+                return;
+            }
+
+            // MỞ / ĐÓNG MENU
+            toggle.addEventListener("click", function (event) {
+
+                event.stopPropagation();
+
+                var isOpening = menu.hidden;
+
+                menu.hidden = !isOpening;
+
+                toggle.setAttribute(
+                    "aria-expanded",
+                    isOpening ? "true" : "false"
+                );
+
+                dropdown.classList.toggle("is-open", isOpening);
+            });
+
+            // ĐÓNG MENU KHI NHẤN RA NGOÀI
+            document.addEventListener("click", function (event) {
+
+                if (!dropdown.contains(event.target)) {
+
+                    menu.hidden = true;
+
+                    toggle.setAttribute("aria-expanded", "false");
+
+                    dropdown.classList.remove("is-open");
+                }
+            });
+
+            // ĐÓNG MENU BẰNG PHÍM ESC
+            document.addEventListener("keydown", function (event) {
+
+                if (event.key === "Escape") {
+
+                    menu.hidden = true;
+
+                    toggle.setAttribute("aria-expanded", "false");
+
+                    dropdown.classList.remove("is-open");
+                }
+            });
+
+        });
     </script>
 
     <script src="@Url.Content("~/Scripts/main.js")"></script>

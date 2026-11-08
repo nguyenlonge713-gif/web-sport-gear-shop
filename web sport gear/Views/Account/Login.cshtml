@@ -20,7 +20,6 @@
 <body>
     <main class="login-page">
 
-        <!-- BÊN TRAI: HINH ANH VA THUONG HIEU -->
         <section class="hero-panel">
 
             <a href="@Url.Content("~/")" class="brand brand-light">
@@ -66,7 +65,6 @@
             </div>
         </section>
 
-        <!-- BEN PHAI: FORM DANG NHAP -->
         <section class="form-panel">
 
             <nav class="top-nav">
@@ -97,7 +95,6 @@
                     mua sắm và khám phá những ưu đãi hấp dẫn.
                 </p>
 
-                <!-- THONG BAO DANG KY THANH CONG -->
                 @if (TempData["RegisterSuccess"] != null)
                 {
                     <div class="demo-message">
@@ -105,7 +102,6 @@
                     </div>
                 }
 
-                <!-- FORM DANG NHAP GUI DU LIEU DEN CONTROLLER -->
                 @using (Html.BeginForm(
                     "Login",
                     "Account",
@@ -114,7 +110,6 @@
                 {
                     @Html.AntiForgeryToken()
 
-                    <!-- THONG BAO LOI TU CONTROLLER -->
                     @Html.ValidationSummary(
                         false,
                         "",
@@ -182,7 +177,6 @@
                         ĐĂNG NHẬP
                     </button>
 
-                    <!-- THONG BAO CHO CAC CHUC NANG DEMO -->
                     <div id="loginMessage"
                          class="demo-message"
                          role="status"
@@ -190,29 +184,6 @@
                          hidden>
                     </div>
 
-                    <div class="social-divider">
-                        <span></span>
-                        <p>Hoặc đăng nhập với</p>
-                        <span></span>
-                    </div>
-
-                    <div class="social-buttons">
-                        <button type="button"
-                                class="social-button google-button"
-                                id="googleLogin"
-                                aria-label="Đăng nhập bằng Google">
-                            <i class="fa-brands fa-google"></i>
-                        </button>
-
-                        <button type="button"
-                                class="social-button facebook-button"
-                                id="facebookLogin"
-                                aria-label="Đăng nhập bằng Facebook">
-                            <i class="fa-brands fa-facebook-f"></i>
-                        </button>
-                    </div>
-
-                    <!-- CHUYEN SANG TRANG DANG KY -->
                     <p class="register-text">
                         Chưa có tài khoản?
 
@@ -260,9 +231,6 @@
             loginMessage.hidden = false;
         }
 
-        // Luu y: khong chan su kien submit cua form dang nhap.
-        // Form se gui email va password den AccountController.
-
         // Quen mat khau
         document.getElementById("forgotPassword")
             .addEventListener("click", function (event) {
@@ -270,22 +238,6 @@
 
                 showDemoMessage(
                     "Chức năng quên mật khẩu chưa được triển khai."
-                );
-            });
-
-        // Dang nhap Google
-        document.getElementById("googleLogin")
-            .addEventListener("click", function () {
-                showDemoMessage(
-                    "Đăng nhập Google chưa được kết nối."
-                );
-            });
-
-        // Dang nhap Facebook
-        document.getElementById("facebookLogin")
-            .addEventListener("click", function () {
-                showDemoMessage(
-                    "Đăng nhập Facebook chưa được kết nối."
                 );
             });
     </script>

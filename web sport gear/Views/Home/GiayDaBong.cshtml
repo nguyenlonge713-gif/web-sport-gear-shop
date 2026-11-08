@@ -210,6 +210,19 @@
             gap: 18px;
         }
     }
+    .product-detail-link {
+        color: inherit;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+        .product-detail-link:hover {
+            color: #ff5722;
+        }
+
+    .product-img {
+        cursor: pointer;
+    }
 </style>
 
 <!-- 1. HERO CAMPAIGN BANNER -->
@@ -285,14 +298,20 @@
             {
                 <div class="product-item product-card">
 
-                    <img src="@product.ImageUrl"
-                         alt="@product.ProductName"
-                         class="product-img" />
+                   <a href="@Url.Action("Details", "Home", new { id = product.ProductID })"
+                      class="product-detail-link">
+                       <img src="@product.ImageUrl"
+                            alt="@product.ProductName"
+                            class="product-img" />
+                   </a>
 
                     <div class="product-info">
 
                         <h3 class="product-title">
-                            @product.ProductName
+                            <a href="@Url.Action("Details", "Home", new { id = product.ProductID })"
+                               class="product-detail-link">
+                                @product.ProductName
+                            </a>
                         </h3>
 
                         <p class="product-price">

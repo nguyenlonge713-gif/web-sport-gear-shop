@@ -66,7 +66,7 @@ namespace web_sport_gear.Controllers
                     Image = "https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=500"
                 },
                 new ProductSearchItem {
-                    Id = 12,
+                    Id = 9,
                     Name = "Áo Khoác Gió Thể Thao Nam",
                     Brand = "ADIDAS",
                     Category = "Áo Khoác Nam",
@@ -98,8 +98,8 @@ namespace web_sport_gear.Controllers
                     Image = "https://plus.unsplash.com/premium_photo-1781205755096-6caab3faf2a1?w=500"
                 },
                 new ProductSearchItem {
-                    Id = 13,
-                    Name = "Áo Polo Thể Thao Nam Lịch Lãm",
+                    Id = 16,
+                    Name = "Áo Polo Thể Thao Nam",
                     Brand = "NIKE",
                     Category = "Áo Polo",
                     Price = 290000,
@@ -172,11 +172,82 @@ namespace web_sport_gear.Controllers
         }
 
 
+
         public ActionResult Details(int? id)
         {
-            ViewBag.ProductId = id ?? 1;
-            return View();
+            if (id == null)
+            {
+                return HttpNotFound();
+            }
+
+            string connectionString =
+                ConfigurationManager.ConnectionStrings["GearSportDB"].ConnectionString;
+
+            web_sport_gear.Models.Product product = null;
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                string sql = @"
+            SELECT 
+                p.ProductID,
+                p.ProductName,
+                p.Price,
+                p.ImageUrl,
+                p.CategoryID,
+                p.Description,
+                p.IsActive,
+                p.StockQuantity,
+                c.CategoryName
+            FROM dbo.Products p
+            LEFT JOIN dbo.Categories c
+                ON p.CategoryID = c.CategoryID
+            WHERE p.ProductID = @ProductID";
+
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@ProductID", id.Value);
+
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            product = new web_sport_gear.Models.Product
+                            {
+                                ProductID = Convert.ToInt32(reader["ProductID"]),
+                                ProductName = reader["ProductName"].ToString(),
+                                Price = Convert.ToDecimal(reader["Price"]),
+                                ImageUrl = reader["ImageUrl"] == DBNull.Value
+                                    ? ""
+                                    : reader["ImageUrl"].ToString(),
+
+                                CategoryID = Convert.ToInt32(reader["CategoryID"]),
+
+                                Description = reader["Description"] == DBNull.Value
+                                    ? ""
+                                    : reader["Description"].ToString(),
+
+                                IsActive = Convert.ToBoolean(reader["IsActive"]),
+                                StockQuantity = Convert.ToInt32(reader["StockQuantity"]),
+
+                                CategoryName = reader["CategoryName"] == DBNull.Value
+                                    ? "Sản phẩm"
+                                    : reader["CategoryName"].ToString()
+                            };
+                        }
+                    }
+                }
+            }
+
+            if (product == null)
+            {
+                return HttpNotFound();
+            }
+
+            return View(product);
         }
+
 
         // Tìm kiếm sản phẩm theo tên, thương hiệu hoặc danh mục
         [HttpGet]
@@ -198,6 +269,7 @@ namespace web_sport_gear.Controllers
             return View(results);
         }
         // Lấy số lượng tồn kho của các sản phẩm hiển thị trên trang chủ
+        // Lấy số lượng tồn kho của các sản phẩm hiển thị trên trang chủ
         private Dictionary<int, int> GetProductStocks()
         {
             var stocks = new Dictionary<int, int>();
@@ -205,7 +277,8 @@ namespace web_sport_gear.Controllers
             string connectionString =
                 ConfigurationManager.ConnectionStrings["GearSportDB"].ConnectionString;
 
-            int[] productIds = { 1, 18, 17, 15, 2, 12, 4, 5, 6, 13 };
+            // Đã sửa ID 12 thành 9 và ID 13 thành 16
+            int[] productIds = { 1, 18, 17, 15, 2, 9, 4, 5, 6, 16 };
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -214,8 +287,7 @@ namespace web_sport_gear.Controllers
                 string sql = @"
             SELECT ProductID, StockQuantity
             FROM dbo.Products
-            WHERE ProductID IN
-                (1, 18, 17, 15, 2, 12, 4, 5, 6, 13)";
+            WHERE ProductID IN (1, 18, 17, 15, 2, 9, 4, 5, 6, 16)";
 
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 using (SqlDataReader reader = command.ExecuteReader())

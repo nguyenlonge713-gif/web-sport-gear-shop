@@ -130,13 +130,16 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Category.cs" />
+    <Compile Include="Models\ChangePasswordViewModel.cs" />
     <Compile Include="Models\CheckoutCartItem.cs" />
     <Compile Include="Models\CheckoutViewModel.cs" />
+    <Compile Include="Models\CustomerOrderHistoryViewModel.cs" />
     <Compile Include="Models\Order.cs" />
     <Compile Include="Models\OrderDetail.cs" />
     <Compile Include="Models\OrderHistoryViewModel.cs" />
     <Compile Include="Models\OrderListViewModel.cs" />
     <Compile Include="Models\Product.cs" />
+    <Compile Include="Models\UserProfileViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -156,6 +159,34 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
+    <Content Include="Content\Images\Products\10_2.jpg" />
+    <Content Include="Content\Images\Products\10_3.jpg" />
+    <Content Include="Content\Images\Products\11_2.jpg" />
+    <Content Include="Content\Images\Products\11_3.jpg" />
+    <Content Include="Content\Images\Products\15_2.jpg" />
+    <Content Include="Content\Images\Products\15_3.jpg" />
+    <Content Include="Content\Images\Products\16_2.jpg" />
+    <Content Include="Content\Images\Products\16_3.jpg" />
+    <Content Include="Content\Images\Products\17_2.jpg" />
+    <Content Include="Content\Images\Products\17_3.jpg" />
+    <Content Include="Content\Images\Products\18_2.jpg" />
+    <Content Include="Content\Images\Products\18_3.jpg" />
+    <Content Include="Content\Images\Products\19_2.jpg" />
+    <Content Include="Content\Images\Products\19_3.jpg" />
+    <Content Include="Content\Images\Products\1_2.jpg" />
+    <Content Include="Content\Images\Products\1_3.jpg" />
+    <Content Include="Content\Images\Products\2_2.jpg" />
+    <Content Include="Content\Images\Products\2_3.jpg" />
+    <Content Include="Content\Images\Products\3_2.jpg" />
+    <Content Include="Content\Images\Products\3_3.jpg" />
+    <Content Include="Content\Images\Products\4_2.jpg" />
+    <Content Include="Content\Images\Products\4_3.jpg" />
+    <Content Include="Content\Images\Products\5_2.jpg" />
+    <Content Include="Content\Images\Products\5_3.jpg" />
+    <Content Include="Content\Images\Products\6_2.jpg" />
+    <Content Include="Content\Images\Products\6_3.jpg" />
+    <Content Include="Content\Images\Products\9_2.jpg" />
+    <Content Include="Content\Images\Products\9_3.jpg" />
     <Content Include="Content\Login.css" />
     <Content Include="Content\style.css" />
     <Content Include="favicon.ico" />
@@ -191,6 +222,9 @@
     <Content Include="Views\Checkout\Success.cshtml" />
     <Content Include="Views\Admin\OrderList.cshtml" />
     <Content Include="Views\Admin\OrderDetails.cshtml" />
+    <Content Include="Views\Account\Profile.cshtml" />
+    <Content Include="Views\Account\ChangePassword.cshtml" />
+    <Content Include="Views\Account\OrderHistory.cshtml" />
     <None Include="Views\Home\Details.cshtml" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
