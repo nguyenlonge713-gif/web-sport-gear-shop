@@ -1,0 +1,279 @@
+﻿
+@{
+    ViewBag.Title = "Admin Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .admin-dashboard {
+        background: #f3f6fb;
+        min-height: 75vh;
+        padding: 35px 0 60px;
+    }
+
+        .admin-dashboard .container {
+            max-width: 1200px;
+        }
+
+    .admin-header {
+        background: linear-gradient(120deg, #142b4a, #1769aa);
+        color: white;
+        padding: 35px;
+        border-radius: 18px;
+        margin-bottom: 35px;
+        box-shadow: 0 8px 25px rgba(20, 43, 74, 0.15);
+    }
+
+        .admin-header h2 {
+            font-size: 27px;
+            font-weight: 800;
+            margin: 0 0 12px;
+            color: white;
+        }
+
+        .admin-header p {
+            margin: 0;
+            font-size: 15px;
+            color: #dce9f7;
+        }
+
+    .admin-section-title {
+        font-size: 21px;
+        font-weight: 800;
+        color: #24364b;
+        margin-bottom: 22px;
+    }
+
+    .admin-card {
+        background: white;
+        border-radius: 16px;
+        padding: 25px;
+        height: 100%;
+        min-height: 225px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e8edf4;
+        transition: all 0.25s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .admin-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.10);
+        }
+
+    .admin-icon {
+        width: 55px;
+        height: 55px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    .icon-product {
+        color: #2475d0;
+        background: #e6f1ff;
+    }
+
+    .icon-category {
+        color: #15966c;
+        background: #e2f8ef;
+    }
+
+    .icon-order {
+        color: #db8b17;
+        background: #fff3dc;
+    }
+
+    .icon-account {
+        color: #8555d9;
+        background: #f0eaff;
+    }
+
+    .admin-card h4 {
+        font-size: 18px;
+        font-weight: 800;
+        color: #24364b;
+        margin: 0 0 12px;
+    }
+
+    .admin-card p {
+        font-size: 14px;
+        line-height: 1.7;
+        color: #718096;
+        margin-bottom: 20px;
+    }
+
+    .admin-card a {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: auto;
+        color: #1769aa;
+        font-weight: 700;
+        font-size: 14px;
+        text-decoration: none;
+    }
+
+        .admin-card a:hover {
+            color: #0d4779;
+        }
+
+    .admin-card.disabled {
+        opacity: 0.75;
+    }
+
+        .admin-card.disabled a {
+            color: #999;
+            cursor: default;
+            pointer-events: none;
+        }
+
+    .admin-note {
+        margin-top: 30px;
+        padding: 18px 22px;
+        background: #eaf3ff;
+        border-left: 4px solid #2475d0;
+        border-radius: 8px;
+        color: #385575;
+        font-size: 14px;
+    }
+
+    @@media (max-width: 768px) {
+        .admin-header {
+            padding: 25px;
+        }
+
+            .admin-header h2 {
+                font-size: 22px;
+            }
+
+        .admin-card {
+            min-height: 200px;
+        }
+    }
+</style>
+
+<div class="admin-dashboard">
+    <div class="container">
+
+        <!-- HEADER -->
+        <div class="admin-header">
+            <h2>
+                <i class="fa-solid fa-gauge-high"></i>
+                TRANG QUẢN TRỊ GEAR SPORT
+            </h2>
+
+            <p>
+                Xin chào, <strong>@Session["FullName"]</strong>!
+                Chào mừng bạn đến với hệ thống quản lý cửa hàng.
+            </p>
+        </div>
+
+        <!-- MANAGEMENT -->
+        <h3 class="admin-section-title">
+            <i class="fa-solid fa-layer-group"></i>
+            Trung tâm quản lý
+        </h3>
+
+        <div class="row">
+
+            <!-- PRODUCTS -->
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="admin-card">
+                    <div class="admin-icon icon-product">
+                        <i class="fa-solid fa-box"></i>
+                    </div>
+
+                    <h4>Quản lý sản phẩm</h4>
+
+                    <p>
+                        Thêm sản phẩm mới, chỉnh sửa thông tin,
+                        cập nhật giá và quản lý tồn kho.
+                    </p>
+
+                    <a href="@Url.Action("ProductList", "Products", new { area = "Admin" })">
+                        Quản lý ngay
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- CATEGORIES -->
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="admin-card">
+                    <div class="admin-icon icon-category">
+                        <i class="fa-solid fa-list"></i>
+                    </div>
+
+                    <h4>Quản lý danh mục</h4>
+
+                    <p>
+                        Tạo, chỉnh sửa và quản lý các nhóm
+                        sản phẩm của cửa hàng.
+                    </p>
+
+                    <a href="@Url.Action("CategoryList", "Categories", new { area = "Admin" })">
+                        Quản lý ngay
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ORDERS -->
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="admin-card">
+                    <div class="admin-icon icon-order">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                    </div>
+
+                    <h4>Quản lý đơn hàng</h4>
+
+                    <p>
+                        Theo dõi đơn đặt hàng, xem thông tin
+                        khách hàng và cập nhật trạng thái.
+                    </p>
+
+                    <a href="@Url.Action("OrderList", "Orders", new { area = "Admin" })">
+                        Quản lý ngay
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+
+            <!-- ACCOUNTS -->
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="admin-card">
+                    <div class="admin-icon icon-account">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+
+                    <h4>Quản lý tài khoản</h4>
+
+                    <p>
+                        Xem danh sách người dùng, khóa tài khoản
+                        và phân quyền Admin hoặc Customer.
+                    </p>
+
+                    <a href="@Url.Action("Index", "Users", new { area = "Admin" })">
+                        Quản lý ngay
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="admin-note">
+            <i class="fa-solid fa-circle-info"></i>
+            <strong>Lưu ý:</strong>
+            Chọn một chức năng phía trên để bắt đầu quản lý
+            hoạt động của cửa hàng Gear Sport.
+        </div>
+
+    </div>
+</div>

@@ -2,7 +2,7 @@
 @model web_sport_gear.Models.UserProfileViewModel
 
 @{
-    ViewBag.Title = "Tài Khoản Của Tôi - Gear Sport";
+    ViewBag.Title = "Hồ Sơ Của Tôi - Gear Sport";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
     string avatarUrl = string.IsNullOrWhiteSpace(Model.Avatar)
@@ -11,364 +11,643 @@
 }
 
 <style>
-    .profile-page {
-        background: #f5f5f5;
+    .gs-profile-page {
+        background: #f3f6fb;
+        min-height: 80vh;
         padding: 45px 0 70px;
-        min-height: 75vh;
+        font-family: inherit;
     }
 
-    .profile-container {
-        max-width: 1150px;
-        margin: auto;
+    .gs-profile-container {
+        max-width: 1200px;
+        margin: 0 auto;
         padding: 0 20px;
     }
 
-    .profile-heading {
-        margin-bottom: 30px;
+    /* PAGE HEADING */
+    .gs-profile-heading {
+        margin-bottom: 28px;
     }
 
-        .profile-heading h2 {
-            font-size: 30px;
+        .gs-profile-heading h2 {
+            color: #142b4a;
+            font-size: 28px;
             font-weight: 800;
-            color: #171717;
-            margin-bottom: 8px;
+            letter-spacing: .4px;
+            margin: 0 0 9px;
         }
 
-        .profile-heading p {
-            color: #777;
+        .gs-profile-heading p {
+            color: #718096;
             font-size: 14px;
+            margin: 0;
         }
 
-    .profile-layout {
+    /* MAIN LAYOUT */
+    .gs-profile-layout {
         display: grid;
-        grid-template-columns: 280px 1fr;
+        grid-template-columns: 285px minmax(0, 1fr);
         gap: 25px;
         align-items: start;
     }
 
-    .profile-sidebar,
-    .profile-content {
+    .gs-profile-sidebar,
+    .gs-profile-content {
         background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 3px 15px rgba(0,0,0,0.06);
+        border: 1px solid #e8edf5;
+        border-radius: 15px;
+        box-shadow: 0 8px 28px rgba(20, 43, 74, .06);
     }
 
-    .profile-sidebar {
-        padding: 30px 20px;
+    /* SIDEBAR */
+    .gs-profile-sidebar {
+        padding: 28px 20px;
         text-align: center;
     }
 
-    .avatar-wrapper {
+    .gs-avatar-wrapper {
         width: 125px;
         height: 125px;
-        margin: 0 auto 18px;
+        margin: 0 auto 16px;
         border-radius: 50%;
         overflow: hidden;
-        border: 4px solid #f1f1f1;
-        background: #eee;
+        border: 4px solid #e8efff;
+        background: #edf2f9;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, .10);
     }
 
-        .avatar-wrapper img {
+        .gs-avatar-wrapper img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
 
-    .profile-sidebar h3 {
+    .gs-profile-sidebar h3 {
+        color: #142b4a;
         font-size: 19px;
-        font-weight: 700;
-        color: #222;
-        margin-bottom: 6px;
+        font-weight: 800;
+        margin: 0 0 7px;
         overflow-wrap: anywhere;
     }
 
-    .profile-email {
-        color: #888;
+    .gs-profile-email {
+        color: #8491a5;
         font-size: 13px;
         overflow-wrap: anywhere;
     }
 
-    .profile-role {
+    .gs-member-label {
         display: inline-block;
         margin-top: 15px;
-        padding: 6px 16px;
-        border-radius: 20px;
-        background: #fff0f0;
-        color: #dc2626;
-        font-size: 12px;
-        font-weight: 700;
+        padding: 7px 15px;
+        border-radius: 30px;
+        background: #edf4ff;
+        color: #2563eb;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: .5px;
     }
 
-    .profile-menu {
-        margin-top: 30px;
-        border-top: 1px solid #eee;
+    /* AVATAR UPLOAD */
+    .gs-avatar-upload {
+        margin: 17px 0 22px;
+    }
+
+    .gs-avatar-file-input {
+        display: none;
+    }
+
+    .gs-btn-avatar-upload {
+        display: inline-block;
+        background: #edf4ff;
+        color: #2563eb;
+        padding: 9px 15px;
+        border-radius: 7px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+        .gs-btn-avatar-upload:hover {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+    .gs-avatar-file-name {
+        color: #8491a5;
+        font-size: 11px;
+        margin-top: 8px;
+        overflow-wrap: anywhere;
+    }
+
+    .gs-btn-avatar-submit {
+        display: none;
+        margin: 10px auto 0;
+        padding: 8px 15px;
+        background: #142b4a;
+        color: #fff;
+        border: none;
+        border-radius: 7px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+        .gs-btn-avatar-submit:hover {
+            background: #2563eb;
+        }
+
+    /* SIDEBAR MENU */
+    .gs-profile-menu {
+        margin-top: 25px;
         padding-top: 15px;
+        border-top: 1px solid #edf0f5;
         text-align: left;
     }
 
-        .profile-menu a {
-            display: block;
-            padding: 12px 14px;
-            color: #555;
+        .gs-profile-menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 14px;
+            margin-bottom: 5px;
+            color: #64748b;
             text-decoration: none;
-            border-radius: 7px;
-            font-size: 14px;
-            transition: 0.2s;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: .2s;
         }
 
-            .profile-menu a:hover,
-            .profile-menu a.active {
-                background: #fff0f0;
-                color: #dc2626;
-            }
-
-            .profile-menu a i {
-                width: 25px;
+            .gs-profile-menu a i {
+                width: 19px;
                 text-align: center;
-                margin-right: 5px;
+                font-size: 15px;
             }
 
-    .profile-content {
+            .gs-profile-menu a:hover {
+                background: #f3f6fb;
+                color: #2563eb;
+            }
+
+            .gs-profile-menu a.active {
+                background: #edf4ff;
+                color: #2563eb;
+                font-weight: 800;
+            }
+
+    /* CONTENT */
+    .gs-profile-content {
         padding: 30px;
     }
 
-    .profile-section-title {
-        font-size: 21px;
-        font-weight: 800;
-        color: #222;
-        margin-bottom: 8px;
-    }
-
-    .profile-section-description {
-        font-size: 13px;
-        color: #888;
+    .gs-content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 15px;
+        padding-bottom: 23px;
+        border-bottom: 1px solid #edf0f5;
         margin-bottom: 25px;
     }
 
-    .profile-divider {
-        border: 0;
-        border-top: 1px solid #eee;
-        margin: 25px 0;
-    }
-
-    .profile-form .form-group {
-        margin-bottom: 20px;
-    }
-
-    .profile-form label {
-        display: block;
-        font-size: 14px;
-        font-weight: 600;
-        color: #444;
-        margin-bottom: 8px;
-    }
-
-    .profile-form .form-control {
-        height: 44px;
-        border: 1px solid #ddd;
-        border-radius: 7px;
-        padding: 10px 13px;
-        box-shadow: none;
-        font-size: 14px;
-        width: 100%;
-        background: #fff;
-    }
-
-        .profile-form .form-control:focus {
-            border-color: #dc2626;
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(220,38,38,0.08);
+        .gs-content-header h3 {
+            color: #142b4a;
+            font-size: 21px;
+            font-weight: 800;
+            margin: 0 0 8px;
         }
 
-        .profile-form .form-control[readonly] {
-            background: #f5f5f5;
-            color: #777;
-            cursor: not-allowed;
+        .gs-content-header p {
+            color: #8491a5;
+            font-size: 13px;
+            margin: 0;
+            line-height: 1.6;
         }
 
-    .profile-form textarea.form-control {
-        height: 95px;
-        resize: vertical;
+    .gs-header-icon {
+        width: 45px;
+        height: 45px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #edf4ff;
+        color: #2563eb;
+        border-radius: 11px;
+        font-size: 19px;
     }
 
-    .profile-form select.form-control {
-        cursor: pointer;
-    }
-
-    .field-error {
-        color: #dc2626;
-        font-size: 12px;
-        margin-top: 5px;
-        display: block;
-    }
-
-    .validation-summary-errors {
-        color: #dc2626;
-        background: #fff0f0;
-        border: 1px solid #fecaca;
-        padding: 12px 15px;
-        border-radius: 7px;
+    /* ALERTS */
+    .gs-profile-alert {
+        padding: 13px 16px;
+        border-radius: 8px;
         margin-bottom: 20px;
         font-size: 13px;
+        line-height: 1.6;
     }
 
-        .validation-summary-errors ul {
-            margin: 0;
-            padding-left: 20px;
-        }
-
-    .profile-alert {
-        padding: 13px 16px;
-        border-radius: 7px;
-        margin-bottom: 20px;
-        font-size: 14px;
-    }
-
-        .profile-alert.success {
+        .gs-profile-alert.success {
             background: #ecfdf5;
             color: #047857;
             border: 1px solid #a7f3d0;
         }
 
-        .profile-alert.error {
-            background: #fef2f2;
-            color: #b91c1c;
-            border: 1px solid #fecaca;
+        .gs-profile-alert.error {
+            background: #fff7ed;
+            color: #c2410c;
+            border: 1px solid #fed7aa;
         }
 
-    .profile-actions {
+    .gs-validation-summary {
+        color: #b91c1c;
+        background: #fff7f7;
+        border: 1px solid #fecaca;
+        border-radius: 8px;
+        padding: 12px 15px;
+        margin-bottom: 20px;
+        font-size: 13px;
+    }
+
+        .gs-validation-summary ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+    /* FORM SECTION */
+    .gs-form-section-title {
         display: flex;
-        gap: 12px;
-        margin-top: 25px;
-        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        color: #142b4a;
+        font-size: 15px;
+        font-weight: 800;
+        margin: 0 0 20px;
     }
 
-    .btn-profile-save {
-        background: #dc2626;
-        color: white;
-        border: none;
-        border-radius: 7px;
-        padding: 12px 25px;
-        font-size: 14px;
+        .gs-form-section-title i {
+            color: #2563eb;
+            font-size: 16px;
+        }
+
+    .gs-profile-form .form-group {
+        margin-bottom: 21px;
+    }
+
+    .gs-profile-form label {
+        display: block;
+        color: #40516a;
+        font-size: 13px;
         font-weight: 700;
-        cursor: pointer;
-        transition: 0.2s;
+        margin-bottom: 8px;
     }
 
-        .btn-profile-save:hover {
-            background: #b91c1c;
-        }
-
-    .btn-profile-cancel {
-        display: inline-block;
-        background: #eee;
-        color: #444;
-        border-radius: 7px;
-        padding: 12px 25px;
-        text-decoration: none;
-        font-size: 14px;
+    .gs-profile-form .form-control {
+        width: 100%;
+        height: 45px;
+        padding: 10px 13px;
+        border: 1px solid #dce3ed;
+        border-radius: 8px;
+        background: #fff;
+        color: #334155;
+        font-size: 13px;
+        box-shadow: none;
+        transition: .2s;
     }
 
-        .btn-profile-cancel:hover {
-            background: #ddd;
-            color: #222;
-            text-decoration: none;
+        .gs-profile-form .form-control:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, .10);
         }
 
-    .profile-note {
-        margin-top: 20px;
-        padding: 13px 15px;
-        background: #f8f8f8;
-        border-radius: 7px;
-        color: #777;
-        font-size: 12px;
+        .gs-profile-form .form-control[readonly] {
+            background: #f3f6fb;
+            color: #8491a5;
+            cursor: not-allowed;
+        }
+
+    .gs-profile-form textarea.form-control {
+        height: 95px;
+        resize: vertical;
         line-height: 1.6;
     }
 
+    .gs-profile-form select.form-control {
+        cursor: pointer;
+    }
+
+    .gs-field-error {
+        display: block;
+        color: #dc2626;
+        font-size: 11px;
+        margin-top: 6px;
+    }
+
+    .gs-email-hint {
+        display: block;
+        color: #94a3b8;
+        font-size: 11px;
+        margin-top: 7px;
+    }
+
+    /* FORM FOOTER */
+    .gs-profile-divider {
+        border: 0;
+        border-top: 1px solid #edf0f5;
+        margin: 10px 0 23px;
+    }
+
+    .gs-profile-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .gs-btn-save {
+        display: inline-block;
+        padding: 12px 23px;
+        border: none;
+        border-radius: 8px;
+        background: #2563eb;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+        .gs-btn-save:hover {
+            background: #1d4ed8;
+            box-shadow: 0 5px 13px rgba(37, 99, 235, .2);
+        }
+
+    .gs-btn-cancel {
+        display: inline-block;
+        padding: 12px 22px;
+        border-radius: 8px;
+        background: #f1f5f9;
+        color: #475569;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+        .gs-btn-cancel:hover {
+            background: #e2e8f0;
+            color: #142b4a;
+            text-decoration: none;
+        }
+
+    /* NOTE */
+    .gs-profile-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-top: 24px;
+        padding: 14px 16px;
+        background: #f8fafc;
+        border: 1px solid #e8edf5;
+        border-radius: 8px;
+        color: #718096;
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+        .gs-profile-note i {
+            color: #2563eb;
+            margin-top: 2px;
+        }
+
+        .gs-profile-note strong {
+            color: #40516a;
+        }
+
+    /* RESPONSIVE */
     @@media (max-width: 768px) {
-        .profile-layout {
+        .gs-profile-page {
+            padding: 28px 0 45px;
+        }
+
+        .gs-profile-layout {
             grid-template-columns: 1fr;
         }
 
-        .profile-content {
-            padding: 22px 18px;
+        .gs-profile-sidebar {
+            padding: 25px 18px;
         }
 
-        .profile-heading h2 {
-            font-size: 25px;
-        }
-    }
-    .avatar-upload {
-        margin-top: 15px;
-    }
-
-    .btn-avatar-upload {
-        display: inline-block;
-        background: #dc2626;
-        color: white;
-        padding: 9px 17px;
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 700;
-        border: none;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-        .btn-avatar-upload:hover {
-            background: #b91c1c;
-            color: white;
+        .gs-profile-content {
+            padding: 23px 18px;
         }
 
-    .avatar-file-input {
-        display: none;
-    }
-
-    .avatar-file-name {
-        font-size: 11px;
-        color: #888;
-        margin-top: 8px;
-        overflow-wrap: anywhere;
-    }
-
-    .btn-avatar-submit {
-        display: none;
-        margin: 10px auto 0;
-        background: #222;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        padding: 8px 15px;
-        font-size: 12px;
-        cursor: pointer;
-    }
-
-        .btn-avatar-submit:hover {
-            background: #444;
+        .gs-profile-heading h2 {
+            font-size: 23px;
         }
+
+        .gs-content-header h3 {
+            font-size: 18px;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .gs-profile-container {
+            padding: 0 12px;
+        }
+
+        .gs-profile-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .gs-btn-save,
+        .gs-btn-cancel {
+            width: 100%;
+            text-align: center;
+        }
+    }
+    /* ===== COLORFUL GEAR SPORT THEME ===== */
+
+    /* Nền trang */
+    .gs-profile-page {
+        background: linear-gradient(135deg, #eaf2ff 0%, #f4f7fc 50%, #fff5e9 100%);
+    }
+
+    /* Tiêu đề trang */
+    .gs-profile-heading h2 {
+        color: #12345a;
+        position: relative;
+        padding-left: 15px;
+    }
+
+        .gs-profile-heading h2::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 3px;
+            width: 5px;
+            height: 28px;
+            border-radius: 5px;
+            background: linear-gradient(180deg, #2563eb, #f59e0b);
+        }
+
+    /* Sidebar */
+    .gs-profile-sidebar {
+        border-top: 4px solid #2563eb;
+        background: linear-gradient(180deg, #ffffff, #f8fbff);
+    }
+
+    .gs-avatar-wrapper {
+        border-color: #dbeafe;
+        box-shadow: 0 0 0 5px #eff6ff, 0 8px 20px rgba(37, 99, 235, .13);
+    }
+
+    /* Huy hiệu thành viên */
+    .gs-member-label {
+        background: linear-gradient(135deg, #dbeafe, #eff6ff);
+        color: #1d4ed8;
+        border: 1px solid #bfdbfe;
+    }
+
+    /* Menu */
+    .gs-profile-menu a.active {
+        background: linear-gradient(100deg, #dbeafe, #eff6ff);
+        color: #1d4ed8;
+        border-left: 3px solid #2563eb;
+    }
+
+    .gs-profile-menu a:hover {
+        background: #fff4e5;
+        color: #ea580c;
+    }
+
+        .gs-profile-menu a:hover i {
+            color: #ea580c;
+        }
+
+    /* Khung nội dung */
+    .gs-profile-content {
+        border-top: 4px solid #f59e0b;
+    }
+
+    /* Tiêu đề nội dung */
+    .gs-content-header {
+        background: linear-gradient(100deg, #f0f6ff, #ffffff);
+        padding: 18px;
+        margin: -30px -30px 25px;
+        border-radius: 12px 12px 0 0;
+        border-bottom: 1px solid #dbeafe;
+    }
+
+        .gs-content-header h3 {
+            color: #12345a;
+        }
+
+    .gs-header-icon {
+        background: linear-gradient(135deg, #2563eb, #60a5fa);
+        color: #fff;
+        box-shadow: 0 5px 12px rgba(37, 99, 235, .2);
+    }
+
+    /* Tiêu đề từng nhóm */
+    .gs-form-section-title {
+        color: #12345a;
+        background: #f0f6ff;
+        border-left: 4px solid #2563eb;
+        border-radius: 0 7px 7px 0;
+        padding: 12px 15px;
+    }
+
+        .gs-form-section-title i {
+            color: #f59e0b;
+        }
+
+    /* Ô nhập liệu */
+    .gs-profile-form .form-control {
+        background: #fbfdff;
+        border-color: #d8e3f2;
+    }
+
+        .gs-profile-form .form-control:focus {
+            background: #fff;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
+        }
+
+    /* Nút lưu */
+    .gs-btn-save {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, .18);
+    }
+
+        .gs-btn-save:hover {
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+            transform: translateY(-2px);
+        }
+
+    /* Nút quay lại */
+    .gs-btn-cancel {
+        background: #fff3e0;
+        color: #c56a0a;
+        border: 1px solid #fed7aa;
+    }
+
+        .gs-btn-cancel:hover {
+            background: #ffedd5;
+            color: #9a3412;
+        }
+
+    /* Ghi chú */
+    .gs-profile-note {
+        background: linear-gradient(100deg, #eff6ff, #fffaf2);
+        border-color: #dbeafe;
+    }
+
+        .gs-profile-note i {
+            color: #f59e0b;
+        }
+
+    /* Thông báo thành công */
+    .gs-profile-alert.success {
+        background: #ecfdf5;
+        border-left: 4px solid #10b981;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .gs-content-header {
+            margin: -23px -18px 25px;
+            padding: 16px;
+        }
+    }
 </style>
 
-<div class="profile-page">
-    <div class="profile-container">
+<div class="gs-profile-page">
+    <div class="gs-profile-container">
 
-        <div class="profile-heading">
-            <h2>TÀI KHOẢN CỦA TÔI</h2>
+        <!-- PAGE HEADING -->
+        <div class="gs-profile-heading">
+            <h2>HỒ SƠ CỦA TÔI</h2>
             <p>Quản lý thông tin cá nhân và tài khoản Gear Sport của bạn.</p>
         </div>
 
-        <div class="profile-layout">
+        <div class="gs-profile-layout">
 
             <!-- SIDEBAR -->
-            <div class="profile-sidebar">
+            <aside class="gs-profile-sidebar">
 
-                <div class="avatar-wrapper">
+                <div class="gs-avatar-wrapper">
                     <img id="avatarPreview"
                          src="@avatarUrl"
                          alt="Ảnh đại diện"
                          onerror="this.onerror=null;this.src='@Url.Content("~/Content/Images/default-avatar.png")';" />
                 </div>
 
-                <!-- FORM UPLOAD AVATAR -->
+                <!-- AVATAR UPLOAD FORM -->
                 @using (Html.BeginForm(
                     "UploadAvatar",
                     "Account",
@@ -377,26 +656,26 @@
                 {
                     @Html.AntiForgeryToken()
 
-                    <div class="avatar-upload">
+                    <div class="gs-avatar-upload">
 
-                        <label for="avatarFile" class="btn-avatar-upload">
+                        <label for="avatarFile" class="gs-btn-avatar-upload">
                             <i class="glyphicon glyphicon-camera"></i>
-                            Chọn ảnh đại diện
+                            Thay đổi ảnh
                         </label>
 
                         <input type="file"
                                id="avatarFile"
                                name="avatarFile"
-                               class="avatar-file-input"
+                               class="gs-avatar-file-input"
                                accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
 
-                        <div id="avatarFileName" class="avatar-file-name">
+                        <div id="avatarFileName" class="gs-avatar-file-name">
                             Chưa chọn ảnh
                         </div>
 
                         <button type="submit"
                                 id="btnAvatarSubmit"
-                                class="btn-avatar-submit">
+                                class="gs-btn-avatar-submit">
                             <i class="glyphicon glyphicon-upload"></i>
                             Tải ảnh lên
                         </button>
@@ -406,19 +685,27 @@
 
                 <h3>@Model.FullName</h3>
 
-                <div class="profile-email">
+                <div class="gs-profile-email">
                     @Model.Email
                 </div>
 
-                <div class="profile-role">
+                <div class="gs-member-label">
+                    <i class="glyphicon glyphicon-ok-circle"></i>
                     THÀNH VIÊN GEAR SPORT
                 </div>
 
-                <div class="profile-menu">
+                <!-- ACCOUNT MENU -->
+                <nav class="gs-profile-menu">
+
                     <a href="@Url.Action("Profile", "Account")"
                        class="active">
                         <i class="glyphicon glyphicon-user"></i>
                         Thông tin cá nhân
+                    </a>
+
+                    <a href="@Url.Action("OrderHistory", "Account")">
+                        <i class="glyphicon glyphicon-list-alt"></i>
+                        Lịch sử mua hàng
                     </a>
 
                     <a href="@Url.Action("ChangePassword", "Account")">
@@ -435,54 +722,68 @@
                         <i class="glyphicon glyphicon-shopping-cart"></i>
                         Tiếp tục mua sắm
                     </a>
+
+                </nav>
+
+            </aside>
+
+            <!-- MAIN CONTENT -->
+            <main class="gs-profile-content">
+
+                <div class="gs-content-header">
+                    <div>
+                        <h3>Thông tin cá nhân</h3>
+                        <p>
+                            Cập nhật thông tin cá nhân để Gear Sport
+                            phục vụ bạn tốt hơn.
+                        </p>
+                    </div>
+
+                    <div class="gs-header-icon">
+                        <i class="glyphicon glyphicon-user"></i>
+                    </div>
                 </div>
 
-            </div>
-
-            <!-- PROFILE FORM -->
-            <div class="profile-content">
-
-                <h3 class="profile-section-title">
-                    Thông tin cá nhân
-                </h3>
-
-                <p class="profile-section-description">
-                    Cập nhật thông tin để Gear Sport phục vụ bạn tốt hơn.
-                </p>
-
+                <!-- SUCCESS MESSAGE -->
                 @if (TempData["ProfileSuccess"] != null)
                 {
-                    <div class="profile-alert success">
-                        <strong>Thành công!</strong>
+                    <div class="gs-profile-alert success">
+                        <i class="glyphicon glyphicon-ok-circle"></i>
+                        <strong> Thành công! </strong>
                         @TempData["ProfileSuccess"]
                     </div>
                 }
 
+                <!-- ERROR MESSAGE -->
                 @if (TempData["ProfileError"] != null)
                 {
-                    <div class="profile-alert error">
+                    <div class="gs-profile-alert error">
+                        <i class="glyphicon glyphicon-exclamation-sign"></i>
                         @TempData["ProfileError"]
                     </div>
                 }
 
+                <!-- UPDATE PROFILE FORM -->
                 @using (Html.BeginForm(
                     "UpdateProfile",
                     "Account",
                     FormMethod.Post,
-                    new { @class = "profile-form" }))
+                    new { @class = "gs-profile-form" }))
                 {
                     @Html.AntiForgeryToken()
 
                     @Html.HiddenFor(model => model.UserID)
-                    @Html.HiddenFor(model => model.Email)
 
-                    @Html.ValidationSummary(
-                        false,
-                        "",
-                        new { @class = "validation-summary-errors" })
+                   
+
+                    <h4 class="gs-form-section-title">
+                        <i class="glyphicon glyphicon-user"></i>
+                        Thông tin cơ bản
+                    </h4>
 
                     <div class="row">
 
+                        <!-- FULL NAME -->
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Họ và tên *</label>
@@ -498,13 +799,14 @@
                                 @Html.ValidationMessageFor(
                                     model => model.FullName,
                                     "",
-                                    new { @class = "field-error" })
+                                    new { @class = "gs-field-error" })
                             </div>
                         </div>
 
+                        <!-- EMAIL -->
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Email</label>
+                                <label>Email đăng nhập</label>
 
                                 @Html.TextBoxFor(
                                     model => model.Email,
@@ -514,32 +816,38 @@
                                         @readonly = "readonly"
                                     })
 
-                                <small class="field-error">
+                                <small class="gs-email-hint">
                                     Email hiện chưa hỗ trợ thay đổi.
                                 </small>
                             </div>
                         </div>
 
+                        <!-- PHONE -->
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Số điện thoại</label>
 
                                 @Html.TextBoxFor(
-                                    model => model.Phone,
-                                    new
-                                    {
-                                        @class = "form-control",
-                                        placeholder = "Nhập số điện thoại",
-                                        maxlength = "20"
-                                    })
+    model => model.Phone,
+    new
+    {
+        @class = "form-control",
+        placeholder = "Nhập số điện thoại gồm 10 chữ số",
+        maxlength = "10",
+        minlength = "10",
+        pattern = "0[0-9]{9}",
+        inputmode = "numeric",
+        oninput = "this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)"
+    })
 
                                 @Html.ValidationMessageFor(
                                     model => model.Phone,
                                     "",
-                                    new { @class = "field-error" })
+                                    new { @class = "gs-field-error" })
                             </div>
                         </div>
 
+                        <!-- DATE OF BIRTH -->
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Ngày sinh</label>
@@ -556,10 +864,11 @@
                                 @Html.ValidationMessageFor(
                                     model => model.DateOfBirth,
                                     "",
-                                    new { @class = "field-error" })
+                                    new { @class = "gs-field-error" })
                             </div>
                         </div>
 
+                        <!-- GENDER -->
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Giới tính</label>
@@ -594,10 +903,21 @@
                                 @Html.ValidationMessageFor(
                                     model => model.Gender,
                                     "",
-                                    new { @class = "field-error" })
+                                    new { @class = "gs-field-error" })
                             </div>
                         </div>
 
+                    </div>
+
+                    <hr class="gs-profile-divider" />
+
+                    <!-- ADDRESS -->
+                    <h4 class="gs-form-section-title">
+                        <i class="glyphicon glyphicon-map-marker"></i>
+                        Thông tin liên hệ
+                    </h4>
+
+                    <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label>Địa chỉ</label>
@@ -614,92 +934,99 @@
                                 @Html.ValidationMessageFor(
                                     model => model.Address,
                                     "",
-                                    new { @class = "field-error" })
+                                    new { @class = "gs-field-error" })
                             </div>
                         </div>
-
                     </div>
 
-                    <hr class="profile-divider" />
+                    <hr class="gs-profile-divider" />
 
-                    <div class="profile-actions">
+                    <!-- ACTIONS -->
+                    <div class="gs-profile-actions">
 
-                        <button type="submit" class="btn-profile-save">
+                        <button type="submit" class="gs-btn-save">
                             <i class="glyphicon glyphicon-floppy-disk"></i>
                             Lưu thay đổi
                         </button>
 
                         <a href="@Url.Action("Index", "Home")"
-                           class="btn-profile-cancel">
-                            Hủy
+                           class="gs-btn-cancel">
+                            <i class="glyphicon glyphicon-arrow-left"></i>
+                            Quay lại trang chủ
                         </a>
 
                     </div>
                 }
 
-            <div class="profile-note">
-                <strong>Lưu ý:</strong>
-                Email đăng nhập hiện được giữ cố định.
-                Ảnh đại diện chỉ chấp nhận định dạng JPG, JPEG hoặc PNG
-                và dung lượng tối đa 2MB.
-            </div>
+                <!-- NOTE -->
+                <div class="gs-profile-note">
+                    <i class="glyphicon glyphicon-info-sign"></i>
+                    <div>
+                        <strong>Lưu ý:</strong>
+                        Email đăng nhập hiện được giữ cố định.
+                        Ảnh đại diện chỉ chấp nhận định dạng JPG, JPEG hoặc PNG
+                        và dung lượng tối đa 2MB.
+                    </div>
+                </div>
 
-            </div>
-            <script>
-                document.addEventListener("DOMContentLoaded", function () {
+            </main>
 
-                    var avatarInput = document.getElementById("avatarFile");
-                    var avatarPreview = document.getElementById("avatarPreview");
-                    var avatarFileName = document.getElementById("avatarFileName");
-                    var btnAvatarSubmit = document.getElementById("btnAvatarSubmit");
-
-                    if (!avatarInput || !avatarPreview ||
-                        !avatarFileName || !btnAvatarSubmit) {
-                        return;
-                    }
-
-                    avatarInput.addEventListener("change", function () {
-
-                        var file = this.files[0];
-
-                        if (!file) {
-                            avatarFileName.textContent = "Chưa chọn ảnh";
-                            btnAvatarSubmit.style.display = "none";
-                            return;
-                        }
-
-                        var allowedTypes = ["image/jpeg", "image/png"];
-
-                        if (!allowedTypes.includes(file.type)) {
-                            alert("Vui lòng chọn ảnh JPG, JPEG hoặc PNG.");
-                            this.value = "";
-                            avatarFileName.textContent = "Chưa chọn ảnh";
-                            btnAvatarSubmit.style.display = "none";
-                            return;
-                        }
-
-                        if (file.size > 2 * 1024 * 1024) {
-                            alert("Ảnh không được vượt quá 2MB.");
-                            this.value = "";
-                            avatarFileName.textContent = "Chưa chọn ảnh";
-                            btnAvatarSubmit.style.display = "none";
-                            return;
-                        }
-
-                        var reader = new FileReader();
-
-                        reader.onload = function (event) {
-                            avatarPreview.src = event.target.result;
-                        };
-
-                        reader.readAsDataURL(file);
-
-                        avatarFileName.textContent = file.name;
-                        btnAvatarSubmit.style.display = "inline-block";
-                    });
-
-                });
-            </script>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        var avatarInput = document.getElementById("avatarFile");
+        var avatarPreview = document.getElementById("avatarPreview");
+        var avatarFileName = document.getElementById("avatarFileName");
+        var btnAvatarSubmit = document.getElementById("btnAvatarSubmit");
+
+        if (!avatarInput || !avatarPreview ||
+            !avatarFileName || !btnAvatarSubmit) {
+            return;
+        }
+
+        avatarInput.addEventListener("change", function () {
+
+            var file = this.files[0];
+
+            if (!file) {
+                avatarFileName.textContent = "Chưa chọn ảnh";
+                btnAvatarSubmit.style.display = "none";
+                return;
+            }
+
+            var allowedTypes = ["image/jpeg", "image/png"];
+
+            if (!allowedTypes.includes(file.type)) {
+                alert("Vui lòng chọn ảnh JPG, JPEG hoặc PNG.");
+                this.value = "";
+                avatarFileName.textContent = "Chưa chọn ảnh";
+                btnAvatarSubmit.style.display = "none";
+                return;
+            }
+
+            if (file.size > 2 * 1024 * 1024) {
+                alert("Ảnh không được vượt quá 2MB.");
+                this.value = "";
+                avatarFileName.textContent = "Chưa chọn ảnh";
+                btnAvatarSubmit.style.display = "none";
+                return;
+            }
+
+            var reader = new FileReader();
+
+            reader.onload = function (event) {
+                avatarPreview.src = event.target.result;
+            };
+
+            reader.readAsDataURL(file);
+
+            avatarFileName.textContent = file.name;
+            btnAvatarSubmit.style.display = "inline-block";
+        });
+
+    });
+</script>

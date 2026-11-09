@@ -1,88 +1,476 @@
 ﻿
+@model web_sport_gear.Models.CheckoutViewModel
+
 @{
     ViewBag.Title = "Thanh Toán - Gear Sport";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div id="checkout-container"
-     style="max-width:600px; margin:30px auto; background:white; padding:30px; border-radius:6px; box-shadow:0 2px 5px rgba(0,0,0,0.1); display:none;">
+<style>
+    .checkout-page {
+        max-width: 1050px;
+        margin: 40px auto;
+        padding: 0 15px 40px;
+    }
 
-    <h2 style="margin-bottom:20px; border-left:5px solid #ff4500; padding-left:10px;">
-        Thông Tin Giao Hàng
+    .checkout-heading {
+        font-size: 27px;
+        font-weight: 800;
+        color: #172554;
+        margin-bottom: 25px;
+    }
+
+        .checkout-heading span {
+            color: #ff5722;
+        }
+
+    .checkout-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 28px;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.07);
+        border: 1px solid #eee;
+    }
+
+    .checkout-section-title {
+        font-size: 19px;
+        font-weight: 750;
+        color: #172554;
+        margin-bottom: 22px;
+        padding-bottom: 13px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .checkout-label {
+        display: block;
+        font-weight: 650;
+        color: #334155;
+        margin-bottom: 8px;
+    }
+
+    .checkout-input {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #d1d5db;
+        border-radius: 7px;
+        outline: none;
+        font-size: 15px;
+        transition: border-color .2s, box-shadow .2s;
+    }
+
+        .checkout-input:focus {
+            border-color: #ff5722;
+            box-shadow: 0 0 0 3px rgba(255,87,34,.12);
+        }
+
+    .checkout-group {
+        margin-bottom: 20px;
+    }
+
+    .checkout-error {
+        color: #dc2626;
+        font-size: 13px;
+        display: block;
+        margin-top: 6px;
+    }
+
+    .checkout-validation-summary {
+        color: #b91c1c;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 7px;
+        padding: 12px 18px;
+        margin-bottom: 20px;
+    }
+
+        .checkout-validation-summary ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+    .checkout-summary {
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        border-radius: 9px;
+        padding: 20px;
+        height: 100%;
+    }
+
+    .checkout-summary-title {
+        font-size: 18px;
+        font-weight: 750;
+        color: #172554;
+        margin-bottom: 18px;
+    }
+
+    .checkout-product-list {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .checkout-product-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid #fed7aa;
+        font-size: 14px;
+    }
+
+    .checkout-product-name {
+        font-weight: 600;
+        color: #334155;
+        overflow-wrap: anywhere;
+    }
+
+    .checkout-product-price {
+        color: #64748b;
+        margin-top: 4px;
+        font-size: 13px;
+    }
+
+    .checkout-total {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-top: 20px;
+        padding-top: 17px;
+        border-top: 1px solid #fdba74;
+    }
+
+        .checkout-total strong {
+            font-size: 21px;
+            color: #ff5722;
+        }
+
+    .checkout-payment {
+        margin-top: 20px;
+        padding: 14px;
+        background: white;
+        border-radius: 7px;
+        border: 1px solid #fed7aa;
+    }
+
+        .checkout-payment i {
+            color: #ff5722;
+            margin-right: 8px;
+        }
+
+    .checkout-submit {
+        width: 100%;
+        padding: 14px;
+        margin-top: 22px;
+        background: #ff5722;
+        color: white;
+        border: none;
+        border-radius: 7px;
+        font-size: 16px;
+        font-weight: 750;
+        cursor: pointer;
+        transition: background .2s;
+    }
+
+        .checkout-submit:hover {
+            background: #e64a19;
+        }
+
+        .checkout-submit:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+    .checkout-back {
+        display: block;
+        text-align: center;
+        margin-top: 17px;
+        color: #64748b;
+        text-decoration: none;
+    }
+
+        .checkout-back:hover {
+            color: #ff5722;
+        }
+
+    .checkout-empty {
+        text-align: center;
+        background: white;
+        padding: 50px 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 18px rgba(0,0,0,.07);
+    }
+
+        .checkout-empty i {
+            font-size: 55px;
+            color: #ff5722;
+            margin-bottom: 18px;
+        }
+
+        .checkout-empty a {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 11px 23px;
+            background: #ff5722;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 650;
+        }
+
+    @@media (max-width: 767px) {
+        .checkout-card {
+            padding: 20px 15px;
+        }
+
+        .checkout-heading {
+            font-size: 23px;
+        }
+    }
+</style>
+
+<div class="checkout-page">
+
+    <h2 class="checkout-heading">
+        <i class="fa-solid fa-credit-card"></i>
+        THANH TOÁN <span>GEAR SPORT</span>
     </h2>
 
-    <div id="checkout-total"
-         style="margin-bottom:20px; padding:12px; background:#fff7ed; border-radius:5px; font-weight:bold;">
-        Tổng thanh toán: <span id="total-amount" style="color:#ff4500;">0 đ</span>
-    </div>
+    <div id="checkout-empty" class="checkout-empty" style="display:none;">
+        <i class="fa-solid fa-cart-shopping"></i>
+        <h3>Giỏ hàng đang trống</h3>
+        <p class="text-muted">
+            Vui lòng thêm sản phẩm vào giỏ hàng trước khi thanh toán.
+        </p>
 
-    <form id="checkout-form">
-        <div style="margin-bottom:15px;">
-            <label for="receiver-name" style="display:block; margin-bottom:5px; font-weight:500;">
-                Họ và tên người nhận
-            </label>
-            <input id="receiver-name"
-                   type="text"
-                   required
-                   maxlength="100"
-                   autocomplete="name"
-                   style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px;"
-                   placeholder="Nhập họ và tên...">
-        </div>
-
-        <div style="margin-bottom:15px;">
-            <label for="receiver-phone" style="display:block; margin-bottom:5px; font-weight:500;">
-                Số điện thoại
-            </label>
-            <input id="receiver-phone"
-                   type="tel"
-                   required
-                   maxlength="15"
-                   autocomplete="tel"
-                   pattern="[0-9+(). -]{9,15}"
-                   style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px;"
-                   placeholder="Nhập số điện thoại...">
-        </div>
-
-        <div style="margin-bottom:15px;">
-            <label for="delivery-address" style="display:block; margin-bottom:5px; font-weight:500;">
-                Địa chỉ giao hàng chi tiết
-            </label>
-            <textarea id="delivery-address"
-                      required
-                      maxlength="300"
-                      rows="3"
-                      autocomplete="street-address"
-                      style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px;"
-                      placeholder="Số nhà, tên đường, phường/xã..."></textarea>
-        </div>
-
-        <button id="submit-order"
-                type="submit"
-                class="btn"
-                style="width:100%; padding:12px; font-size:16px; background:#ff4500; color:white; border:none; border-radius:5px; font-weight:bold;">
-            Xác Nhận Đặt Hàng
-        </button>
-
-        <a href="@Url.Action("Cart", "Home")"
-           style="display:block; text-align:center; margin-top:15px; color:#555; text-decoration:none;">
+        <a href="@Url.Action("Cart", "Home")">
+            <i class="fa-solid fa-arrow-left"></i>
             Quay lại giỏ hàng
         </a>
-    </form>
-</div>
+    </div>
 
+    <div id="checkout-container" class="row" style="display:none;">
+
+        <!-- THÔNG TIN GIAO HÀNG -->
+        <div class="col-md-7 mb-4">
+
+            <div class="checkout-card">
+
+                <h4 class="checkout-section-title">
+                    <i class="fa-solid fa-location-dot" style="color:#ff5722;"></i>
+                    Thông tin giao hàng
+                </h4>
+
+                @using (Html.BeginForm(
+                    "Index",
+                    "Checkout",
+                    FormMethod.Post,
+                    new { id = "checkout-form" }))
+                {
+                    @Html.AntiForgeryToken()
+
+                    @Html.ValidationSummary(
+                        false,
+                        "",
+                        new { @class = "checkout-validation-summary" })
+
+                    @Html.Hidden("cartJson", "", new { id = "cartJson" })
+
+                    <div class="checkout-group">
+                        <label class="checkout-label" for="ReceiverName">
+                            Họ và tên người nhận
+                        </label>
+
+                        @Html.TextBoxFor(
+                            m => m.ReceiverName,
+                            new
+                            {
+                                @class = "checkout-input",
+                                id = "ReceiverName",
+                                placeholder = "Nhập họ và tên người nhận",
+                                maxlength = "200",
+                                autocomplete = "name",
+                                required = "required"
+                            })
+
+                        @Html.ValidationMessageFor(
+                            m => m.ReceiverName,
+                            "",
+                            new { @class = "checkout-error" })
+                    </div>
+
+                    <div class="checkout-group">
+                        <label class="checkout-label" for="ReceiverPhone">
+                            Số điện thoại
+                        </label>
+
+                        @Html.TextBoxFor(
+                            m => m.ReceiverPhone,
+                            new
+                            {
+                                @class = "checkout-input",
+                                id = "ReceiverPhone",
+                                placeholder = "Nhập số điện thoại 10 chữ số",
+                                maxlength = "40",
+                                type = "tel",
+                                inputmode = "numeric",
+                                autocomplete = "tel",
+                                required = "required"
+                            })
+
+                        <small id="phone-error" class="checkout-error"
+                               aria-live="polite"></small>
+
+                        @Html.ValidationMessageFor(
+                            m => m.ReceiverPhone,
+                            "",
+                            new { @class = "checkout-error" })
+                    </div>
+
+                    <div class="checkout-group">
+                        <label class="checkout-label" for="ShippingAddress">
+                            Địa chỉ giao hàng
+                        </label>
+
+                        @Html.TextAreaFor(
+                            m => m.ShippingAddress,
+                            new
+                            {
+                                @class = "checkout-input",
+                                id = "ShippingAddress",
+                                rows = "4",
+                                maxlength = "1000",
+                                placeholder = "Số nhà, tên đường, phường/xã, quận/huyện...",
+                                autocomplete = "street-address",
+                                required = "required"
+                            })
+
+                        @Html.ValidationMessageFor(
+                            m => m.ShippingAddress,
+                            "",
+                            new { @class = "checkout-error" })
+                    </div>
+
+                    <div class="checkout-group">
+                        <label class="checkout-label" for="Note">
+                            Ghi chú đơn hàng (không bắt buộc)
+                        </label>
+
+                        @Html.TextAreaFor(
+                            m => m.Note,
+                            new
+                            {
+                                @class = "checkout-input",
+                                id = "Note",
+                                rows = "2",
+                                maxlength = "1000",
+                                placeholder = "Ví dụ: Giao hàng vào buổi chiều..."
+                            })
+
+                        @Html.ValidationMessageFor(
+                            m => m.Note,
+                            "",
+                            new { @class = "checkout-error" })
+                    </div>
+
+                    <button id="submit-order"
+                            type="submit"
+                            class="checkout-submit">
+
+                        <i class="fa-solid fa-check-circle"></i>
+                        XÁC NHẬN ĐẶT HÀNG
+                    </button>
+
+                    <a href="@Url.Action("Cart", "Home")"
+                       class="checkout-back">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        Quay lại giỏ hàng
+                    </a>
+                }
+
+            </div>
+        </div>
+
+        <!-- TÓM TẮT ĐƠN HÀNG -->
+        <div class="col-md-5 mb-4">
+
+            <div class="checkout-summary">
+
+                <h4 class="checkout-summary-title">
+                    <i class="fa-solid fa-receipt" style="color:#ff5722;"></i>
+                    Đơn hàng của bạn
+                </h4>
+
+                <div id="checkout-product-list"
+                     class="checkout-product-list">
+                </div>
+
+                <div class="checkout-total">
+                    <span style="font-weight:700; color:#334155;">
+                        Tổng thanh toán
+                    </span>
+
+                    <strong id="total-amount">0 đ</strong>
+                </div>
+
+                <div class="checkout-payment">
+                    <div style="font-weight:700; color:#172554;">
+                        <i class="fa-solid fa-truck"></i>
+                        Thanh toán khi nhận hàng (COD)
+                    </div>
+
+                    <small class="text-muted">
+                        Bạn thanh toán trực tiếp cho nhân viên giao hàng khi nhận sản phẩm.
+                    </small>
+                </div>
+
+                <p style="font-size:12px; color:#64748b; margin-top:15px; margin-bottom:0;">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    Giá sản phẩm sẽ được hệ thống xác nhận lại từ cơ sở dữ liệu khi đặt hàng.
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+</div>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+
         const container = document.getElementById("checkout-container");
+        const emptyContainer = document.getElementById("checkout-empty");
         const form = document.getElementById("checkout-form");
+
         const totalAmount = document.getElementById("total-amount");
+        const productList = document.getElementById("checkout-product-list");
+
+        const cartJsonInput = document.getElementById("cartJson");
         const submitButton = document.getElementById("submit-order");
 
-        // Đọc dữ liệu giỏ hàng từ localStorage.
+        const phoneInput = document.getElementById("ReceiverPhone");
+        const phoneError = document.getElementById("phone-error");
+
+        // Lấy đúng giỏ hàng của tài khoản đang đăng nhập.
+        function getCartKey() {
+            if (
+                window.isUserLoggedIn !== true ||
+                !window.currentUserId ||
+                String(window.currentUserId).trim() === ""
+            ) {
+                return null;
+            }
+
+            return "cart_" + String(window.currentUserId).trim();
+        }
+
+        // Đọc giỏ hàng.
         function getValidCart() {
             try {
-                const rawCart = localStorage.getItem("cart");
+                const cartKey = getCartKey();
+
+                if (!cartKey) return [];
+
+                const rawCart = localStorage.getItem(cartKey);
 
                 if (!rawCart) return [];
 
@@ -93,76 +481,171 @@
                 return cart.filter(function (item) {
                     if (!item) return false;
 
-                    const price = Number(item.price);
+                    const id = Number(item.id);
                     const quantity = Number(item.quantity);
 
-                    return Number.isFinite(price) &&
-                        price > 0 &&
+                    return Number.isInteger(id) &&
+                        id > 0 &&
                         Number.isInteger(quantity) &&
                         quantity > 0;
                 });
+
             } catch (error) {
-                console.error("Lỗi đọc giỏ hàng:", error);
+                console.error("Không thể đọc giỏ hàng:", error);
                 return [];
             }
         }
 
+        // Định dạng tiền Việt Nam.
         function formatCurrency(amount) {
             return amount.toLocaleString("vi-VN") + " đ";
         }
 
-        function validateCart() {
-            const cart = getValidCart();
+        // Kiểm tra số điện thoại.
+        function validatePhone() {
 
-            if (cart.length === 0) {
-                container.style.display = "block";
-                container.innerHTML = `
-                    <h2>Giỏ hàng đang trống</h2>
-                    <p>Vui lòng thêm sản phẩm trước khi thanh toán.</p>
-                    <a href="/Home/Cart">Quay lại giỏ hàng</a>
-                `;
-                return null;
+            const phone = phoneInput.value.trim();
+            let error = "";
+
+            if (phone === "") {
+                error = "Vui lòng nhập số điện thoại.";
+            }
+            else if (!/^[0-9]+$/.test(phone)) {
+                error = "Số điện thoại chỉ được chứa chữ số từ 0 đến 9.";
+            }
+            else if (phone.length !== 10) {
+                error = "Số điện thoại phải có đúng 10 chữ số.";
+            }
+            else if (phone[0] !== "0") {
+                error = "Số điện thoại phải bắt đầu bằng số 0.";
+            }
+            else if (/^([0-9])\1{9}$/.test(phone)) {
+                error = "Số điện thoại không được chứa toàn bộ chữ số giống nhau.";
             }
 
-            const total = cart.reduce(function (sum, item) {
-                return sum + Number(item.price) * Number(item.quantity);
-            }, 0);
+            phoneError.textContent = error;
+            phoneInput.setCustomValidity(error);
 
-            return { cart: cart, total: total };
+            return error === "";
         }
 
-        // Hiển thị trang thanh toán khi có sản phẩm hợp lệ.
-        const initialData = validateCart();
+        phoneInput.addEventListener("input", validatePhone);
 
-        if (!initialData) return;
+        // Hiển thị sản phẩm và tổng tiền.
+        function renderCart(cart) {
 
-        totalAmount.textContent = formatCurrency(initialData.total);
-        container.style.display = "block";
+            productList.innerHTML = "";
 
-        // Xử lý xác nhận đặt hàng.
+            let total = 0;
+
+            cart.forEach(function (item) {
+
+                const name = String(item.name || "Sản phẩm");
+                const price = Number(item.price);
+                const quantity = Number(item.quantity);
+
+                const validPrice = Number.isFinite(price) && price >= 0
+                    ? price
+                    : 0;
+
+                const subtotal = validPrice * quantity;
+
+                total += subtotal;
+
+                const productItem = document.createElement("div");
+                productItem.className = "checkout-product-item";
+
+                const information = document.createElement("div");
+
+                const productName = document.createElement("div");
+                productName.className = "checkout-product-name";
+                productName.textContent = name;
+
+                const productPrice = document.createElement("div");
+                productPrice.className = "checkout-product-price";
+                productPrice.textContent =
+                    formatCurrency(validPrice) + " × " + quantity;
+
+                information.appendChild(productName);
+                information.appendChild(productPrice);
+
+                const subtotalElement = document.createElement("strong");
+                subtotalElement.style.whiteSpace = "nowrap";
+                subtotalElement.style.color = "#ea580c";
+                subtotalElement.textContent = formatCurrency(subtotal);
+
+                productItem.appendChild(information);
+                productItem.appendChild(subtotalElement);
+
+                productList.appendChild(productItem);
+            });
+
+            totalAmount.textContent = formatCurrency(total);
+        }
+
+        // Kiểm tra giỏ hàng ban đầu.
+        let initialCart = getValidCart();
+
+        if (initialCart.length === 0) {
+            emptyContainer.style.display = "block";
+            return;
+        }
+
+        container.style.display = "flex";
+        renderCart(initialCart);
+
+        // Xử lý gửi đơn hàng đến CheckoutController.
         form.addEventListener("submit", function (event) {
+
             event.preventDefault();
+
+            if (!validatePhone()) {
+                phoneInput.focus();
+                phoneInput.reportValidity();
+                return;
+            }
 
             if (!form.checkValidity()) {
                 form.reportValidity();
                 return;
             }
 
-            const currentData = validateCart();
+            // Đọc lại giỏ hàng để tránh dữ liệu cũ.
+            const currentCart = getValidCart();
+            console.log("Giỏ hàng đọc được:", currentCart);
 
-            if (!currentData) return;
+            console.log("Dữ liệu chuẩn bị gửi:", currentCart.map(function (item) {
+                return {
+                    Id: Number(item.id),
+                    Quantity: Number(item.quantity)
+                };
+            }));
 
-            alert(
-                "Đặt hàng thành công!\n" +
-                "Tổng thanh toán: " +
-                formatCurrency(currentData.total) 
-                
-            );
+            if (currentCart.length === 0) {
+                alert("Giỏ hàng đang trống. Vui lòng kiểm tra lại.");
+                window.location.href = "@Url.Action("Cart", "Home")";
+                return;
+            }
 
-            // Chỉ xóa giỏ hàng sau khi xác nhận đặt hàng.
-            localStorage.removeItem("cart");
-            updateCartCount();
+            // Chỉ gửi mã sản phẩm và số lượng.
+            // Giá sẽ được lấy trực tiếp từ SQL Server.
+            const orderCart = currentCart.map(function (item) {
+                return {
+                    Id: Number(item.id),
+                    Quantity: Number(item.quantity)
+                };
+            });
+
+            cartJsonInput.value = JSON.stringify(orderCart);
+
+            // Chống nhấn nút nhiều lần.
+            submitButton.disabled = true;
+            submitButton.innerHTML =
+                '<i class="fa-solid fa-spinner fa-spin"></i> ĐANG XỬ LÝ...';
+
+            // Gửi form POST thật sự đến Controller.
+            HTMLFormElement.prototype.submit.call(form);
         });
+
     });
 </script>
-

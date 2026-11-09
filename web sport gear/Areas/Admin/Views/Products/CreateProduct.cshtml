@@ -1,0 +1,1288 @@
+﻿
+@model web_sport_gear.Models.Product
+
+@{
+    ViewBag.Title = "Thêm sản phẩm mới";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* ==============================
+       GEAR SPORT - PREMIUM PRODUCT EDITOR
+    ============================== */
+
+    .gs-create-page {
+        max-width: 1320px;
+        padding: 35px 15px 60px;
+        color: #24344B;
+    }
+
+    /* HEADER */
+
+    .gs-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 38px 40px;
+        border-radius: 18px;
+        background: linear-gradient(120deg, #101F36 0%, #183C65 65%, #176FC1 100%);
+        color: #fff;
+        margin-bottom: 28px;
+        box-shadow: 0 12px 30px rgba(16, 31, 54, 0.20);
+    }
+
+        .gs-hero:before {
+            content: "";
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border: 45px solid rgba(255,255,255,0.045);
+            border-radius: 50%;
+            right: -70px;
+            top: -150px;
+        }
+
+        .gs-hero:after {
+            content: "";
+            position: absolute;
+            width: 190px;
+            height: 190px;
+            background: rgba(255, 153, 0, 0.12);
+            border-radius: 50%;
+            right: 170px;
+            bottom: -145px;
+        }
+
+    .gs-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .gs-brand-label {
+        display: inline-block;
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: #FFB84D;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        padding: 7px 13px;
+        border-radius: 30px;
+        margin-bottom: 17px;
+    }
+
+    .gs-hero h1 {
+        font-size: 31px;
+        font-weight: 900;
+        letter-spacing: 1px;
+        margin: 0 0 10px;
+        color: #fff;
+    }
+
+    .gs-hero p {
+        color: #CBD9E9;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .gs-hero-icon {
+        font-size: 65px;
+        color: rgba(255,255,255,0.9);
+        text-align: right;
+        padding-top: 12px;
+    }
+
+    .gs-back-link {
+        display: inline-block;
+        color: #DCEBFA;
+        margin-top: 19px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+        .gs-back-link:hover {
+            color: #FFB84D;
+            text-decoration: none;
+        }
+
+    /* PROGRESS */
+
+    .gs-progress {
+        display: flex;
+        align-items: center;
+        margin-top: 27px;
+        max-width: 650px;
+    }
+
+    .gs-progress-step {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #D7E5F3;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .gs-step-number {
+        width: 28px;
+        height: 28px;
+        line-height: 28px;
+        text-align: center;
+        border-radius: 50%;
+        background: #FF9F1C;
+        color: #172B4D;
+        font-weight: 900;
+    }
+
+    .gs-step-line {
+        flex: 1;
+        height: 2px;
+        background: rgba(255,255,255,0.25);
+        margin: 0 12px;
+        min-width: 15px;
+    }
+
+    /* CARDS */
+
+    .gs-card {
+        background: #fff;
+        border: 1px solid #E5EAF1;
+        border-radius: 16px;
+        padding: 26px;
+        margin-bottom: 22px;
+        box-shadow: 0 6px 22px rgba(31, 52, 79, 0.055);
+        transition: all 0.25s ease;
+    }
+
+        .gs-card:hover {
+            box-shadow: 0 10px 28px rgba(31, 52, 79, 0.09);
+        }
+
+    .gs-card-heading {
+        display: flex;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 17px;
+        border-bottom: 1px solid #EDF0F5;
+    }
+
+    .gs-heading-icon {
+        width: 43px;
+        height: 43px;
+        line-height: 43px;
+        text-align: center;
+        background: #EAF3FF;
+        color: #176FC1;
+        border-radius: 12px;
+        font-size: 19px;
+        margin-right: 13px;
+        flex-shrink: 0;
+    }
+
+        .gs-heading-icon.orange {
+            background: #FFF2DF;
+            color: #E88B0C;
+        }
+
+        .gs-heading-icon.green {
+            background: #E5F7EF;
+            color: #15945B;
+        }
+
+    .gs-card-heading h3 {
+        font-size: 16px;
+        color: #172B4D;
+        font-weight: 850;
+        margin: 0 0 5px;
+    }
+
+    .gs-card-heading p {
+        color: #8794A6;
+        font-size: 12px;
+        margin: 0;
+    }
+
+    .gs-section-number {
+        margin-left: auto;
+        font-size: 11px;
+        font-weight: 800;
+        color: #A5B1C0;
+        letter-spacing: 1px;
+    }
+
+    /* FORM */
+
+    .gs-form-group {
+        margin-bottom: 23px;
+    }
+
+        .gs-form-group label {
+            display: block;
+            color: #34445B;
+            font-size: 13px;
+            font-weight: 750;
+            margin-bottom: 9px;
+        }
+
+    .gs-required {
+        color: #E34B4B;
+        margin-left: 3px;
+    }
+
+    .gs-input-wrap {
+        position: relative;
+    }
+
+        .gs-input-wrap .gs-input-icon {
+            position: absolute;
+            left: 14px;
+            top: 15px;
+            color: #8C9AAF;
+            z-index: 2;
+            font-size: 14px;
+        }
+
+    .gs-form-group .form-control {
+        height: 47px;
+        border: 1px solid #DCE3ED;
+        border-radius: 9px;
+        box-shadow: none;
+        background: #FBFCFE;
+        color: #24344B;
+        font-size: 13px;
+        padding: 10px 14px;
+        transition: all 0.2s ease;
+    }
+
+    .gs-input-wrap .form-control {
+        padding-left: 40px;
+    }
+
+    .gs-form-group textarea.form-control {
+        height: 135px;
+        resize: vertical;
+        padding: 14px;
+    }
+
+    .gs-form-group .form-control:focus {
+        background: #fff;
+        border-color: #2584D8;
+        box-shadow: 0 0 0 3px rgba(37,132,216,0.10);
+    }
+
+    .gs-help {
+        display: block;
+        color: #8B98A9;
+        font-size: 11px;
+        margin-top: 7px;
+    }
+
+    .field-validation-error {
+        display: block;
+        color: #DC3545;
+        font-size: 12px;
+        margin-top: 7px;
+    }
+
+    .input-validation-error {
+        border-color: #DC3545 !important;
+        background: #FFF9F9 !important;
+    }
+
+    .validation-summary-errors {
+        padding: 16px 20px;
+        background: #FFF1F1;
+        color: #B42318;
+        border: 1px solid #F2C6C6;
+        border-radius: 11px;
+        margin-bottom: 22px;
+    }
+
+        .validation-summary-errors ul {
+            margin: 7px 0 0;
+            padding-left: 20px;
+        }
+
+    /* IMAGE UPLOAD PREVIEW */
+
+    .gs-image-preview {
+        position: relative;
+        min-height: 290px;
+        background: linear-gradient(145deg, #F5F8FC, #EAF1F8);
+        border: 2px dashed #BDCCDE;
+        border-radius: 14px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        overflow: hidden;
+        transition: all 0.25s ease;
+    }
+
+        .gs-image-preview:hover {
+            border-color: #2584D8;
+            background: #F0F7FF;
+        }
+
+        .gs-image-preview img {
+            max-width: 100%;
+            max-height: 260px;
+            object-fit: contain;
+            border-radius: 10px;
+            display: none;
+        }
+
+    .gs-image-placeholder {
+        text-align: center;
+        color: #94A3B8;
+    }
+
+        .gs-image-placeholder .glyphicon {
+            font-size: 55px;
+            color: #8FA6C1;
+            display: block;
+            margin-bottom: 17px;
+        }
+
+        .gs-image-placeholder strong {
+            display: block;
+            color: #52657D;
+            font-size: 14px;
+            margin-bottom: 7px;
+        }
+
+        .gs-image-placeholder span {
+            font-size: 11px;
+        }
+
+    .gs-image-status {
+        display: inline-block;
+        margin-top: 14px;
+        padding: 6px 12px;
+        background: #E8F3FF;
+        color: #176FC1;
+        font-size: 10px;
+        font-weight: 800;
+        border-radius: 20px;
+        letter-spacing: 0.5px;
+    }
+
+    /* PRODUCT PREVIEW */
+
+    .gs-product-preview {
+        border: 1px solid #E5EAF1;
+        border-radius: 13px;
+        padding: 17px;
+        background: #fff;
+        margin-top: 20px;
+    }
+
+    .gs-preview-label {
+        font-size: 10px;
+        color: #8996A8;
+        font-weight: 850;
+        letter-spacing: 1.3px;
+        margin-bottom: 14px;
+    }
+
+    .gs-preview-product-name {
+        color: #172B4D;
+        font-size: 15px;
+        font-weight: 800;
+        line-height: 1.5;
+        margin-bottom: 9px;
+        overflow-wrap: anywhere;
+    }
+
+    .gs-preview-price {
+        color: #E67E00;
+        font-size: 21px;
+        font-weight: 900;
+        margin-bottom: 12px;
+    }
+
+    .gs-preview-stock {
+        display: inline-block;
+        background: #E8F7EF;
+        color: #16824E;
+        font-size: 11px;
+        font-weight: 750;
+        padding: 6px 10px;
+        border-radius: 6px;
+    }
+
+    .gs-preview-status {
+        display: inline-block;
+        background: #E8F7EF;
+        color: #16824E;
+        font-size: 10px;
+        font-weight: 850;
+        padding: 6px 10px;
+        border-radius: 20px;
+    }
+
+    /* STATUS */
+
+    .gs-status-panel {
+        padding: 18px;
+        background: linear-gradient(135deg, #F0F8FF, #F6FAFF);
+        border: 1px solid #DCEBFA;
+        border-radius: 12px;
+    }
+
+        .gs-status-panel label {
+            cursor: pointer;
+            color: #243D5B;
+            font-size: 13px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .gs-status-panel input {
+            width: 17px;
+            height: 17px;
+            accent-color: #15945B;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        .gs-status-panel p {
+            color: #8291A5;
+            font-size: 11px;
+            line-height: 1.6;
+            margin: 9px 0 0 26px;
+        }
+
+    /* BOTTOM ACTION */
+
+    .gs-action-panel {
+        background: #112641;
+        border-radius: 15px;
+        padding: 23px 27px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        margin-top: 8px;
+        box-shadow: 0 9px 24px rgba(17,38,65,0.15);
+    }
+
+    .gs-action-title {
+        color: #fff;
+        font-size: 15px;
+        font-weight: 850;
+        margin-bottom: 5px;
+    }
+
+    .gs-action-description {
+        color: #B8C8DB;
+        font-size: 11px;
+        margin: 0;
+    }
+
+    .gs-action-buttons {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .gs-btn-cancel,
+    .gs-btn-submit {
+        display: inline-block;
+        padding: 12px 20px;
+        border-radius: 9px;
+        font-size: 12px;
+        font-weight: 850;
+        transition: all 0.2s ease;
+        text-decoration: none !important;
+        border: none;
+    }
+
+    .gs-btn-cancel {
+        background: rgba(255,255,255,0.10);
+        color: #E3ECF6;
+        border: 1px solid rgba(255,255,255,0.18);
+    }
+
+        .gs-btn-cancel:hover {
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+        }
+
+    .gs-btn-submit {
+        background: linear-gradient(135deg, #FFB12B, #FF8A00);
+        color: #172B4D;
+        box-shadow: 0 5px 14px rgba(255,153,0,0.2);
+        cursor: pointer;
+    }
+
+        .gs-btn-submit:hover {
+            background: linear-gradient(135deg, #FFC04E, #FF9A1A);
+            color: #172B4D;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 17px rgba(255,153,0,0.3);
+        }
+
+    /* RESPONSIVE */
+
+    @@media (max-width: 767px) {
+        .gs-create-page {
+            padding: 20px 12px 35px;
+        }
+
+        .gs-hero {
+            padding: 27px 22px;
+        }
+
+            .gs-hero h1 {
+                font-size: 23px;
+            }
+
+        .gs-hero-icon {
+            display: none;
+        }
+
+        .gs-progress-step {
+            font-size: 9px;
+            gap: 5px;
+        }
+
+        .gs-step-line {
+            margin: 0 5px;
+        }
+
+        .gs-card {
+            padding: 19px 16px;
+        }
+
+        .gs-image-preview {
+            min-height: 230px;
+        }
+
+        .gs-action-panel {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 20px;
+        }
+
+        .gs-action-buttons {
+            flex-direction: column-reverse;
+        }
+
+        .gs-btn-cancel,
+        .gs-btn-submit {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="container gs-create-page">
+
+    <!-- ==================================
+         HEADER
+    =================================== -->
+
+    <div class="gs-hero">
+        <div class="gs-hero-content">
+
+            <div class="row">
+
+                <div class="col-sm-9">
+
+                    <div class="gs-brand-label">
+                        <i class="glyphicon glyphicon-shopping-cart"></i>
+                        GEAR SPORT ADMIN
+                    </div>
+
+                    <h1>CREATE NEW PRODUCT</h1>
+
+                    <p>
+                        Thêm sản phẩm mới và quản lý thông tin cửa hàng Gear Sport.
+                    </p>
+
+                    <a href="@Url.Action("ProductList", "Products", new { area = "Admin" })"
+                       class="gs-back-link">
+                        <i class="glyphicon glyphicon-arrow-left"></i>
+                        Quay lại danh sách sản phẩm
+                    </a>
+
+                </div>
+
+                <div class="col-sm-3">
+                    <div class="gs-hero-icon">
+                        <i class="glyphicon glyphicon-shopping-bag"></i>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="gs-progress">
+
+                <div class="gs-progress-step">
+                    <span class="gs-step-number">01</span>
+                    <span>THÔNG TIN</span>
+                </div>
+
+                <div class="gs-step-line"></div>
+
+                <div class="gs-progress-step">
+                    <span class="gs-step-number">02</span>
+                    <span>HÌNH ẢNH</span>
+                </div>
+
+                <div class="gs-step-line"></div>
+
+                <div class="gs-progress-step">
+                    <span class="gs-step-number">03</span>
+                    <span>ĐĂNG BÁN</span>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ==================================
+         FORM
+    =================================== -->
+
+    @using (Html.BeginForm("CreateProduct", "Admin", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        @Html.ValidationSummary(false, "", new
+        {
+            @class = "validation-summary-errors"
+        })
+
+        <div class="row">
+
+            <!-- ==================================
+                 LEFT COLUMN
+            =================================== -->
+
+            <div class="col-md-8">
+
+                <!-- THÔNG TIN CƠ BẢN -->
+
+                <div class="gs-card">
+
+                    <div class="gs-card-heading">
+
+                        <div class="gs-heading-icon">
+                            <i class="glyphicon glyphicon-list-alt"></i>
+                        </div>
+
+                        <div>
+                            <h3>Thông tin sản phẩm</h3>
+                            <p>Cung cấp thông tin cơ bản của sản phẩm.</p>
+                        </div>
+
+                        <span class="gs-section-number">01 / 03</span>
+
+                    </div>
+
+                    <!-- TÊN SẢN PHẨM -->
+
+                    <div class="gs-form-group">
+
+                        <label>
+                            Tên sản phẩm
+                            <span class="gs-required">*</span>
+                        </label>
+
+                        <div class="gs-input-wrap">
+
+                            <i class="glyphicon glyphicon-tag gs-input-icon"></i>
+
+                            @Html.TextBoxFor(m => m.ProductName, new
+                            {
+                                @class = "form-control",
+                                placeholder = "Ví dụ: Nike Zoom Vapor 12..."
+                            })
+
+                        </div>
+
+                        @Html.ValidationMessageFor(m => m.ProductName, "", new
+                        {
+                            @class = "text-danger"
+                        })
+
+                    </div>
+
+                    <!-- GIÁ VÀ TỒN KHO -->
+
+                    <div class="row">
+
+                        <div class="col-sm-6">
+
+                            <div class="gs-form-group">
+
+                                <label>
+                                    Giá bán (VNĐ)
+                                    <span class="gs-required">*</span>
+                                </label>
+
+                                <div class="gs-input-wrap">
+
+                                    <i class="glyphicon glyphicon-usd gs-input-icon"></i>
+
+                                    @Html.TextBoxFor(m => m.Price, new
+                                    {
+                                        @class = "form-control",
+                                        type = "number",
+                                        min = "1",
+                                        step = "0.01",
+                                        placeholder = "Ví dụ: 250000"
+                                    })
+
+                                </div>
+
+                                @Html.ValidationMessageFor(m => m.Price, "", new
+                                {
+                                    @class = "text-danger"
+                                })
+
+                                <small class="gs-help">
+                                    Giá bán của sản phẩm tính bằng VNĐ.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-sm-6">
+
+                            <div class="gs-form-group">
+
+                                <label>
+                                    Số lượng tồn kho
+                                    <span class="gs-required">*</span>
+                                </label>
+
+                                <div class="gs-input-wrap">
+
+                                    <i class="glyphicon glyphicon-inbox gs-input-icon"></i>
+
+                                    @Html.TextBoxFor(m => m.StockQuantity, new
+                                    {
+                                        @class = "form-control",
+                                        type = "number",
+                                        min = "0",
+                                        step = "1",
+                                        placeholder = "Ví dụ: 20"
+                                    })
+
+                                </div>
+
+                                @Html.ValidationMessageFor(m => m.StockQuantity, "", new
+                                {
+                                    @class = "text-danger"
+                                })
+
+                                <small class="gs-help">
+                                    Số lượng sản phẩm hiện có trong kho.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- DANH MỤC -->
+
+                    <div class="gs-form-group">
+
+                        <label>
+                            Danh mục sản phẩm
+                            <span class="gs-required">*</span>
+                        </label>
+
+                        <div class="gs-input-wrap">
+
+                            <i class="glyphicon glyphicon-th-large gs-input-icon"></i>
+
+                            @Html.DropDownListFor(
+                                m => m.CategoryID,
+                                (IEnumerable<SelectListItem>)ViewBag.Categories,
+                                "-- Chọn danh mục sản phẩm --",
+                                new { @class = "form-control" }
+                            )
+
+                        </div>
+
+                        @Html.ValidationMessageFor(m => m.CategoryID, "", new
+                        {
+                            @class = "text-danger"
+                        })
+
+                    </div>
+
+                </div>
+
+                <!-- MÔ TẢ -->
+
+                <div class="gs-card">
+
+                    <div class="gs-card-heading">
+
+                        <div class="gs-heading-icon orange">
+                            <i class="glyphicon glyphicon-pencil"></i>
+                        </div>
+
+                        <div>
+                            <h3>Mô tả sản phẩm</h3>
+                            <p>Giới thiệu những đặc điểm nổi bật của sản phẩm.</p>
+                        </div>
+
+                        <span class="gs-section-number">02 / 03</span>
+
+                    </div>
+
+                    <div class="gs-form-group" style="margin-bottom:0;">
+
+                        <label>Nội dung mô tả</label>
+
+                        @Html.TextAreaFor(m => m.Description, new
+                        {
+                            @class = "form-control",
+                            rows = "6",
+                            placeholder = "Nhập mô tả chi tiết về sản phẩm, chất liệu, kích thước, tính năng và những ưu điểm nổi bật..."
+                        })
+
+                        <small class="gs-help">
+                            Mô tả rõ ràng giúp khách hàng hiểu và lựa chọn sản phẩm dễ dàng hơn.
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ==================================
+                 RIGHT COLUMN
+            =================================== -->
+
+            <div class="col-md-4">
+
+                <!-- HÌNH ẢNH -->
+
+                <div class="gs-card">
+
+                    <div class="gs-card-heading">
+
+                        <div class="gs-heading-icon orange">
+                            <i class="glyphicon glyphicon-picture"></i>
+                        </div>
+
+                        <div>
+                            <h3>Hình ảnh sản phẩm</h3>
+                            <p>Xem trước ảnh sản phẩm.</p>
+                        </div>
+
+                    </div>
+
+                    <div class="gs-image-preview">
+
+                        <div id="gsImagePlaceholder" class="gs-image-placeholder">
+
+                            <i class="glyphicon glyphicon-cloud-upload"></i>
+
+                            <strong>PRODUCT IMAGE</strong>
+
+                            <span>Nhập URL để xem trước hình ảnh</span>
+
+                        </div>
+
+                        <img id="gsProductImage"
+                             src=""
+                             alt="Ảnh xem trước sản phẩm" />
+
+                    </div>
+
+                    <div class="text-center">
+                        <span class="gs-image-status" id="gsImageStatus">
+                            <i class="glyphicon glyphicon-picture"></i>
+                            IMAGE PREVIEW
+                        </span>
+                    </div>
+
+                    <div class="gs-form-group" style="margin-top:23px; margin-bottom:0;">
+
+                        <label>URL hình ảnh</label>
+
+                        <div class="gs-input-wrap">
+
+                            <i class="glyphicon glyphicon-link gs-input-icon"></i>
+
+                            @Html.TextBoxFor(m => m.ImageUrl, new
+                            {
+                                @class = "form-control",
+                                placeholder = "https://example.com/image.jpg"
+                            })
+
+                        </div>
+
+                        <small class="gs-help">
+                            Nhập đường dẫn trực tiếp đến ảnh sản phẩm.
+                        </small>
+
+                    </div>
+
+                </div>
+
+                <!-- PRODUCT PREVIEW -->
+
+                <div class="gs-card">
+
+                    <div class="gs-card-heading">
+
+                        <div class="gs-heading-icon green">
+                            <i class="glyphicon glyphicon-eye-open"></i>
+                        </div>
+
+                        <div>
+                            <h3>Xem trước sản phẩm</h3>
+                            <p>Mô phỏng thông tin sản phẩm.</p>
+                        </div>
+
+                    </div>
+
+                    <div class="gs-product-preview">
+
+                        <div class="gs-preview-label">
+                            GEAR SPORT / PRODUCT CARD
+                        </div>
+
+                        <div class="gs-preview-product-name"
+                             id="gsPreviewName">
+                            Tên sản phẩm của bạn
+                        </div>
+
+                        <div class="gs-preview-price"
+                             id="gsPreviewPrice">
+                            0 đ
+                        </div>
+
+                        <span class="gs-preview-stock"
+                              id="gsPreviewStock">
+                            <i class="glyphicon glyphicon-inbox"></i>
+                            0 sản phẩm
+                        </span>
+
+                        <hr style="border-color:#EDF0F5;" />
+
+                        <div class="row">
+
+                            <div class="col-xs-6">
+                                <small style="color:#8B98A9;">TRẠNG THÁI</small>
+                            </div>
+
+                            <div class="col-xs-6 text-right">
+                                <span class="gs-preview-status"
+                                      id="gsPreviewStatus">
+                                    ĐANG HIỂN THỊ
+                                </span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- TRẠNG THÁI -->
+
+                <div class="gs-card">
+
+                    <div class="gs-card-heading">
+
+                        <div class="gs-heading-icon green">
+                            <i class="glyphicon glyphicon-globe"></i>
+                        </div>
+
+                        <div>
+                            <h3>Trạng thái đăng bán</h3>
+                            <p>Kiểm soát khả năng hiển thị.</p>
+                        </div>
+
+                        <span class="gs-section-number">03 / 03</span>
+
+                    </div>
+
+                    <div class="gs-status-panel">
+
+                        <label>
+                            @Html.CheckBoxFor(m => m.IsActive)
+                            Hiển thị trên website
+                        </label>
+
+                        <p id="gsStatusDescription">
+                            Sản phẩm sẽ được hiển thị cho khách hàng khi được bật.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ==================================
+             ACTION BUTTONS
+        =================================== -->
+
+        <div class="gs-action-panel">
+
+            <div>
+                <div class="gs-action-title">
+                    <i class="glyphicon glyphicon-check"></i>
+                    Hoàn tất thông tin sản phẩm?
+                </div>
+
+                <p class="gs-action-description">
+                    Kiểm tra thông tin trước khi thêm sản phẩm vào hệ thống.
+                </p>
+            </div>
+
+            <div class="gs-action-buttons">
+
+                <a href="@Url.Action("ProductList", "Products", new { area = "Admin" })" class="gs-btn-cancel">
+                    <i class="fas fa-arrow-left"></i>
+                    Quay lại danh sách
+                </a>
+
+                <button type="submit" class="gs-btn-submit">
+                    <i class="glyphicon glyphicon-plus"></i>
+                    THÊM SẢN PHẨM
+                </button>
+
+            </div>
+
+        </div>
+
+    }
+
+</div>
+
+<!-- ==================================
+     LIVE PRODUCT PREVIEW
+=================================== -->
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        var imageInput = document.getElementById("ImageUrl");
+        var imagePreview = document.getElementById("gsProductImage");
+        var imagePlaceholder = document.getElementById("gsImagePlaceholder");
+        var imageStatus = document.getElementById("gsImageStatus");
+
+        var nameInput = document.getElementById("ProductName");
+        var priceInput = document.getElementById("Price");
+        var stockInput = document.getElementById("StockQuantity");
+        var activeInput = document.getElementById("IsActive");
+
+        var previewName = document.getElementById("gsPreviewName");
+        var previewPrice = document.getElementById("gsPreviewPrice");
+        var previewStock = document.getElementById("gsPreviewStock");
+        var previewStatus = document.getElementById("gsPreviewStatus");
+        var statusDescription = document.getElementById("gsStatusDescription");
+
+        // ==================================
+        // 1. IMAGE PREVIEW
+        // ==================================
+
+        function updateImagePreview() {
+
+            if (!imageInput || !imagePreview) {
+                return;
+            }
+
+            var url = imageInput.value.trim();
+
+            if (url === "") {
+
+                imagePreview.style.display = "none";
+                imagePreview.removeAttribute("src");
+
+                imagePlaceholder.style.display = "block";
+
+                imageStatus.innerHTML =
+                    '<i class="glyphicon glyphicon-picture"></i> IMAGE PREVIEW';
+
+                return;
+            }
+
+            imagePreview.onload = function () {
+
+                imagePreview.style.display = "block";
+                imagePlaceholder.style.display = "none";
+
+                imageStatus.innerHTML =
+                    '<i class="glyphicon glyphicon-ok-circle"></i> IMAGE LOADED';
+            };
+
+            imagePreview.onerror = function () {
+
+                imagePreview.style.display = "none";
+                imagePlaceholder.style.display = "block";
+
+                imagePlaceholder.querySelector("strong").textContent =
+                    "KHÔNG TẢI ĐƯỢC ẢNH";
+
+                imagePlaceholder.querySelector("span").textContent =
+                    "Vui lòng kiểm tra lại URL hình ảnh.";
+
+                imageStatus.innerHTML =
+                    '<i class="glyphicon glyphicon-warning-sign"></i> INVALID IMAGE';
+            };
+
+            imagePlaceholder.querySelector("strong").textContent =
+                "PRODUCT IMAGE";
+
+            imagePlaceholder.querySelector("span").textContent =
+                "Đang tải hình ảnh...";
+
+            imagePreview.src = url;
+        }
+
+        // ==================================
+        // 2. PRODUCT NAME PREVIEW
+        // ==================================
+
+        function updateNamePreview() {
+
+            if (!nameInput || !previewName) {
+                return;
+            }
+
+            var name = nameInput.value.trim();
+
+            previewName.textContent =
+                name !== "" ? name : "Tên sản phẩm của bạn";
+        }
+
+        // ==================================
+        // 3. PRICE PREVIEW
+        // ==================================
+
+        function updatePricePreview() {
+
+            if (!priceInput || !previewPrice) {
+                return;
+            }
+
+            var price = parseFloat(priceInput.value);
+
+            if (isNaN(price) || price < 0) {
+                previewPrice.textContent = "0 đ";
+                return;
+            }
+
+            previewPrice.textContent =
+                price.toLocaleString("vi-VN") + " đ";
+        }
+
+        // ==================================
+        // 4. STOCK PREVIEW
+        // ==================================
+
+        function updateStockPreview() {
+
+            if (!stockInput || !previewStock) {
+                return;
+            }
+
+            var stock = parseInt(stockInput.value, 10);
+
+            if (isNaN(stock) || stock < 0) {
+                stock = 0;
+            }
+
+            previewStock.innerHTML =
+                '<i class="glyphicon glyphicon-inbox"></i> ' +
+                stock.toLocaleString("vi-VN") + " sản phẩm";
+
+            if (stock === 0) {
+
+                previewStock.style.background = "#FFF0F0";
+                previewStock.style.color = "#D93636";
+
+            } else {
+
+                previewStock.style.background = "#E8F7EF";
+                previewStock.style.color = "#16824E";
+
+            }
+        }
+
+        // ==================================
+        // 5. STATUS PREVIEW
+        // ==================================
+
+        function updateStatusPreview() {
+
+            if (!activeInput || !previewStatus) {
+                return;
+            }
+
+            if (activeInput.checked) {
+
+                previewStatus.textContent = "ĐANG HIỂN THỊ";
+                previewStatus.style.background = "#E8F7EF";
+                previewStatus.style.color = "#16824E";
+
+                statusDescription.textContent =
+                    "Sản phẩm sẽ được hiển thị cho khách hàng khi được bật.";
+
+            } else {
+
+                previewStatus.textContent = "ĐÃ ẨN";
+                previewStatus.style.background = "#F0F1F3";
+                previewStatus.style.color = "#697586";
+
+                statusDescription.textContent =
+                    "Sản phẩm sẽ không hiển thị công khai trên website.";
+
+            }
+        }
+
+        // ==================================
+        // 6. EVENT LISTENERS
+        // ==================================
+
+        if (imageInput) {
+            imageInput.addEventListener("input", updateImagePreview);
+        }
+
+        if (nameInput) {
+            nameInput.addEventListener("input", updateNamePreview);
+        }
+
+        if (priceInput) {
+            priceInput.addEventListener("input", updatePricePreview);
+        }
+
+        if (stockInput) {
+            stockInput.addEventListener("input", updateStockPreview);
+        }
+
+        if (activeInput) {
+            activeInput.addEventListener("change", updateStatusPreview);
+        }
+
+        // Initial preview
+
+        updateImagePreview();
+        updateNamePreview();
+        updatePricePreview();
+        updateStockPreview();
+        updateStatusPreview();
+
+    });
+</script>

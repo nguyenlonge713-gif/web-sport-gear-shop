@@ -1,0 +1,592 @@
+﻿@model IEnumerable<web_sport_gear.Models.Category>
+
+@{
+    ViewBag.Title = "Quản lý danh mục";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    int totalCategories = Model == null ? 0 : Model.Count();
+}
+
+<style>
+    /* =========================
+       CATEGORY MANAGEMENT
+    ========================= */
+
+    .category-page {
+        padding-top: 30px;
+        padding-bottom: 55px;
+        color: #263449;
+    }
+
+        .category-page * {
+            box-sizing: border-box;
+        }
+
+    /* HEADER */
+
+    .category-header {
+        background: linear-gradient(135deg, #172554, #1e40af);
+        padding: 30px;
+        border-radius: 15px;
+        color: white;
+        margin-bottom: 25px;
+        box-shadow: 0 7px 20px rgba(30, 64, 175, 0.15);
+    }
+
+        .category-header h2 {
+            font-size: 27px;
+            font-weight: 800;
+            margin: 0 0 9px;
+            color: white;
+        }
+
+        .category-header p {
+            color: #dbeafe;
+            margin: 0;
+            font-size: 14px;
+        }
+
+    .category-header-icon {
+        font-size: 38px;
+        margin-bottom: 12px;
+    }
+
+    /* ALERT */
+
+    .category-alert {
+        padding: 14px 18px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+        .category-alert.success {
+            background: #dcfce7;
+            border: 1px solid #86efac;
+            color: #166534;
+        }
+
+        .category-alert.error {
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+        }
+
+    /* STATISTIC */
+
+    .category-stat {
+        background: linear-gradient(135deg, #2563eb, #60a5fa);
+        border-radius: 13px;
+        padding: 22px;
+        color: white;
+        margin-bottom: 25px;
+        box-shadow: 0 5px 16px rgba(37, 99, 235, 0.14);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .category-stat::after {
+            content: "";
+            position: absolute;
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            right: -25px;
+            bottom: -45px;
+            background: rgba(255,255,255,0.17);
+        }
+
+    .category-stat-icon {
+        font-size: 30px;
+        margin-bottom: 10px;
+    }
+
+    .category-stat-label {
+        font-size: 13px;
+        font-weight: 650;
+        opacity: 0.9;
+        margin-bottom: 5px;
+    }
+
+    .category-stat-number {
+        font-size: 30px;
+        font-weight: 850;
+    }
+
+    /* TOOLBAR */
+
+    .category-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .category-toolbar-title {
+        color: #172554;
+        font-size: 20px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .category-toolbar-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .category-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 11px 17px;
+        border-radius: 9px;
+        text-decoration: none !important;
+        font-weight: 700;
+        font-size: 13px;
+        border: none;
+        transition: 0.25s;
+        cursor: pointer;
+    }
+
+    .category-btn-dashboard {
+        background: #eaf1ff;
+        color: #2457c5;
+    }
+
+        .category-btn-dashboard:hover {
+            background: #2457c5;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+    .category-btn-create {
+        background: linear-gradient(135deg, #059669, #10b981);
+        color: white;
+    }
+
+        .category-btn-create:hover {
+            background: linear-gradient(135deg, #047857, #059669);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 13px rgba(5, 150, 105, 0.2);
+        }
+
+    /* TABLE CARD */
+
+    .category-table-card {
+        background: white;
+        border-radius: 14px;
+        border: 1px solid #e8edf5;
+        box-shadow: 0 5px 20px rgba(15, 23, 42, 0.045);
+        overflow: hidden;
+    }
+
+    .category-table-heading {
+        padding: 18px 22px;
+        background: #f8faff;
+        border-bottom: 1px solid #e8edf5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .category-table-heading h4 {
+            margin: 0;
+            color: #172554;
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+    .category-count-badge {
+        background: #dbeafe;
+        color: #1d4ed8;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+    /* TABLE */
+
+    .category-table {
+        width: 100%;
+        margin: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+        .category-table thead th {
+            background: linear-gradient(135deg, #172554, #1e40af);
+            color: white;
+            padding: 17px 20px;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            border: none;
+        }
+
+        .category-table tbody td {
+            padding: 18px 20px;
+            vertical-align: middle;
+            border-bottom: 1px solid #edf1f7;
+            color: #334155;
+            font-size: 14px;
+        }
+
+        .category-table tbody tr:nth-child(even) {
+            background: #f8faff;
+        }
+
+        .category-table tbody tr:hover {
+            background: #eff6ff;
+            transition: 0.2s;
+        }
+
+        .category-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+    .category-id {
+        display: inline-block;
+        min-width: 40px;
+        text-align: center;
+        padding: 7px 11px;
+        border-radius: 7px;
+        background: #dbeafe;
+        color: #1d4ed8;
+        font-weight: 800;
+    }
+
+    .category-name {
+        color: #172554;
+        font-weight: 750;
+        font-size: 15px;
+    }
+
+    /* ACTION BUTTONS */
+
+    .category-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 13px;
+        border-radius: 7px;
+        border: none;
+        font-size: 12px;
+        font-weight: 750;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .category-edit {
+        background: #dbeafe;
+        color: #1d4ed8;
+        text-decoration: none !important;
+        margin-right: 5px;
+    }
+
+        .category-edit:hover {
+            background: #2563eb;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+    .category-delete {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+        .category-delete:hover {
+            background: #dc2626;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+    /* EMPTY STATE */
+
+    .category-empty {
+        padding: 45px 20px !important;
+        text-align: center;
+        color: #94a3b8 !important;
+    }
+
+    .category-empty-icon {
+        font-size: 42px;
+        margin-bottom: 12px;
+    }
+
+    .category-empty strong {
+        display: block;
+        color: #475569;
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
+
+    /* FOOTER */
+
+    .category-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 17px 22px;
+        background: #f8faff;
+        border-top: 1px solid #e8edf5;
+        color: #64748b;
+        font-size: 13px;
+    }
+
+        .category-footer strong {
+            color: #1d4ed8;
+            font-size: 15px;
+        }
+
+    /* RESPONSIVE */
+
+    @@media (max-width: 768px) {
+        .category-header {
+            padding: 23px;
+        }
+
+            .category-header h2 {
+                font-size: 22px;
+            }
+
+        .category-toolbar {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .category-toolbar-actions {
+            width: 100%;
+        }
+
+        .category-btn {
+            flex: 1;
+        }
+
+        .category-table {
+            min-width: 600px;
+        }
+
+        .category-stat {
+            padding: 18px;
+        }
+    }
+</style>
+
+<div class="container category-page">
+
+    <!-- HEADER -->
+    <div class="category-header">
+
+        <div class="category-header-icon">
+            <i class="glyphicon glyphicon-th-large"></i>
+        </div>
+
+        <h2>QUẢN LÝ DANH MỤC</h2>
+
+        <p>
+            Quản lý, phân loại và tổ chức các danh mục sản phẩm
+            trong hệ thống Gear Sport.
+        </p>
+
+    </div>
+
+    <!-- ALERT -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="category-alert success">
+            <i class="glyphicon glyphicon-ok-circle"></i>
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="category-alert error">
+            <i class="glyphicon glyphicon-warning-sign"></i>
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <!-- STATISTIC -->
+    <div class="category-stat">
+
+        <div class="category-stat-icon">
+            <i class="glyphicon glyphicon-folder-open"></i>
+        </div>
+
+        <div class="category-stat-label">
+            TỔNG SỐ DANH MỤC
+        </div>
+
+        <div class="category-stat-number">
+            @totalCategories
+        </div>
+
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="category-toolbar">
+
+        <h3 class="category-toolbar-title">
+            Danh sách danh mục
+        </h3>
+
+        <div class="category-toolbar-actions">
+
+            <a href="@Url.Action("Index", "Dashboard",
+                new { area = "Admin" })"
+               class="category-btn category-btn-dashboard">
+
+                <i class="glyphicon glyphicon-dashboard"></i>
+                Quay lại Dashboard
+
+            </a>
+
+            <a href="@Url.Action("CreateCategory", "Categories",
+                new { area = "Admin" })"
+               class="category-btn category-btn-create">
+
+                <i class="glyphicon glyphicon-plus"></i>
+                Thêm danh mục
+
+            </a>
+
+        </div>
+
+    </div>
+
+    <!-- CATEGORY TABLE -->
+    <div class="category-table-card">
+
+        <div class="category-table-heading">
+
+            <h4>
+                <i class="glyphicon glyphicon-list"></i>
+                Danh sách danh mục sản phẩm
+            </h4>
+
+            <span class="category-count-badge">
+                @totalCategories danh mục
+            </span>
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="category-table">
+
+                <thead>
+                    <tr>
+                        <th style="width: 20%;">Mã danh mục</th>
+                        <th style="width: 45%;">Tên danh mục</th>
+                        <th style="width: 35%;">Thao tác</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+
+                                <td>
+                                    <span class="category-id">
+                                        #@item.CategoryID
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="category-name">
+                                        @item.CategoryName
+                                    </span>
+                                </td>
+
+                                <td>
+
+                                    <!-- EDIT -->
+                                    <a href="@Url.Action("EditCategory", "Categories",
+                                        new { area = "Admin", id = item.CategoryID })"
+                                       class="category-action category-edit">
+
+                                        <i class="glyphicon glyphicon-edit"></i>
+                                        Sửa
+
+                                    </a>
+
+                                    <!-- DELETE -->
+                                    @using (Html.BeginForm(
+                                        "DeleteCategory",
+                                        "Categories",
+                                        new { area = "Admin", id = item.CategoryID },
+                                        FormMethod.Post,
+                                        new { style = "display:inline;" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+
+                                        <button type="submit"
+                                                class="category-action category-delete"
+                                                onclick="return confirm('Bạn có chắc muốn xóa danh mục này?');">
+
+                                            <i class="glyphicon glyphicon-trash"></i>
+                                            Xóa
+
+                                        </button>
+                                    }
+
+                                </td>
+
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="3" class="category-empty">
+
+                                <div class="category-empty-icon">
+                                    <i class="glyphicon glyphicon-folder-open"></i>
+                                </div>
+
+                                <strong>Chưa có danh mục nào</strong>
+
+                                Hãy thêm danh mục mới để quản lý sản phẩm.
+
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="category-footer">
+
+            <span>
+                Tổng số danh mục hiện có:
+                <strong>@totalCategories</strong>
+            </span>
+
+            <span>
+                Gear Sport - Admin Management
+            </span>
+
+        </div>
+
+    </div>
+
+</div>

@@ -1,8 +1,10 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Helpers;
@@ -22,6 +24,41 @@ namespace web_sport_gear.Controllers
                     .ConnectionStrings["GearSportDB"]
                     .ConnectionString;
             }
+        }
+
+        // Kiem tra so dien thoai va tra ve loi cu the
+        private string GetPhoneValidationError(string phone)
+        {
+            if (string.IsNullOrWhiteSpace(phone))
+            {
+                return "Vui lòng nhập số điện thoại.";
+            }
+
+            // Chi cho phep chu so tu 0 den 9
+            if (!Regex.IsMatch(phone, @"^[0-9]+$"))
+            {
+                return "Số điện thoại chỉ được chứa chữ số từ 0 đến 9.";
+            }
+
+            // Phai co dung 10 chu so
+            if (phone.Length != 10)
+            {
+                return "Số điện thoại phải có đúng 10 chữ số.";
+            }
+
+            // Phai bat dau bang so 0
+            if (phone[0] != '0')
+            {
+                return "Số điện thoại phải bắt đầu bằng số 0.";
+            }
+
+            // Khong cho phep tat ca chu so giong nhau
+            if (phone.Distinct().Count() == 1)
+            {
+                return "Số điện thoại không được chứa toàn bộ chữ số giống nhau.";
+            }
+
+            return null;
         }
 
         // GET: Account
@@ -166,10 +203,9 @@ namespace web_sport_gear.Controllers
             }
         }
 
-
         public ActionResult OrderHistory()
         {
-            // Kiểm tra người dùng đã đăng nhập chưa
+            // Kiem tra nguoi dung da dang nhap chua
             if (Session["UserID"] == null)
             {
                 return RedirectToAction("Login", "Account");
@@ -190,35 +226,29 @@ namespace web_sport_gear.Controllers
             using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
                 string query = @"
-            SELECT
-                o.OrderID,
-                o.ReceiverName,
-                o.ReceiverPhone,
-                o.ShippingAddress,
-                o.TotalAmount,
-                o.PaymentMethod,
-                o.PaymentStatus,
-                o.OrderStatus,
-                o.CreatedAt,
-
-                d.OrderDetailID,
-                d.ProductID,
-                d.ProductName,
-                d.Quantity,
-                d.UnitPrice
-
-            FROM dbo.Orders o
-
-            LEFT JOIN dbo.OrderDetails d
-                ON o.OrderID = d.OrderID
-
-            WHERE o.UserID = @UserID
-
-            ORDER BY
-                o.CreatedAt DESC,
-                o.OrderID DESC,
-                d.OrderDetailID ASC;
-        ";
+                    SELECT
+                        o.OrderID,
+                        o.ReceiverName,
+                        o.ReceiverPhone,
+                        o.ShippingAddress,
+                        o.TotalAmount,
+                        o.PaymentMethod,
+                        o.PaymentStatus,
+                        o.OrderStatus,
+                        o.CreatedAt,
+                        d.OrderDetailID,
+                        d.ProductID,
+                        d.ProductName,
+                        d.Quantity,
+                        d.UnitPrice
+                    FROM dbo.Orders o
+                    LEFT JOIN dbo.OrderDetails d
+                        ON o.OrderID = d.OrderID
+                    WHERE o.UserID = @UserID
+                    ORDER BY
+                        o.CreatedAt DESC,
+                        o.OrderID DESC,
+                        d.OrderDetailID ASC;";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
@@ -238,7 +268,6 @@ namespace web_sport_gear.Controllers
 
                             CustomerOrderHistoryViewModel order;
 
-                            // Nếu đơn hàng chưa được thêm vào danh sách
                             if (!orderDictionary.TryGetValue(orderId, out order))
                             {
                                 order = new CustomerOrderHistoryViewModel();
@@ -272,7 +301,6 @@ namespace web_sport_gear.Controllers
                                 orders.Add(order);
                             }
 
-                            // Đọc sản phẩm thuộc đơn hàng
                             int detailOrdinal = reader.GetOrdinal("OrderDetailID");
 
                             if (!reader.IsDBNull(detailOrdinal))
@@ -304,12 +332,10 @@ namespace web_sport_gear.Controllers
             return View(orders);
         }
 
-
         // GET: Account/Profile
         [HttpGet]
         public new ActionResult Profile()
         {
-            // Kiem tra nguoi dung da dang nhap
             if (Session["UserID"] == null)
             {
                 return RedirectToAction("Login");
@@ -349,9 +375,7 @@ namespace web_sport_gear.Controllers
                                 new UserProfileViewModel
                                 {
                                     UserID = Convert.ToInt32(reader["UserID"]),
-
                                     FullName = reader["FullName"].ToString(),
-
                                     Email = reader["Email"].ToString(),
 
                                     Phone = reader["Phone"] == DBNull.Value
@@ -409,13 +433,11 @@ namespace web_sport_gear.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult UpdateProfile(UserProfileViewModel model)
         {
-            // Kiem tra dang nhap
             if (Session["UserID"] == null)
             {
                 return RedirectToAction("Login");
             }
 
-            // Luon lay UserID tu Session, khong lay tu form
             int userId = Convert.ToInt32(Session["UserID"]);
 
             // Chuan hoa du lieu
@@ -439,14 +461,15 @@ namespace web_sport_gear.Controllers
             }
 
             // Kiem tra so dien thoai
+            // Cho phep de trong tai trang ho so
             if (!string.IsNullOrWhiteSpace(model.Phone))
             {
-                if (model.Phone.Length > 20 ||
-                    !Regex.IsMatch(model.Phone, @"^[0-9+\-\s()]{7,20}$"))
+                string phoneError =
+                    GetPhoneValidationError(model.Phone);
+
+                if (phoneError != null)
                 {
-                    ModelState.AddModelError(
-                        "Phone",
-                        "So dien thoai khong hop le.");
+                    ModelState.AddModelError("Phone", phoneError);
                 }
             }
 
@@ -470,7 +493,6 @@ namespace web_sport_gear.Controllers
                     "Gioi tinh khong hop le.");
             }
 
-            // Neu du lieu khong hop le, giu nguyen noi dung da nhap
             if (!ModelState.IsValid)
             {
                 return View("Profile", model);
@@ -523,8 +545,7 @@ namespace web_sport_gear.Controllers
                                 ? (object)DBNull.Value
                                 : model.Address);
 
-                        command.Parameters.AddWithValue(
-                            "@UserID", userId);
+                        command.Parameters.AddWithValue("@UserID", userId);
 
                         int rowsAffected = command.ExecuteNonQuery();
 
@@ -538,7 +559,6 @@ namespace web_sport_gear.Controllers
                     }
                 }
 
-                // Cap nhat ten hien thi trong Session
                 Session["FullName"] = model.FullName;
 
                 TempData["ProfileSuccess"] =
@@ -572,8 +592,6 @@ namespace web_sport_gear.Controllers
             }
         }
 
-
-
         // POST: Account/UploadAvatar
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -586,34 +604,35 @@ namespace web_sport_gear.Controllers
 
             int userId = Convert.ToInt32(Session["UserID"]);
 
-            // Kiem tra file
             if (avatarFile == null || avatarFile.ContentLength == 0)
             {
                 TempData["ProfileError"] = "Vui long chon anh dai dien.";
                 return RedirectToAction("Profile");
             }
 
-            // Gioi han dung luong 2MB
             if (avatarFile.ContentLength > 2 * 1024 * 1024)
             {
                 TempData["ProfileError"] = "Anh khong duoc vuot qua 2MB.";
                 return RedirectToAction("Profile");
             }
 
-            // Chi chap nhan JPG, JPEG, PNG
-            string extension = Path.GetExtension(avatarFile.FileName).ToLowerInvariant();
+            string extension =
+                Path.GetExtension(avatarFile.FileName).ToLowerInvariant();
 
             if (extension != ".jpg" &&
                 extension != ".jpeg" &&
                 extension != ".png")
             {
-                TempData["ProfileError"] = "Chi chap nhan anh JPG, JPEG hoac PNG.";
+                TempData["ProfileError"] =
+                    "Chi chap nhan anh JPG, JPEG hoac PNG.";
+
                 return RedirectToAction("Profile");
             }
 
-            // Kiem tra chu ky file de tranh doi ten file khong phai anh
             byte[] header = new byte[8];
-            int bytesRead = avatarFile.InputStream.Read(header, 0, header.Length);
+
+            int bytesRead =
+                avatarFile.InputStream.Read(header, 0, header.Length);
 
             bool isJpeg = bytesRead >= 3 &&
                           header[0] == 0xFF &&
@@ -635,48 +654,52 @@ namespace web_sport_gear.Controllers
             if (!((extension == ".jpg" || extension == ".jpeg") && isJpeg) &&
                 !(extension == ".png" && isPng))
             {
-                TempData["ProfileError"] = "Noi dung file khong phai anh JPG hoac PNG hop le.";
+                TempData["ProfileError"] =
+                    "Noi dung file khong phai anh JPG hoac PNG hop le.";
+
                 return RedirectToAction("Profile");
             }
 
-            string folderPath = Server.MapPath("~/Content/Uploads/Avatars/");
+            string folderPath =
+                Server.MapPath("~/Content/Uploads/Avatars/");
 
-            string newFileName = Guid.NewGuid().ToString("N") + extension;
+            string newFileName =
+                Guid.NewGuid().ToString("N") + extension;
 
-            string newFilePath = Path.Combine(folderPath, newFileName);
+            string newFilePath =
+                Path.Combine(folderPath, newFileName);
 
-            string avatarUrl = "~/Content/Uploads/Avatars/" + newFileName;
+            string avatarUrl =
+                "~/Content/Uploads/Avatars/" + newFileName;
 
             try
             {
-                // Tao thu muc neu chua ton tai
                 if (!Directory.Exists(folderPath))
                 {
                     Directory.CreateDirectory(folderPath);
                 }
 
-                // Luu anh vao thu muc
                 avatarFile.SaveAs(newFilePath);
 
-                using (SqlConnection connection = new SqlConnection(ConnectionString))
+                using (SqlConnection connection =
+                    new SqlConnection(ConnectionString))
                 {
                     connection.Open();
 
-                    // Lay avatar cu cua tai khoan
                     string oldAvatar = null;
 
                     string selectSql = @"
-                SELECT Avatar
-                FROM dbo.Users
-                WHERE UserID = @UserID AND IsActive = 1;";
+                        SELECT Avatar
+                        FROM dbo.Users
+                        WHERE UserID = @UserID AND IsActive = 1;";
 
-                    using (SqlCommand command = new SqlCommand(selectSql, connection))
+                    using (SqlCommand command =
+                        new SqlCommand(selectSql, connection))
                     {
                         command.Parameters.AddWithValue("@UserID", userId);
 
                         object result = command.ExecuteScalar();
 
-                        // Chi khi khong tim thay tai khoan moi chuyen ve Login
                         if (result == null)
                         {
                             Session.Clear();
@@ -687,19 +710,18 @@ namespace web_sport_gear.Controllers
                             return RedirectToAction("Login");
                         }
 
-                        // Tai khoan ton tai nhung chua co avatar thi oldAvatar = null
                         oldAvatar = result == DBNull.Value
                             ? null
                             : result.ToString();
                     }
 
-                    // Cap nhat duong dan anh moi vao database
                     string updateSql = @"
-                UPDATE dbo.Users
-                SET Avatar = @Avatar
-                WHERE UserID = @UserID AND IsActive = 1;";
+                        UPDATE dbo.Users
+                        SET Avatar = @Avatar
+                        WHERE UserID = @UserID AND IsActive = 1;";
 
-                    using (SqlCommand command = new SqlCommand(updateSql, connection))
+                    using (SqlCommand command =
+                        new SqlCommand(updateSql, connection))
                     {
                         command.Parameters.AddWithValue("@Avatar", avatarUrl);
                         command.Parameters.AddWithValue("@UserID", userId);
@@ -707,7 +729,6 @@ namespace web_sport_gear.Controllers
                         command.ExecuteNonQuery();
                     }
 
-                    // Xoa anh cu neu anh cu nam trong thu muc avatar cua website
                     if (!string.IsNullOrWhiteSpace(oldAvatar) &&
                         oldAvatar.StartsWith(
                             "~/Content/Uploads/Avatars/",
@@ -715,7 +736,8 @@ namespace web_sport_gear.Controllers
                     {
                         string oldFileName = Path.GetFileName(oldAvatar);
 
-                        string oldFilePath = Path.Combine(folderPath, oldFileName);
+                        string oldFilePath =
+                            Path.Combine(folderPath, oldFileName);
 
                         if (System.IO.File.Exists(oldFilePath) &&
                             !string.Equals(
@@ -728,13 +750,13 @@ namespace web_sport_gear.Controllers
                     }
                 }
 
-                TempData["ProfileSuccess"] = "Cap nhat anh dai dien thanh cong!";
+                TempData["ProfileSuccess"] =
+                    "Cap nhat anh dai dien thanh cong!";
 
                 return RedirectToAction("Profile");
             }
             catch (Exception)
             {
-                // Xoa file moi neu qua trinh cap nhat that bai
                 if (System.IO.File.Exists(newFilePath))
                 {
                     System.IO.File.Delete(newFilePath);
@@ -754,7 +776,6 @@ namespace web_sport_gear.Controllers
             return View();
         }
 
-
         // GET: Account/ChangePassword
         [HttpGet]
         public ActionResult ChangePassword()
@@ -767,13 +788,11 @@ namespace web_sport_gear.Controllers
             return View(new ChangePasswordViewModel());
         }
 
-
         // POST: Account/ChangePassword
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult ChangePassword(ChangePasswordViewModel model)
         {
-            // Kiem tra dang nhap
             if (Session["UserID"] == null)
             {
                 return RedirectToAction("Login");
@@ -781,7 +800,6 @@ namespace web_sport_gear.Controllers
 
             int userId = Convert.ToInt32(Session["UserID"]);
 
-            // Kiem tra du lieu dau vao
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -794,12 +812,11 @@ namespace web_sport_gear.Controllers
                 {
                     connection.Open();
 
-                    // Lay mat khau hien tai trong database
                     string selectSql = @"
-                SELECT PasswordHash
-                FROM dbo.Users
-                WHERE UserID = @UserID
-                  AND IsActive = 1;";
+                        SELECT PasswordHash
+                        FROM dbo.Users
+                        WHERE UserID = @UserID
+                          AND IsActive = 1;";
 
                     string passwordHash = null;
 
@@ -821,7 +838,6 @@ namespace web_sport_gear.Controllers
                         passwordHash = result.ToString();
                     }
 
-                    // Kiem tra mat khau hien tai
                     bool currentPasswordCorrect = false;
 
                     try
@@ -845,7 +861,6 @@ namespace web_sport_gear.Controllers
                         return View(model);
                     }
 
-                    // Khong cho phep dung lai mat khau cu
                     if (Crypto.VerifyHashedPassword(
                         passwordHash,
                         model.NewPassword))
@@ -857,16 +872,14 @@ namespace web_sport_gear.Controllers
                         return View(model);
                     }
 
-                    // Ma hoa mat khau moi
                     string newPasswordHash =
                         Crypto.HashPassword(model.NewPassword);
 
-                    // Cap nhat mat khau moi
                     string updateSql = @"
-                UPDATE dbo.Users
-                SET PasswordHash = @PasswordHash
-                WHERE UserID = @UserID
-                  AND IsActive = 1;";
+                        UPDATE dbo.Users
+                        SET PasswordHash = @PasswordHash
+                        WHERE UserID = @UserID
+                          AND IsActive = 1;";
 
                     using (SqlCommand command =
                         new SqlCommand(updateSql, connection))
@@ -922,7 +935,6 @@ namespace web_sport_gear.Controllers
             }
         }
 
-
         // POST: Account/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -937,10 +949,12 @@ namespace web_sport_gear.Controllers
             Email = (Email ?? "").Trim();
             Phone = (Phone ?? "").Trim();
 
+            // Kiem tra ho va ten
             if (string.IsNullOrWhiteSpace(FullName))
             {
                 ModelState.AddModelError(
-                    "FullName", "Vui long nhap ho va ten.");
+                    "FullName",
+                    "Vui long nhap ho va ten.");
             }
             else if (FullName.Length > 100)
             {
@@ -949,30 +963,32 @@ namespace web_sport_gear.Controllers
                     "Ho va ten khong duoc vuot qua 100 ky tu.");
             }
 
+            // Kiem tra email
             if (string.IsNullOrWhiteSpace(Email))
             {
                 ModelState.AddModelError(
-                    "Email", "Vui long nhap email.");
+                    "Email",
+                    "Vui long nhap email.");
             }
             else if (Email.Length > 255 ||
-                     !Regex.IsMatch(Email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+                     !Regex.IsMatch(
+                         Email,
+                         @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
             {
                 ModelState.AddModelError(
-                    "Email", "Email khong hop le.");
+                    "Email",
+                    "Email khong hop le.");
             }
 
-            if (string.IsNullOrWhiteSpace(Phone))
+            // Kiem tra so dien thoai voi thong bao rieng
+            string phoneError = GetPhoneValidationError(Phone);
+
+            if (phoneError != null)
             {
-                ModelState.AddModelError(
-                    "Phone", "Vui long nhap so dien thoai.");
-            }
-            else if (Phone.Length > 20)
-            {
-                ModelState.AddModelError(
-                    "Phone",
-                    "So dien thoai khong duoc vuot qua 20 ky tu.");
+                ModelState.AddModelError("Phone", phoneError);
             }
 
+            // Kiem tra mat khau
             if (string.IsNullOrEmpty(Password) || Password.Length < 8)
             {
                 ModelState.AddModelError(
@@ -980,6 +996,7 @@ namespace web_sport_gear.Controllers
                     "Mat khau phai co it nhat 8 ky tu.");
             }
 
+            // Kiem tra xac nhan mat khau
             if (Password != ConfirmPassword)
             {
                 ModelState.AddModelError(
@@ -999,6 +1016,7 @@ namespace web_sport_gear.Controllers
                 {
                     connection.Open();
 
+                    // Kiem tra email da ton tai
                     string checkEmailSql = @"
                         SELECT COUNT(1)
                         FROM dbo.Users
@@ -1022,6 +1040,7 @@ namespace web_sport_gear.Controllers
                         }
                     }
 
+                    // Kiem tra so dien thoai da ton tai
                     string checkPhoneSql = @"
                         SELECT COUNT(1)
                         FROM dbo.Users
@@ -1039,13 +1058,14 @@ namespace web_sport_gear.Controllers
                         {
                             ModelState.AddModelError(
                                 "Phone",
-                                "So dien thoai nay da duoc dang ky.");
+                                "Số điện thoại này đã được đăng ký.");
 
                             return View();
                         }
                     }
 
-                    string passwordHash = Crypto.HashPassword(Password);
+                    string passwordHash =
+                        Crypto.HashPassword(Password);
 
                     string insertSql = @"
                         INSERT INTO dbo.Users

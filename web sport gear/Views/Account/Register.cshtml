@@ -17,6 +17,13 @@
           rel="stylesheet" />
 
     <style>
+        .register-card .phone-validation {
+            display: block;
+            color: #d93025;
+            font-size: 13px;
+            margin-top: 6px;
+            line-height: 1.5;
+        }
         .register-card {
             width: 100%;
             max-width: 480px;
@@ -235,11 +242,18 @@
                             <input type="tel"
                                    id="Phone"
                                    name="Phone"
+                                   value="@Request.Form["Phone"]"
                                    placeholder="Nhập số điện thoại"
-                                   maxlength="20"
+                                   maxlength="10"
+                                   inputmode="numeric"
                                    autocomplete="tel"
                                    required />
                         </div>
+
+                        @Html.ValidationMessage(
+                            "Phone",
+                            "",
+                            new { @class = "text-danger phone-validation" })
                     </div>
 
                     <div class="form-group">

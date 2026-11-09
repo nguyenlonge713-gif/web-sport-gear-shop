@@ -4,38 +4,166 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div style="max-width:650px; margin:60px auto; padding:40px 25px;
-            background:white; border-radius:12px; text-align:center;
-            box-shadow:0 3px 12px rgba(0,0,0,0.1);">
+<style>
+    .success-page {
+        max-width: 680px;
+        margin: 55px auto;
+        padding: 0 15px 40px;
+    }
 
-    <div style="font-size:65px; color:#16a34a; margin-bottom:20px;">
-        <i class="fa-solid fa-circle-check"></i>
+    .success-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 45px 30px;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0,0,0,.08);
+        border: 1px solid #eee;
+    }
+
+    .success-icon {
+        font-size: 75px;
+        color: #16a34a;
+        margin-bottom: 20px;
+    }
+
+    .success-title {
+        font-size: 27px;
+        font-weight: 850;
+        color: #15803d;
+        margin-bottom: 15px;
+    }
+
+    .success-message {
+        color: #475569;
+        line-height: 1.8;
+        margin: 20px 0;
+    }
+
+    .success-order-id {
+        background: #fff7ed;
+        border: 1px dashed #fb923c;
+        padding: 17px;
+        border-radius: 9px;
+        margin: 25px 0;
+    }
+
+        .success-order-id small {
+            display: block;
+            color: #64748b;
+            margin-bottom: 7px;
+        }
+
+        .success-order-id strong {
+            font-size: 25px;
+            color: #ea580c;
+        }
+
+    .success-cod {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 16px;
+        color: #475569;
+        line-height: 1.7;
+        margin-bottom: 25px;
+    }
+
+    .success-button {
+        display: inline-block;
+        padding: 13px 27px;
+        background: #ff5722;
+        color: white;
+        text-decoration: none;
+        border-radius: 7px;
+        font-weight: 750;
+        transition: background .2s;
+    }
+
+        .success-button:hover {
+            background: #e64a19;
+            color: white;
+            text-decoration: none;
+        }
+
+    @@media (max-width: 576px) {
+        .success-card {
+            padding: 35px 18px;
+        }
+
+        .success-title {
+            font-size: 23px;
+        }
+    }
+</style>
+
+<div class="success-page">
+
+    <div class="success-card">
+
+        <div class="success-icon">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+
+        <h2 class="success-title">
+            ĐẶT HÀNG THÀNH CÔNG!
+        </h2>
+
+        <p class="success-message">
+            @ViewBag.Message
+            <br />
+            Cảm ơn bạn đã tin tưởng và mua sắm tại Gear Sport.
+        </p>
+
+        @if (ViewBag.OrderId != null)
+        {
+            <div class="success-order-id">
+                <small>MÃ ĐƠN HÀNG CỦA BẠN</small>
+
+                <strong>
+                    #@ViewBag.OrderId
+                </strong>
+            </div>
+        }
+
+        <div class="success-cod">
+            <div style="font-size:17px; font-weight:750; color:#172554; margin-bottom:8px;">
+                <i class="fa-solid fa-truck" style="color:#ff5722;"></i>
+                Thanh toán khi nhận hàng (COD)
+            </div>
+
+            Đơn hàng của bạn đang chờ xác nhận.
+            <br />
+            Bạn sẽ thanh toán khi nhận được hàng.
+        </div>
+
+        <a href="@Url.Action("Index", "Home")"
+           class="success-button">
+            <i class="fa-solid fa-house"></i>
+            Tiếp tục mua sắm
+        </a>
+
     </div>
-
-    <h2 style="color:#16a34a; font-weight:800;">
-        ĐẶT HÀNG THÀNH CÔNG!
-    </h2>
-
-    <p style="color:#475569; margin:20px 0; line-height:1.8;">
-        @ViewBag.Message
-        <br />
-        Cảm ơn bạn đã tin tưởng và mua sắm tại Gear Sport.
-    </p>
-
-    <p style="color:#64748b;">
-        Đơn hàng của bạn đang chờ xác nhận.
-        Bạn sẽ thanh toán khi nhận được hàng.
-    </p>
-
-    <a href="@Url.Action("Index", "Home")"
-       style="display:inline-block; margin-top:20px; padding:13px 25px;
-              background:#ff5722; color:white; text-decoration:none;
-              border-radius:6px; font-weight:700;">
-        <i class="fa-solid fa-house"></i>
-        Tiếp tục mua sắm
-    </a>
-    <script>
-    // Chỉ xóa giỏ hàng khi người dùng đến trang đặt hàng thành công
-    localStorage.removeItem("cart");
-    </script>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        // Chỉ xóa giỏ hàng của tài khoản đang đăng nhập.
+        const userId = window.currentUserId;
+
+        if (
+            window.isUserLoggedIn === true &&
+            userId &&
+            String(userId).trim() !== ""
+        ) {
+            const cartKey = "cart_" + String(userId).trim();
+
+            localStorage.removeItem(cartKey);
+
+            // Cập nhật số lượng sản phẩm trên biểu tượng giỏ hàng.
+            if (typeof updateCartCount === "function") {
+                updateCartCount();
+            }
+        }
+
+    });
+</script>

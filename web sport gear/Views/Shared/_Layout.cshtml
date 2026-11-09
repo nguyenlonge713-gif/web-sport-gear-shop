@@ -1,4 +1,13 @@
 ﻿
+@{
+    // Kiểm tra trạng thái đăng nhập và quyền Admin
+    bool isLoggedIn = Session["UserID"] != null;
+
+    bool isAdmin = isLoggedIn
+        && Session["Role"] != null
+        && Session["Role"].ToString() == "Admin";
+}
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -232,12 +241,12 @@
             transform: rotate(180deg);
         }
 
-        /* KHUNG MENU */
+        /* ==================== KHUNG MENU TÀI KHOẢN ==================== */
         .account-menu {
             position: absolute;
             top: calc(100% + 10px);
             right: 0;
-            width: 240px;
+            width: 260px;
             background: #ffffff;
             border: 1px solid #e5e7eb;
             border-radius: 10px;
@@ -285,6 +294,16 @@
             font-size: 11px;
             color: #64748b;
             font-weight: 600;
+        }
+
+        /* ==================== MENU QUẢN TRỊ ADMIN ==================== */
+        .admin-menu-title {
+            padding: 8px 12px;
+            color: #ff5722;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         /* ==================== ĐĂNG XUẤT ==================== */
@@ -462,6 +481,7 @@
             .account-menu {
                 right: 50%;
                 transform: translateX(50%);
+                max-width: calc(100vw - 30px);
             }
         }
     </style>
@@ -473,12 +493,13 @@
     <header>
 
         <!-- LOGO -->
-        <a href="@Url.Action("Index", "Home")" class="logo">
+        <a href="@Url.Action("Index", "Home", new { area = "" })"
+           class="logo">
             Gear Sport
         </a>
 
         <!-- THANH TÌM KIẾM SẢN PHẨM -->
-        <form action="@Url.Action("Search", "Home")"
+        <form action="@Url.Action("Search", "Home", new { area = "" })"
               method="get"
               class="header-search">
 
@@ -497,27 +518,35 @@
         <nav class="main-menu">
             <ul>
                 <li>
-                    <a href="@Url.Action("Index", "Home")">Trang Chủ</a>
+                    <a href="@Url.Action("Index", "Home", new { area = "" })">
+                        Trang Chủ
+                    </a>
                 </li>
 
                 <li>
-                    <a href="@Url.Action("AoTheThao", "Home")">Áo Thể Thao</a>
+                    <a href="@Url.Action("AoTheThao", "Home", new { area = "" })">
+                        Áo Thể Thao
+                    </a>
                 </li>
 
                 <li>
-                    <a href="@Url.Action("GiayDaBong", "Home")">Giày Đá Bóng</a>
+                    <a href="@Url.Action("GiayDaBong", "Home", new { area = "" })">
+                        Giày Đá Bóng
+                    </a>
                 </li>
 
                 <li>
-                    <a href="@Url.Action("PhuKien", "Home")">Phụ Kiện</a>
+                    <a href="@Url.Action("PhuKien", "Home", new { area = "" })">
+                        Phụ Kiện
+                    </a>
                 </li>
             </ul>
         </nav>
 
-        <!-- TÀI KHOẢN VÀ GIỎ HÀNG -->
+        <!-- ==================== TÀI KHOẢN VÀ GIỎ HÀNG ==================== -->
         <div class="header-actions">
 
-            @if (Session["UserID"] != null)
+            @if (isLoggedIn)
             {
                 <div class="account-dropdown" id="accountDropdown">
 
@@ -542,34 +571,78 @@
                          id="accountMenu"
                          hidden>
 
-                        <!-- HỒ SƠ -->
-                        <a href="@Url.Action("Profile", "Account")">
+                        <!-- CÁC CHỨC NĂNG TÀI KHOẢN -->
+                        <a href="@Url.Action("Profile", "Account", new { area = "" })">
                             <i class="fa-regular fa-id-card"></i>
                             Hồ sơ của tôi
                         </a>
 
-                        <!-- LỊCH SỬ MUA HÀNG -->
-                        <a href="@Url.Action("OrderHistory", "Account")">
+                        <a href="@Url.Action("OrderHistory", "Account", new { area = "" })">
                             <i class="fa-solid fa-clock-rotate-left"></i>
                             Lịch sử mua hàng
                         </a>
 
-                        <!-- ĐỔI MẬT KHẨU -->
-                        <a href="@Url.Action("ChangePassword", "Account")">
+                        <a href="@Url.Action("ChangePassword", "Account", new { area = "" })">
                             <i class="fa-solid fa-lock"></i>
                             Đổi mật khẩu
                         </a>
 
                         <div class="account-menu-divider"></div>
 
+                        <!-- THÔNG TIN VAI TRÒ -->
                         <div class="account-role">
                             Vai trò: @(Session["Role"] ?? "Khách hàng")
                         </div>
+
+                        <!-- ==================== MENU RIÊNG CHO ADMIN ==================== -->
+                        @if (isAdmin)
+                        {
+                            <div class="account-menu-divider"></div>
+
+                            <div class="admin-menu-title">
+                                <i class="fa-solid fa-user-shield"></i>
+                                Khu vực quản trị
+                            </div>
+
+                            <!-- DASHBOARD -->
+                            <a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">
+                                <i class="fa-solid fa-gauge-high"></i>
+                                Trang quản trị
+                            </a>
+
+                            <!-- QUẢN LÝ SẢN PHẨM -->
+                            <a href="@Url.Action("ProductList", "Products", new { area = "Admin" })">
+                                <i class="fa-solid fa-box"></i>
+                                Quản lý sản phẩm
+                            </a>
+
+                            <!-- QUẢN LÝ DANH MỤC -->
+                            <a href="@Url.Action("CategoryList", "Categories", new { area = "Admin" })">
+                                <i class="fa-solid fa-list"></i>
+                                Quản lý danh mục
+                            </a>
+
+                            <!-- QUẢN LÝ ĐƠN HÀNG -->
+                            <a href="@Url.Action("OrderList", "Orders", new { area = "Admin" })">
+                                <i class="fa-solid fa-receipt"></i>
+                                Quản lý đơn hàng
+                            </a>
+
+                            <!-- QUẢN LÝ TÀI KHOẢN -->
+                            <a href="@Url.Action("Index", "Users", new { area = "Admin" })">
+                                <i class="fa-solid fa-users"></i>
+                                Quản lý tài khoản
+                            </a>
+
+                        }
+
+                        <div class="account-menu-divider"></div>
 
                         <!-- FORM ĐĂNG XUẤT -->
                         @using (Html.BeginForm(
                             "Logout",
                             "Account",
+                            new { area = "" },
                             FormMethod.Post,
                             new { @class = "logout-form" }))
                         {
@@ -587,7 +660,7 @@
             else
             {
                 <!-- HIỂN THỊ KHI CHƯA ĐĂNG NHẬP -->
-                <a href="@Url.Action("Login", "Account")"
+                <a href="@Url.Action("Login", "Account", new { area = "" })"
                    class="header-login-btn">
 
                     <i class="fa-regular fa-user"></i>
@@ -597,7 +670,7 @@
 
             <!-- GIỎ HÀNG -->
             <div class="cart">
-                <a href="@Url.Action("Cart", "Home")"
+                <a href="@Url.Action("Cart", "Home", new { area = "" })"
                    aria-label="Giỏ hàng">
 
                     <i class="fas fa-shopping-cart"></i>
@@ -620,11 +693,14 @@
 
     <!-- ==================== JAVASCRIPT ==================== -->
     <script>
-        // Kiểm tra trạng thái đăng nhập bằng Session ASP.NET MVC
-        window.isUserLoggedIn = @(Session["UserID"] != null ? "true" : "false");
+      // Kiểm tra trạng thái đăng nhập
+window.isUserLoggedIn = @(isLoggedIn ? "true" : "false");
 
-        // URL đăng nhập
-        window.loginUrl = '@Url.Action("Login", "Account")';
+// Lấy UserID từ Session ASP.NET MVC
+window.currentUserId = '@(isLoggedIn ? Session["UserID"].ToString() : "")';
+
+// URL đăng nhập
+window.loginUrl = '@Url.Action("Login", "Account", new { area = "" })';
 
         // XỬ LÝ MENU TÀI KHOẢN
         document.addEventListener("DOMContentLoaded", function () {

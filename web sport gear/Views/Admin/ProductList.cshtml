@@ -13,6 +13,8 @@
     <p>Danh sách sản phẩm trong hệ thống Gear Sport.</p>
 
     <hr />
+
+    <!-- Thông báo thành công -->
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success">
@@ -20,22 +22,39 @@
         </div>
     }
 
+    <!-- Thông báo lỗi -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
 
     <!-- Khu vực nút chức năng -->
     <div style="margin-bottom: 20px;">
-        <a href="@Url.Action("CreateProduct", "Admin")"
+
+        <!-- Thêm sản phẩm -->
+        <a href="@Url.Action("CreateProduct", "Products", new { area = "Admin" })"
            class="btn btn-success">
+
             <i class="glyphicon glyphicon-plus"></i>
             Thêm sản phẩm
+
         </a>
 
-        <a href="@Url.Action("Index", "Admin")"
+        <!-- Quay lại Dashboard -->
+        <a href="@Url.Action("Index", "Admin", new { area = "Admin" })"
            class="btn btn-default">
+
             Quay lại Dashboard
+
         </a>
+
     </div>
 
+    <!-- Bảng danh sách sản phẩm -->
     <table class="table table-bordered table-striped">
+
         <thead>
             <tr>
                 <th>Mã SP</th>
@@ -45,16 +64,20 @@
                 <th>Giá</th>
                 <th>Tồn kho</th>
                 <th>Trạng thái</th>
-                <th>Thao tác</th>
+                <th style="min-width: 230px;">Thao tác</th>
             </tr>
         </thead>
 
         <tbody>
+
             @foreach (var item in Model)
             {
                 <tr>
+
+                    <!-- Mã sản phẩm -->
                     <td>@item.ProductID</td>
 
+                    <!-- Hình ảnh -->
                     <td>
                         @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
                         {
@@ -62,13 +85,22 @@
                                  alt="@item.ProductName"
                                  style="width: 65px; height: 65px; object-fit: cover;" />
                         }
+                        else
+                        {
+                            <span>Chưa có ảnh</span>
+                        }
                     </td>
 
+                    <!-- Tên sản phẩm -->
                     <td>@item.ProductName</td>
 
+                    <!-- Danh mục -->
                     <td>@item.CategoryName</td>
 
+                    <!-- Giá -->
                     <td>@item.Price.ToString("N0") đ</td>
+
+                    <!-- Tồn kho -->
                     <td>
                         @if (item.StockQuantity > 0)
                         {
@@ -78,30 +110,49 @@
                         }
                         else
                         {
-                            <span class="label label-danger">Hết hàng</span>
+                            <span class="label label-danger">
+                                Hết hàng
+                            </span>
                         }
                     </td>
 
+                    <!-- Trạng thái -->
                     <td>
                         @if (item.IsActive)
                         {
-                            <span class="label label-success">Đang hiển thị</span>
+                            <span class="label label-success">
+                                Đang hiển thị
+                            </span>
                         }
                         else
                         {
-                            <span class="label label-default">Đã ẩn</span>
+                            <span class="label label-default">
+                                Đã ẩn
+                            </span>
                         }
                     </td>
 
+                    <!-- Các chức năng -->
                     <td>
-                        <a href="@Url.Action("EditProduct", "Admin", new { id = item.ProductID })"
-                           class="btn btn-primary btn-sm">
+
+                        <!-- Sửa sản phẩm -->
+                        <a href="@Url.Action("EditProduct", "Products",
+                            new { area = "Admin", id = item.ProductID })"
+                           class="btn btn-primary btn-sm"
+                           style="margin-bottom: 5px;">
+
                             <i class="glyphicon glyphicon-edit"></i>
                             Sửa
+
                         </a>
 
-                        @using (Html.BeginForm("ToggleProductStatus", "Admin",
-                            new { id = item.ProductID }, FormMethod.Post))
+                        <!-- Ẩn / Hiện sản phẩm -->
+                        @using (Html.BeginForm(
+                            "ToggleProductStatus",
+                            "Products",
+                            new { area = "Admin", id = item.ProductID },
+                            FormMethod.Post,
+                            new { style = "display:inline-block; margin-bottom: 5px;" }))
                         {
                             @Html.AntiForgeryToken()
 
@@ -110,8 +161,10 @@
                                 <button type="submit"
                                         class="btn btn-warning btn-sm"
                                         onclick="return confirm('Bạn có chắc muốn ẩn sản phẩm này?');">
+
                                     <i class="glyphicon glyphicon-eye-close"></i>
                                     Ẩn
+
                                 </button>
                             }
                             else
@@ -119,17 +172,29 @@
                                 <button type="submit"
                                         class="btn btn-success btn-sm"
                                         onclick="return confirm('Bạn có chắc muốn hiện sản phẩm này?');">
+
                                     <i class="glyphicon glyphicon-eye-open"></i>
                                     Hiện
+
                                 </button>
                             }
                         }
+
+                        
+
                     </td>
+
                 </tr>
             }
+
         </tbody>
+
     </table>
 
-    <p>Tổng số sản phẩm: <strong>@Model.Count()</strong></p>
+    <!-- Tổng số sản phẩm -->
+    <p>
+        Tổng số sản phẩm:
+        <strong>@Model.Count()</strong>
+    </p>
 
 </div>

@@ -1,0 +1,962 @@
+﻿@model IEnumerable<web_sport_gear.Models.Product>
+
+@using System.Linq
+
+@{
+    ViewBag.Title = "Quản lý sản phẩm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    int totalProducts = Model == null ? 0 : Model.Count();
+
+    int activeProducts = Model == null ? 0 : Model.Count(x => x.IsActive);
+
+    int hiddenProducts = Model == null ? 0 : Model.Count(x => !x.IsActive);
+
+    int lowStockProducts = Model == null ? 0 :
+        Model.Count(x => x.StockQuantity > 0 && x.StockQuantity <= 5);
+
+    int outOfStockProducts = Model == null ? 0 :
+        Model.Count(x => x.StockQuantity <= 0);
+}
+
+<style>
+    /* ==============================
+       PRODUCT MANAGEMENT
+    ============================== */
+
+    .product-page {
+        padding-top: 30px;
+        padding-bottom: 55px;
+        color: #263449;
+    }
+
+        .product-page * {
+            box-sizing: border-box;
+        }
+
+    /* HEADER */
+
+    .product-header {
+        position: relative;
+        overflow: hidden;
+        padding: 30px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #172554, #1e40af, #2563eb);
+        color: white;
+        margin-bottom: 25px;
+        box-shadow: 0 8px 22px rgba(30, 64, 175, 0.16);
+    }
+
+        .product-header::after {
+            content: "";
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            right: -65px;
+            top: -100px;
+            background: rgba(255,255,255,0.09);
+        }
+
+    .product-header-icon {
+        font-size: 38px;
+        margin-bottom: 12px;
+    }
+
+    .product-header h2 {
+        font-size: 28px;
+        font-weight: 850;
+        color: white;
+        margin: 0 0 10px;
+    }
+
+    .product-header p {
+        color: #dbeafe;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    /* STATISTICS */
+
+    .product-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 17px;
+        margin-bottom: 28px;
+    }
+
+    .product-stat-card {
+        position: relative;
+        overflow: hidden;
+        padding: 21px;
+        border-radius: 13px;
+        min-height: 135px;
+        box-shadow: 0 5px 17px rgba(15, 23, 42, 0.06);
+        transition: 0.25s;
+    }
+
+        .product-stat-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .product-stat-card::after {
+            content: "";
+            position: absolute;
+            width: 95px;
+            height: 95px;
+            right: -25px;
+            bottom: -35px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.22);
+        }
+
+        .product-stat-card.blue {
+            background: linear-gradient(135deg, #1d4ed8, #60a5fa);
+            color: white;
+        }
+
+        .product-stat-card.green {
+            background: linear-gradient(135deg, #059669, #34d399);
+            color: white;
+        }
+
+        .product-stat-card.orange {
+            background: linear-gradient(135deg, #ea580c, #fb923c);
+            color: white;
+        }
+
+        .product-stat-card.red {
+            background: linear-gradient(135deg, #dc2626, #f87171);
+            color: white;
+        }
+
+    .product-stat-icon {
+        font-size: 27px;
+        margin-bottom: 10px;
+    }
+
+    .product-stat-label {
+        font-size: 12px;
+        font-weight: 700;
+        opacity: 0.9;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+    }
+
+    .product-stat-number {
+        font-size: 29px;
+        font-weight: 850;
+    }
+
+    .product-stat-note {
+        font-size: 11px;
+        opacity: 0.85;
+        margin-top: 4px;
+    }
+
+    /* TOOLBAR */
+
+    .product-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+        .product-toolbar h3 {
+            color: #172554;
+            font-size: 21px;
+            font-weight: 850;
+            margin: 0;
+        }
+
+        .product-toolbar p {
+            color: #718096;
+            font-size: 13px;
+            margin: 6px 0 0;
+        }
+
+    .product-toolbar-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .product-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 11px 17px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 750;
+        text-decoration: none !important;
+        border: none;
+        transition: 0.25s;
+    }
+
+    .product-btn-dashboard {
+        background: #eaf1ff;
+        color: #2457c5;
+    }
+
+        .product-btn-dashboard:hover {
+            background: #2457c5;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+    .product-btn-create {
+        background: linear-gradient(135deg, #059669, #10b981);
+        color: white;
+    }
+
+        .product-btn-create:hover {
+            background: linear-gradient(135deg, #047857, #059669);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 13px rgba(5, 150, 105, 0.2);
+        }
+
+    /* ALERT */
+
+    .product-alert {
+        padding: 14px 18px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+        .product-alert.success {
+            background: #dcfce7;
+            border: 1px solid #86efac;
+            color: #166534;
+        }
+
+        .product-alert.error {
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+        }
+
+    /* TABLE CARD */
+
+    .product-table-card {
+        background: white;
+        border: 1px solid #e8edf5;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(15, 23, 42, 0.045);
+    }
+
+    .product-table-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 19px 22px;
+        background: #f8faff;
+        border-bottom: 1px solid #e8edf5;
+    }
+
+        .product-table-heading h4 {
+            color: #172554;
+            font-size: 16px;
+            font-weight: 850;
+            margin: 0;
+        }
+
+    .product-count {
+        padding: 7px 13px;
+        background: #dbeafe;
+        color: #1d4ed8;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+    /* TABLE */
+
+    .product-table {
+        width: 100%;
+        margin: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+        .product-table thead th {
+            padding: 16px 13px;
+            background: linear-gradient(135deg, #172554, #1e40af);
+            color: white;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            white-space: nowrap;
+            border: none;
+        }
+
+        .product-table tbody td {
+            padding: 15px 13px;
+            vertical-align: middle;
+            border-bottom: 1px solid #edf1f7;
+            color: #334155;
+            font-size: 13px;
+        }
+
+        .product-table tbody tr:nth-child(even) {
+            background: #f8faff;
+        }
+
+        .product-table tbody tr:hover {
+            background: #eff6ff;
+            transition: 0.2s;
+        }
+
+        .product-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+    /* PRODUCT IMAGE */
+
+    .product-image-box {
+        width: 70px;
+        height: 70px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+    }
+
+        .product-image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.25s;
+        }
+
+    .product-table tbody tr:hover .product-image-box img {
+        transform: scale(1.08);
+    }
+
+    .product-image-placeholder {
+        color: #94a3b8;
+        font-size: 25px;
+    }
+
+    /* PRODUCT INFORMATION */
+
+    .product-id {
+        display: inline-block;
+        padding: 6px 10px;
+        background: #dbeafe;
+        color: #1d4ed8;
+        border-radius: 7px;
+        font-weight: 800;
+    }
+
+    .product-name {
+        color: #172554;
+        font-size: 14px;
+        font-weight: 800;
+        max-width: 220px;
+    }
+
+    .product-category {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 7px;
+        background: #f1f5f9;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 650;
+    }
+
+    .product-price {
+        color: #1d4ed8;
+        font-weight: 850;
+        white-space: nowrap;
+        font-size: 14px;
+    }
+
+    /* STOCK */
+
+    .stock-badge {
+        display: inline-block;
+        min-width: 42px;
+        text-align: center;
+        padding: 7px 10px;
+        border-radius: 7px;
+        font-weight: 800;
+        font-size: 12px;
+    }
+
+    .stock-good {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .stock-low {
+        background: #ffedd5;
+        color: #c2410c;
+    }
+
+    .stock-out {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    /* STATUS */
+
+    .product-status {
+        display: inline-block;
+        padding: 7px 11px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+        .product-status.active {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .product-status.hidden {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+    /* ACTIONS */
+
+    .product-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .product-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 11px;
+        border-radius: 7px;
+        font-size: 11px;
+        font-weight: 750;
+        border: none;
+        cursor: pointer;
+        text-decoration: none !important;
+        transition: 0.2s;
+        white-space: nowrap;
+    }
+
+    .product-edit {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+        .product-edit:hover {
+            background: #2563eb;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+    .product-hide {
+        background: #ffedd5;
+        color: #c2410c;
+    }
+
+        .product-hide:hover {
+            background: #ea580c;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+    .product-show {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+        .product-show:hover {
+            background: #059669;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+    /* EMPTY STATE */
+
+    .product-empty {
+        text-align: center;
+        padding: 50px 20px !important;
+        color: #94a3b8 !important;
+    }
+
+    .product-empty-icon {
+        font-size: 45px;
+        margin-bottom: 12px;
+    }
+
+    .product-empty strong {
+        display: block;
+        color: #475569;
+        font-size: 16px;
+        margin-bottom: 6px;
+    }
+
+    /* FOOTER */
+
+    .product-table-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 17px 22px;
+        background: #f8faff;
+        border-top: 1px solid #e8edf5;
+        color: #64748b;
+        font-size: 13px;
+    }
+
+        .product-table-footer strong {
+            color: #1d4ed8;
+            font-size: 15px;
+        }
+
+    /* RESPONSIVE */
+
+    @@media (max-width: 992px) {
+        .product-stat-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .product-header {
+            padding: 23px;
+        }
+
+            .product-header h2 {
+                font-size: 22px;
+            }
+
+        .product-stat-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .product-stat-card {
+            padding: 15px;
+        }
+
+        .product-stat-number {
+            font-size: 24px;
+        }
+
+        .product-toolbar {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .product-toolbar-actions {
+            width: 100%;
+        }
+
+        .product-btn {
+            flex: 1;
+        }
+
+        .product-table {
+            min-width: 1050px;
+        }
+    }
+</style>
+
+<div class="container product-page">
+
+    <!-- HEADER -->
+    <div class="product-header">
+
+        <div class="product-header-icon">
+            <i class="glyphicon glyphicon-shopping-cart"></i>
+        </div>
+
+        <h2>QUẢN LÝ SẢN PHẨM</h2>
+
+        <p>
+            Quản lý thông tin, hình ảnh, giá bán và tình trạng tồn kho
+            của các sản phẩm trong cửa hàng Gear Sport.
+        </p>
+
+    </div>
+
+    <!-- ALERT -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="product-alert success">
+            <i class="glyphicon glyphicon-ok-circle"></i>
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="product-alert error">
+            <i class="glyphicon glyphicon-warning-sign"></i>
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <!-- STATISTICS -->
+    <div class="product-stat-grid">
+
+        <div class="product-stat-card blue">
+            <div class="product-stat-icon">
+                <i class="glyphicon glyphicon-shopping-cart"></i>
+            </div>
+
+            <div class="product-stat-label">
+                Tổng sản phẩm
+            </div>
+
+            <div class="product-stat-number">
+                @totalProducts
+            </div>
+
+            <div class="product-stat-note">
+                Sản phẩm trong hệ thống
+            </div>
+        </div>
+
+        <div class="product-stat-card green">
+            <div class="product-stat-icon">
+                <i class="glyphicon glyphicon-ok-circle"></i>
+            </div>
+
+            <div class="product-stat-label">
+                Đang hiển thị
+            </div>
+
+            <div class="product-stat-number">
+                @activeProducts
+            </div>
+
+            <div class="product-stat-note">
+                Sản phẩm đang kinh doanh
+            </div>
+        </div>
+
+        <div class="product-stat-card orange">
+            <div class="product-stat-icon">
+                <i class="glyphicon glyphicon-alert"></i>
+            </div>
+
+            <div class="product-stat-label">
+                Sắp hết hàng
+            </div>
+
+            <div class="product-stat-number">
+                @lowStockProducts
+            </div>
+
+            <div class="product-stat-note">
+                Tồn kho từ 1 đến 5 sản phẩm
+            </div>
+        </div>
+
+        <div class="product-stat-card red">
+            <div class="product-stat-icon">
+                <i class="glyphicon glyphicon-ban-circle"></i>
+            </div>
+
+            <div class="product-stat-label">
+                Hết hàng
+            </div>
+
+            <div class="product-stat-number">
+                @outOfStockProducts
+            </div>
+
+            <div class="product-stat-note">
+                Sản phẩm có tồn kho bằng 0
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="product-toolbar">
+
+        <div>
+            <h3>Danh sách sản phẩm</h3>
+            <p>Theo dõi và quản lý toàn bộ sản phẩm của cửa hàng.</p>
+        </div>
+
+        <div class="product-toolbar-actions">
+
+            <a href="@Url.Action("Index", "Dashboard",
+                new { area = "Admin" })"
+               class="product-btn product-btn-dashboard">
+
+                <i class="glyphicon glyphicon-dashboard"></i>
+                Dashboard
+
+            </a>
+
+            <a href="@Url.Action("CreateProduct", "Products",
+                new { area = "Admin" })"
+               class="product-btn product-btn-create">
+
+                <i class="glyphicon glyphicon-plus"></i>
+                Thêm sản phẩm
+
+            </a>
+
+        </div>
+
+    </div>
+
+    <!-- PRODUCT TABLE -->
+    <div class="product-table-card">
+
+        <div class="product-table-heading">
+
+            <h4>
+                <i class="glyphicon glyphicon-list"></i>
+                Danh sách sản phẩm trong hệ thống
+            </h4>
+
+            <span class="product-count">
+                @totalProducts sản phẩm
+            </span>
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="product-table">
+
+                <thead>
+                    <tr>
+                        <th>Mã SP</th>
+                        <th>Hình ảnh</th>
+                        <th>Tên sản phẩm</th>
+                        <th>Danh mục</th>
+                        <th>Giá bán</th>
+                        <th>Tồn kho</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+
+                                <!-- PRODUCT ID -->
+                                <td>
+                                    <span class="product-id">
+                                        #@item.ProductID
+                                    </span>
+                                </td>
+
+                                <!-- IMAGE -->
+                                <td>
+
+                                    <div class="product-image-box">
+
+                                        @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                                        {
+                                            <img src="@item.ImageUrl"
+                                                 alt="@item.ProductName" />
+                                        }
+                                        else
+                                        {
+                                            <span class="product-image-placeholder">
+                                                <i class="glyphicon glyphicon-picture"></i>
+                                            </span>
+                                        }
+
+                                    </div>
+
+                                </td>
+
+                                <!-- NAME -->
+                                <td>
+                                    <div class="product-name">
+                                        @item.ProductName
+                                    </div>
+                                </td>
+
+                                <!-- CATEGORY -->
+                                <td>
+                                    <span class="product-category">
+                                        @(string.IsNullOrWhiteSpace(item.CategoryName)
+                                            ? "Chưa phân loại"
+                                            : item.CategoryName)
+                                    </span>
+                                </td>
+
+                                <!-- PRICE -->
+                                <td>
+                                    <span class="product-price">
+                                        @item.Price.ToString("N0") đ
+                                    </span>
+                                </td>
+
+                                <!-- STOCK -->
+                                <td>
+
+                                    @if (item.StockQuantity <= 0)
+                                    {
+                                        <span class="stock-badge stock-out">
+                                            Hết hàng
+                                        </span>
+                                    }
+                                    else if (item.StockQuantity <= 5)
+                                    {
+                                        <span class="stock-badge stock-low">
+                                            @item.StockQuantity
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="stock-badge stock-good">
+                                            @item.StockQuantity
+                                        </span>
+                                    }
+
+                                </td>
+
+                                <!-- STATUS -->
+                                <td>
+
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="product-status active">
+                                            <i class="glyphicon glyphicon-ok-circle"></i>
+                                            Đang hiển thị
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="product-status hidden">
+                                            <i class="glyphicon glyphicon-eye-close"></i>
+                                            Đã ẩn
+                                        </span>
+                                    }
+
+                                </td>
+
+                                <!-- ACTIONS -->
+                                <td>
+
+                                    <div class="product-actions">
+
+                                        <!-- EDIT -->
+                                        <a href="@Url.Action("EditProduct", "Products",
+                                            new { area = "Admin", id = item.ProductID })"
+                                           class="product-action product-edit">
+
+                                            <i class="glyphicon glyphicon-edit"></i>
+                                            Sửa
+
+                                        </a>
+
+                                        <!-- TOGGLE STATUS -->
+                                        @using (Html.BeginForm(
+                                            "ToggleProductStatus",
+                                            "Products",
+                                            new { area = "Admin", id = item.ProductID },
+                                            FormMethod.Post,
+                                            new { style = "display:inline;" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+
+                                            if (item.IsActive)
+                                            {
+                                                <button type="submit"
+                                                        class="product-action product-hide"
+                                                        onclick="return confirm('Bạn có chắc muốn ẩn sản phẩm này?');">
+
+                                                    <i class="glyphicon glyphicon-eye-close"></i>
+                                                    Ẩn
+
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button type="submit"
+                                                        class="product-action product-show"
+                                                        onclick="return confirm('Bạn có chắc muốn hiện sản phẩm này?');">
+
+                                                    <i class="glyphicon glyphicon-eye-open"></i>
+                                                    Hiện
+
+                                                </button>
+                                            }
+                                        }
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="product-empty">
+
+                                <div class="product-empty-icon">
+                                    <i class="glyphicon glyphicon-shopping-cart"></i>
+                                </div>
+
+                                <strong>Chưa có sản phẩm nào</strong>
+
+                                Hãy thêm sản phẩm mới để bắt đầu quản lý cửa hàng.
+
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="product-table-footer">
+
+            <span>
+                Tổng số sản phẩm:
+                <strong>@totalProducts</strong>
+            </span>
+
+            <span>
+                Đang hiển thị:
+                <strong>@activeProducts</strong>
+                &nbsp;|&nbsp;
+                Đã ẩn:
+                <strong>@hiddenProducts</strong>
+            </span>
+
+        </div>
+
+    </div>
+
+</div>

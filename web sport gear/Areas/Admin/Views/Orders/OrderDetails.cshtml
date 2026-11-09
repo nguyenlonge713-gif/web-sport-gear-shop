@@ -1,0 +1,878 @@
+﻿@model web_sport_gear.Models.Order
+
+@{
+    ViewBag.Title = "Chi tiết đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string statusClass = "status-pending";
+
+    if (Model.OrderStatus == "Đang xử lý")
+    {
+        statusClass = "status-processing";
+    }
+    else if (Model.OrderStatus == "Đang giao")
+    {
+        statusClass = "status-shipping";
+    }
+    else if (Model.OrderStatus == "Đã giao")
+    {
+        statusClass = "status-completed";
+    }
+    else if (Model.OrderStatus == "Đã hủy")
+    {
+        statusClass = "status-cancelled";
+    }
+
+    string paymentClass = "payment-pending";
+
+    if (Model.PaymentStatus == "Đã thanh toán")
+    {
+        paymentClass = "payment-success";
+    }
+    else if (Model.PaymentStatus == "Đã hoàn tiền")
+    {
+        paymentClass = "payment-refunded";
+    }
+}
+
+<style>
+    /* ==============================
+       GENERAL
+    ============================== */
+
+    .order-detail-page {
+        padding-top: 25px;
+        padding-bottom: 55px;
+        color: #263449;
+    }
+
+        .order-detail-page * {
+            box-sizing: border-box;
+        }
+
+        .order-detail-page .page-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+            .order-detail-page .page-heading h2 {
+                font-size: 27px;
+                font-weight: 800;
+                color: #172554;
+                margin: 0 0 7px;
+            }
+
+            .order-detail-page .page-heading p {
+                color: #718096;
+                margin: 0;
+                font-size: 14px;
+            }
+
+        .order-detail-page .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 11px 18px;
+            background: #eaf1ff;
+            color: #2457c5;
+            border-radius: 9px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: 0.25s;
+        }
+
+            .order-detail-page .back-button:hover {
+                background: #2457c5;
+                color: white;
+                text-decoration: none;
+                transform: translateY(-2px);
+            }
+
+        /* ==============================
+       ALERT
+    ============================== */
+
+        .order-detail-page .custom-alert {
+            padding: 14px 18px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .order-detail-page .alert-success {
+            background: #dcfce7;
+            border: 1px solid #86efac;
+            color: #166534;
+        }
+
+        .order-detail-page .alert-danger {
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+        }
+
+        /* ==============================
+       SUMMARY CARDS
+    ============================== */
+
+        .order-detail-page .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .order-detail-page .summary-card {
+            position: relative;
+            overflow: hidden;
+            padding: 22px;
+            border-radius: 14px;
+            min-height: 125px;
+            box-shadow: 0 5px 18px rgba(30, 64, 175, 0.07);
+        }
+
+            .order-detail-page .summary-card::after {
+                content: "";
+                position: absolute;
+                width: 95px;
+                height: 95px;
+                border-radius: 50%;
+                right: -22px;
+                bottom: -35px;
+                background: rgba(255,255,255,0.18);
+            }
+
+            .order-detail-page .summary-card.blue {
+                background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+                color: white;
+            }
+
+            .order-detail-page .summary-card.orange {
+                background: linear-gradient(135deg, #ea580c, #fb923c);
+                color: white;
+            }
+
+            .order-detail-page .summary-card.green {
+                background: linear-gradient(135deg, #059669, #34d399);
+                color: white;
+            }
+
+        .order-detail-page .summary-label {
+            font-size: 13px;
+            font-weight: 600;
+            opacity: 0.9;
+            margin-bottom: 12px;
+        }
+
+        .order-detail-page .summary-value {
+            font-size: 23px;
+            font-weight: 800;
+            word-break: break-word;
+        }
+
+        .order-detail-page .summary-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        /* ==============================
+       CONTENT CARDS
+    ============================== */
+
+        .order-detail-page .detail-card {
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #e8edf5;
+            box-shadow: 0 5px 20px rgba(15, 23, 42, 0.045);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .order-detail-page .detail-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 19px 23px;
+            background: linear-gradient(135deg, #172554, #1e40af);
+            color: white;
+        }
+
+        .order-detail-page .header-icon {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.17);
+            font-size: 19px;
+        }
+
+        .order-detail-page .detail-card-header h4 {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 750;
+        }
+
+        .order-detail-page .detail-card-body {
+            padding: 24px;
+        }
+
+        /* ==============================
+       INFORMATION
+    ============================== */
+
+        .order-detail-page .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        .order-detail-page .info-item {
+            padding: 15px;
+            background: #f8faff;
+            border: 1px solid #edf1f8;
+            border-radius: 10px;
+            min-width: 0;
+        }
+
+        .order-detail-page .info-label {
+            color: #718096;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .order-detail-page .info-value {
+            color: #24324a;
+            font-size: 15px;
+            font-weight: 650;
+            word-break: break-word;
+            line-height: 1.5;
+        }
+
+        .order-detail-page .info-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* ==============================
+       STATUS BADGES
+    ============================== */
+
+        .order-detail-page .status-badge,
+        .order-detail-page .payment-badge {
+            display: inline-block;
+            padding: 7px 13px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+        .order-detail-page .status-pending {
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        .order-detail-page .status-processing {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .order-detail-page .status-shipping {
+            background: #ede9fe;
+            color: #6d28d9;
+        }
+
+        .order-detail-page .status-completed {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .order-detail-page .status-cancelled {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .order-detail-page .payment-pending {
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        .order-detail-page .payment-success {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .order-detail-page .payment-refunded {
+            background: #ede9fe;
+            color: #6d28d9;
+        }
+
+        /* ==============================
+       PRODUCT TABLE
+    ============================== */
+
+        .order-detail-page .product-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 0;
+        }
+
+            .order-detail-page .product-table thead th {
+                background: #eff4ff;
+                color: #1e3a8a;
+                padding: 15px 13px;
+                font-size: 12px;
+                font-weight: 800;
+                text-transform: uppercase;
+                border-top: 1px solid #dce7fb;
+                border-bottom: 1px solid #dce7fb;
+                white-space: nowrap;
+            }
+
+            .order-detail-page .product-table tbody td {
+                padding: 17px 13px;
+                vertical-align: middle;
+                border-bottom: 1px solid #edf1f7;
+                color: #334155;
+                font-size: 14px;
+            }
+
+            .order-detail-page .product-table tbody tr {
+                transition: background 0.2s;
+            }
+
+                .order-detail-page .product-table tbody tr:hover {
+                    background: #f5f8ff;
+                }
+
+        .order-detail-page .product-code {
+            display: inline-block;
+            background: #eaf1ff;
+            color: #2457c5;
+            padding: 6px 10px;
+            border-radius: 7px;
+            font-weight: 750;
+        }
+
+        .order-detail-page .product-name {
+            font-weight: 700;
+            color: #172554;
+        }
+
+        .order-detail-page .quantity-badge {
+            display: inline-block;
+            min-width: 32px;
+            text-align: center;
+            padding: 6px 10px;
+            border-radius: 7px;
+            background: #fff7ed;
+            color: #c2410c;
+            font-weight: 800;
+        }
+
+        .order-detail-page .product-price {
+            font-weight: 650;
+            white-space: nowrap;
+        }
+
+        .order-detail-page .product-subtotal {
+            font-weight: 800;
+            color: #1d4ed8;
+            white-space: nowrap;
+        }
+
+        /* ==============================
+       TOTAL
+    ============================== */
+
+        .order-detail-page .total-box {
+            margin-top: 22px;
+            padding: 20px 23px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border: 1px solid #bfdbfe;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .order-detail-page .total-label {
+            font-size: 16px;
+            font-weight: 750;
+            color: #1e3a8a;
+        }
+
+        .order-detail-page .total-value {
+            font-size: 25px;
+            font-weight: 850;
+            color: #1d4ed8;
+            white-space: nowrap;
+        }
+
+        /* ==============================
+       UPDATE STATUS
+    ============================== */
+
+        .order-detail-page .update-section {
+            background: #fffaf0;
+            border: 1px solid #fed7aa;
+            border-radius: 12px;
+            padding: 22px;
+        }
+
+            .order-detail-page .update-section h5 {
+                color: #9a3412;
+                font-weight: 800;
+                font-size: 16px;
+                margin-bottom: 15px;
+            }
+
+        .order-detail-page .status-select {
+            width: 100%;
+            height: 46px;
+            border: 1px solid #fed7aa;
+            border-radius: 9px;
+            padding: 8px 12px;
+            background: white;
+            color: #334155;
+            font-weight: 600;
+            outline: none;
+        }
+
+            .order-detail-page .status-select:focus {
+                border-color: #f97316;
+                box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.13);
+            }
+
+        .order-detail-page .update-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #ea580c, #f97316);
+            border: none;
+            border-radius: 9px;
+            padding: 12px 20px;
+            color: white;
+            font-weight: 750;
+            transition: 0.25s;
+        }
+
+            .order-detail-page .update-button:hover {
+                background: linear-gradient(135deg, #c2410c, #ea580c);
+                transform: translateY(-2px);
+                box-shadow: 0 5px 13px rgba(234, 88, 12, 0.2);
+            }
+
+        /* ==============================
+       NOTE
+    ============================== */
+
+        .order-detail-page .note-box {
+            padding: 17px;
+            border-radius: 10px;
+            background: #f8fafc;
+            border-left: 4px solid #f59e0b;
+            color: #475569;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+
+        .order-detail-page .note-title {
+            color: #92400e;
+            font-weight: 750;
+            margin-bottom: 7px;
+        }
+
+    /* ==============================
+       RESPONSIVE
+    ============================== */
+
+    @@media (max-width: 768px) {
+        .order-detail-page .summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .order-detail-page .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .order-detail-page .info-item.full-width {
+            grid-column: auto;
+        }
+
+        .order-detail-page .page-heading {
+            align-items: flex-start;
+        }
+
+            .order-detail-page .page-heading h2 {
+                font-size: 22px;
+            }
+
+        .order-detail-page .detail-card-body {
+            padding: 16px;
+        }
+
+        .order-detail-page .total-box {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .order-detail-page .product-table {
+            min-width: 650px;
+        }
+    }
+</style>
+
+<div class="container order-detail-page">
+
+    <!-- PAGE HEADING -->
+    <div class="page-heading">
+
+        <div>
+            <h2>CHI TIẾT ĐƠN HÀNG #@Model.OrderID</h2>
+            <p>Quản lý thông tin, sản phẩm và trạng thái đơn hàng</p>
+        </div>
+
+        <a href="@Url.Action("OrderList", "Orders", new { area = "Admin" })"
+           class="back-button">
+            &#8592; Quay lại danh sách
+        </a>
+
+    </div>
+
+    <!-- ALERT MESSAGE -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert-success custom-alert">
+            &#10004; @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert-danger custom-alert">
+            &#9888; @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <!-- SUMMARY -->
+    <div class="summary-grid">
+
+        <div class="summary-card blue">
+            <div class="summary-icon">&#128197;</div>
+            <div class="summary-label">NGÀY ĐẶT HÀNG</div>
+            <div class="summary-value">
+                @Model.CreatedAt.ToString("dd/MM/yyyy")
+            </div>
+        </div>
+
+        <div class="summary-card orange">
+            <div class="summary-icon">&#128179;</div>
+            <div class="summary-label">TỔNG GIÁ TRỊ ĐƠN HÀNG</div>
+            <div class="summary-value">
+                @Model.TotalAmount.ToString("N0") đ
+            </div>
+        </div>
+
+        <div class="summary-card green">
+            <div class="summary-icon">&#128230;</div>
+            <div class="summary-label">TRẠNG THÁI ĐƠN HÀNG</div>
+            <div class="summary-value" style="font-size:20px;">
+                @Model.OrderStatus
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ORDER INFORMATION -->
+    <div class="detail-card">
+
+        <div class="detail-card-header">
+            <div class="header-icon">&#128203;</div>
+            <h4>Thông tin đơn hàng</h4>
+        </div>
+
+        <div class="detail-card-body">
+
+            <div class="info-grid">
+
+                <div class="info-item">
+                    <div class="info-label">Mã đơn hàng</div>
+                    <div class="info-value">
+                        #@Model.OrderID
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Khách hàng</div>
+                    <div class="info-value">
+                        @ViewBag.CustomerName
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Người nhận</div>
+                    <div class="info-value">
+                        @Model.ReceiverName
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Số điện thoại</div>
+                    <div class="info-value">
+                        @Model.ReceiverPhone
+                    </div>
+                </div>
+
+                <div class="info-item full-width">
+                    <div class="info-label">Địa chỉ giao hàng</div>
+                    <div class="info-value">
+                        &#128205; @Model.ShippingAddress
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Phương thức thanh toán</div>
+                    <div class="info-value">
+                        @Model.PaymentMethod
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Trạng thái thanh toán</div>
+                    <div class="info-value">
+                        <span class="payment-badge @paymentClass">
+                            @Model.PaymentStatus
+                        </span>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Trạng thái đơn hàng</div>
+                    <div class="info-value">
+                        <span class="status-badge @statusClass">
+                            @Model.OrderStatus
+                        </span>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Thời gian đặt hàng</div>
+                    <div class="info-value">
+                        @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- PRODUCT LIST -->
+    <div class="detail-card">
+
+        <div class="detail-card-header">
+            <div class="header-icon">&#128722;</div>
+            <h4>Danh sách sản phẩm</h4>
+        </div>
+
+        <div class="detail-card-body">
+
+            <div class="table-responsive">
+
+                <table class="product-table">
+
+                    <thead>
+                        <tr>
+                            <th>Mã sản phẩm</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Số lượng</th>
+                            <th>Đơn giá</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @if (Model.OrderDetails != null && Model.OrderDetails.Any())
+                        {
+                            foreach (var item in Model.OrderDetails)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="product-code">
+                                            #@item.ProductID
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="product-name">
+                                            @item.ProductName
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="quantity-badge">
+                                            @item.Quantity
+                                        </span>
+                                    </td>
+
+                                    <td class="product-price">
+                                        @item.UnitPrice.ToString("N0") đ
+                                    </td>
+
+                                    <td class="product-subtotal">
+                                        @item.SubTotal.ToString("N0") đ
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">
+                                    Chưa có sản phẩm trong đơn hàng.
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <!-- TOTAL -->
+            <div class="total-box">
+
+                <div class="total-label">
+                    TỔNG THANH TOÁN
+                </div>
+
+                <div class="total-value">
+                    @Model.TotalAmount.ToString("N0") đ
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- UPDATE ORDER STATUS -->
+    <div class="detail-card">
+
+        <div class="detail-card-header">
+            <div class="header-icon">&#9881;</div>
+            <h4>Quản lý trạng thái đơn hàng</h4>
+        </div>
+
+        <div class="detail-card-body">
+
+            <div class="update-section">
+
+                <h5>&#128221; Cập nhật trạng thái đơn hàng</h5>
+
+                @using (Html.BeginForm(
+                    "UpdateOrderStatus",
+                    "Orders",
+                    new { area = "Admin" },
+                    FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           name="orderId"
+                           value="@Model.OrderID" />
+
+                    <div class="form-group mb-3">
+
+                        <label style="font-weight:700; color:#475569; margin-bottom:9px;">
+                            Chọn trạng thái mới
+                        </label>
+
+                        <select name="orderStatus" class="status-select">
+
+                            <option value="Chờ xác nhận"
+                                    @(Model.OrderStatus == "Chờ xác nhận" ? "selected" : "")>
+                                Chờ xác nhận
+                            </option>
+
+                            <option value="Đang xử lý"
+                                    @(Model.OrderStatus == "Đang xử lý" ? "selected" : "")>
+                                Đang xử lý
+                            </option>
+
+                            <option value="Đang giao"
+                                    @(Model.OrderStatus == "Đang giao" ? "selected" : "")>
+                                Đang giao
+                            </option>
+
+                            <option value="Đã giao"
+                                    @(Model.OrderStatus == "Đã giao" ? "selected" : "")>
+                                Đã giao
+                            </option>
+
+                            <option value="Đã hủy"
+                                    @(Model.OrderStatus == "Đã hủy" ? "selected" : "")>
+                                Đã hủy
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <button type="submit" class="update-button">
+                        &#10004; Cập nhật trạng thái
+                    </button>
+                }
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ORDER NOTE -->
+    <div class="detail-card">
+
+        <div class="detail-card-header">
+            <div class="header-icon">&#128221;</div>
+            <h4>Ghi chú đơn hàng</h4>
+        </div>
+
+        <div class="detail-card-body">
+
+            <div class="note-box">
+
+                <div class="note-title">
+                    Ghi chú từ khách hàng
+                </div>
+
+                @(string.IsNullOrWhiteSpace(Model.Note)
+                    ? "Không có ghi chú cho đơn hàng này."
+                    : Model.Note)
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- BACK BUTTON -->
+    <div class="text-end mb-4">
+
+        <a href="@Url.Action("OrderList", "Orders", new { area = "Admin" })"
+           class="back-button">
+            &#8592; Quay lại danh sách đơn hàng
+        </a>
+
+    </div>
+
+</div>

@@ -1,0 +1,464 @@
+﻿
+@model List<web_sport_gear.Models.AdminUserViewModel>
+
+@{
+    ViewBag.Title = "Quản lý tài khoản";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .users-page {
+        background: #f3f6fb;
+        min-height: 75vh;
+        padding: 35px 0 60px;
+    }
+
+    .users-header {
+        background: linear-gradient(120deg, #142b4a, #1769aa);
+        color: white;
+        padding: 28px;
+        border-radius: 16px;
+        margin-bottom: 25px;
+    }
+
+        .users-header h2 {
+            color: white;
+            font-weight: 800;
+            margin: 0 0 8px;
+        }
+
+        .users-header p {
+            color: #dce9f7;
+            margin: 0;
+        }
+
+    .users-panel {
+        background: white;
+        border-radius: 14px;
+        padding: 24px;
+        box-shadow: 0 4px 18px rgba(0,0,0,.05);
+    }
+
+    /* Khu vực tìm kiếm */
+    .users-search {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 22px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+        .users-search input {
+            max-width: 380px;
+            border-radius: 8px;
+            height: 38px;
+        }
+
+    /* Bảng tài khoản */
+    .users-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+    }
+
+    .users-table {
+        width: 100%;
+        min-width: 1150px;
+        table-layout: fixed;
+        border-collapse: collapse;
+        margin-bottom: 0;
+    }
+
+        .users-table th {
+            background: #edf3fa;
+            color: #30445c;
+            font-weight: 700;
+            text-align: center;
+            vertical-align: middle !important;
+            padding: 15px 8px !important;
+            white-space: nowrap;
+            border-bottom: 2px solid #dce5ef !important;
+        }
+
+        .users-table td {
+            text-align: center;
+            vertical-align: middle !important;
+            padding: 14px 9px !important;
+            border-color: #e8edf3 !important;
+            overflow-wrap: anywhere;
+        }
+
+        .users-table tbody tr:hover {
+            background: #f5f9ff;
+        }
+
+        .users-table .user-name,
+        .users-table .user-email,
+        .users-table .user-phone {
+            text-align: left;
+        }
+
+        .users-table .user-name {
+            font-weight: 600;
+            color: #243b53;
+        }
+
+        .users-table .user-email {
+            color: #52677e;
+            font-size: 13px;
+        }
+
+        .users-table .user-phone {
+            white-space: nowrap;
+        }
+
+        .users-table .user-date {
+            white-space: nowrap;
+        }
+
+    /* Nhãn trạng thái */
+    .user-status {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .status-active {
+        background: #e2f8ed;
+        color: #168653;
+    }
+
+    .status-locked {
+        background: #ffe8e8;
+        color: #c0392b;
+    }
+
+    .role-admin {
+        color: #7045bd;
+        font-weight: 700;
+    }
+
+    .role-customer {
+        color: #2475d0;
+        font-weight: 700;
+    }
+
+    /* Khu vực thao tác */
+    .user-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .role-form {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        width: 100%;
+    }
+
+        .role-form select {
+            flex: 1;
+            min-width: 0;
+            height: 32px;
+            border: 1px solid #d7dfeb;
+            border-radius: 6px;
+            padding: 4px;
+            font-size: 12px;
+        }
+
+    .user-actions .btn {
+        font-size: 12px;
+        padding: 6px 9px;
+        border-radius: 6px;
+        white-space: nowrap;
+    }
+
+    .role-form .btn {
+        flex-shrink: 0;
+    }
+
+    .status-form {
+        width: 100%;
+        margin: 0;
+    }
+
+        .status-form button {
+            width: 100%;
+        }
+
+    .current-user {
+        color: #8795a5;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .users-total {
+        margin-top: 18px;
+        margin-bottom: 0;
+        color: #64748b;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .users-panel {
+            padding: 14px;
+        }
+
+        .users-header {
+            padding: 22px;
+        }
+
+        .users-search {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+            .users-search input {
+                max-width: none;
+                width: 100%;
+            }
+
+            .users-search button,
+            .users-search a {
+                width: 100%;
+            }
+    }
+</style>
+
+<div class="users-page">
+    <div class="container">
+
+        <div class="users-header">
+            <h2>
+                <i class="fa-solid fa-users"></i>
+                QUẢN LÝ TÀI KHOẢN
+            </h2>
+            <p>Xem, tìm kiếm, khóa tài khoản và quản lý quyền người dùng.</p>
+        </div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <div class="users-panel">
+
+            <!-- TÌM KIẾM -->
+            <form method="get"
+                  action="@Url.Action("Index", "Users", new { area = "Admin" })"
+                  class="users-search">
+
+                <input type="text"
+                       name="keyword"
+                       value="@ViewBag.Keyword"
+                       class="form-control"
+                       placeholder="Tìm theo họ tên, email hoặc số điện thoại..." />
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    Tìm kiếm
+                </button>
+
+                <a href="@Url.Action("Index", "Users", new { area = "Admin" })"
+                   class="btn btn-default">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    Làm mới
+                </a>
+            </form>
+
+            <!-- DANH SÁCH TÀI KHOẢN -->
+            <div class="users-table-wrapper">
+                <table class="table table-hover table-bordered users-table">
+
+                    <!-- CỐ ĐỊNH ĐỘ RỘNG 8 CỘT -->
+                    <colgroup>
+                        <col style="width: 6%;" />
+                        <col style="width: 14%;" />
+                        <col style="width: 19%;" />
+                        <col style="width: 11%;" />
+                        <col style="width: 9%;" />
+                        <col style="width: 12%;" />
+                        <col style="width: 11%;" />
+                        <col style="width: 18%;" />
+                    </colgroup>
+
+                    <thead>
+                        <tr>
+                            <th>Mã</th>
+                            <th>Họ và tên</th>
+                            <th>Email</th>
+                            <th>Số điện thoại</th>
+                            <th>Vai trò</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày tạo</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model != null && Model.Count > 0)
+                        {
+                            foreach (var user in Model)
+                            {
+                                <tr>
+                                    <td>@user.UserID</td>
+
+                                    <td class="user-name">
+                                        @user.FullName
+                                    </td>
+
+                                    <td class="user-email">
+                                        @user.Email
+                                    </td>
+
+                                    <td class="user-phone">
+                                        @(string.IsNullOrWhiteSpace(user.Phone)
+                                            ? "Chưa cập nhật"
+                                            : user.Phone)
+                                    </td>
+
+                                    <td>
+                                        <span class="@(user.Role == "Admin"
+                                            ? "role-admin"
+                                            : "role-customer")">
+                                            @user.Role
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        @if (user.IsActive)
+                                        {
+                                            <span class="user-status status-active">
+                                                Đang hoạt động
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="user-status status-locked">
+                                                Đã khóa
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td class="user-date">
+                                        @user.CreatedAt.ToString("dd/MM/yyyy")
+                                    </td>
+
+                                    <td>
+                                        @if (Session["UserID"] != null &&
+                                            user.UserID != Convert.ToInt32(Session["UserID"]))
+                                        {
+                                            <div class="user-actions">
+
+                                                <!-- ĐỔI QUYỀN -->
+                                                <form method="post"
+                                                      action="@Url.Action("ChangeRole", "Users", new { area = "Admin" })"
+                                                      class="role-form">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <input type="hidden"
+                                                           name="id"
+                                                           value="@user.UserID" />
+
+                                                    <select name="role" class="form-control">
+                                                        <option value="Customer"
+                                                                @(user.Role == "Customer" ? "selected" : "")>
+                                                            Customer
+                                                        </option>
+
+                                                        <option value="Admin"
+                                                                @(user.Role == "Admin" ? "selected" : "")>
+                                                            Admin
+                                                        </option>
+                                                    </select>
+
+                                                    <button type="submit"
+                                                            class="btn btn-primary btn-sm"
+                                                            onclick="return confirm('Bạn có chắc muốn thay đổi quyền tài khoản này?');">
+                                                        Lưu
+                                                    </button>
+                                                </form>
+
+                                                <!-- KHÓA / MỞ KHÓA -->
+                                                <form method="post"
+                                                      action="@Url.Action("ToggleStatus", "Users", new { area = "Admin" })"
+                                                      class="status-form">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <input type="hidden"
+                                                           name="id"
+                                                           value="@user.UserID" />
+
+                                                    @if (user.IsActive)
+                                                    {
+                                                        <button type="submit"
+                                                                class="btn btn-danger btn-sm"
+                                                                onclick="return confirm('Bạn có chắc muốn khóa tài khoản này?');">
+                                                            <i class="fa-solid fa-lock"></i>
+                                                            Khóa tài khoản
+                                                        </button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <button type="submit"
+                                                                class="btn btn-success btn-sm"
+                                                                onclick="return confirm('Bạn có chắc muốn mở khóa tài khoản này?');">
+                                                            <i class="fa-solid fa-lock-open"></i>
+                                                            Mở khóa
+                                                        </button>
+                                                    }
+                                                </form>
+
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="current-user">
+                                                <i class="fa-solid fa-user-shield"></i>
+                                                Tài khoản đang đăng nhập
+                                            </span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">
+                                    Không tìm thấy tài khoản nào.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+
+            <p class="users-total">
+                <i class="fa-solid fa-users"></i>
+                Tổng số tài khoản hiển thị:
+                <strong>@(Model == null ? 0 : Model.Count)</strong>
+            </p>
+
+        </div>
+    </div>
+</div>

@@ -277,7 +277,6 @@ namespace web_sport_gear.Controllers
             string connectionString =
                 ConfigurationManager.ConnectionStrings["GearSportDB"].ConnectionString;
 
-            // Đã sửa ID 12 thành 9 và ID 13 thành 16
             int[] productIds = { 1, 18, 17, 15, 2, 9, 4, 5, 6, 16 };
 
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -287,7 +286,8 @@ namespace web_sport_gear.Controllers
                 string sql = @"
             SELECT ProductID, StockQuantity
             FROM dbo.Products
-            WHERE ProductID IN (1, 18, 17, 15, 2, 9, 4, 5, 6, 16)";
+            WHERE ProductID IN (1, 18, 17, 15, 2, 9, 4, 5, 6, 16)
+              AND IsActive = 1";
 
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 using (SqlDataReader reader = command.ExecuteReader())

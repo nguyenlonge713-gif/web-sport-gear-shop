@@ -13,13 +13,13 @@
         ? "Sản phẩm"
         : Model.CategoryName;
 
-    // Danh sách hình ảnh của sản phẩm
+    // Danh sách hình ảnh sản phẩm
     var productImages = new List<string>
 {
         imageUrl
     };
 
-    // Tự động tìm tối đa 4 ảnh bổ sung theo ProductID
+    // Tìm tối đa 4 ảnh bổ sung theo ProductID
     for (int i = 2; i <= 5; i++)
     {
         string imagePath = "~/Content/Images/Products/"
@@ -64,9 +64,7 @@
         align-items: start;
     }
 
-    /* =========================
-       THƯ VIỆN ẢNH SẢN PHẨM
-    ========================= */
+    /* THƯ VIỆN ẢNH */
 
     .product-gallery {
         width: 100%;
@@ -159,9 +157,7 @@
         margin-top: 10px;
     }
 
-    /* =========================
-       THÔNG TIN SẢN PHẨM
-    ========================= */
+    /* THÔNG TIN SẢN PHẨM */
 
     .product-info {
         padding: 10px 0;
@@ -230,9 +226,7 @@
         font-weight: 600;
     }
 
-    /* =========================
-       SỐ LƯỢNG
-    ========================= */
+    /* SỐ LƯỢNG */
 
     .quantity-area {
         display: flex;
@@ -267,7 +261,7 @@
             }
 
         .quantity-control input {
-            width: 50px;
+            width: 65px;
             height: 38px;
             border: none;
             text-align: center;
@@ -275,9 +269,7 @@
             outline: none;
         }
 
-    /* =========================
-       NÚT MUA HÀNG
-    ========================= */
+    /* NÚT MUA HÀNG */
 
     .detail-actions {
         display: flex;
@@ -323,9 +315,7 @@
             background: #f5f5f5;
         }
 
-    /* =========================
-       TAB THÔNG TIN
-    ========================= */
+    /* TAB THÔNG TIN */
 
     .product-tabs {
         margin-top: 60px;
@@ -382,9 +372,7 @@
                 color: #333;
             }
 
-    /* =========================
-       RESPONSIVE
-    ========================= */
+    /* RESPONSIVE */
 
     @@media (max-width: 768px) {
         .detail-layout {
@@ -531,7 +519,8 @@
                            value="1"
                            min="1"
                            max="@(Model.StockQuantity > 0 ? Model.StockQuantity : 1)"
-                           readonly />
+                           step="1"
+                           aria-label="Số lượng sản phẩm" />
 
                     <button type="button" id="btnIncrease">+</button>
 
@@ -541,13 +530,14 @@
 
             <div class="detail-actions">
 
+                <!-- NÚT THÊM VÀO GIỎ HÀNG -->
                 <button type="button"
-                        class="btn-buy-now"
+                        class="btn-buy-now add-to-cart-btn"
                         data-id="@Model.ProductID"
                         data-name="@Model.ProductName"
                         data-price="@Model.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)"
                         data-image="@imageUrl"
-                        onclick="addCurrentProductToCart(this)"
+                        data-stock="@Model.StockQuantity"
                         @(Model.IsActive && Model.StockQuantity > 0 ? "" : "disabled")>
 
                     <i class="fa fa-shopping-bag"></i>
@@ -696,7 +686,7 @@
                 + " / " + productImages.length;
         }
 
-        // Tạo các ảnh thu nhỏ
+        // Tạo ảnh thu nhỏ
         productImages.forEach(function (image, index) {
 
             const thumbnail = document.createElement("button");
@@ -727,12 +717,12 @@
 
         });
 
-        // Nút chuyển ảnh trái
+        // Nút ảnh trước
         prevButton.addEventListener("click", function () {
             showProductImage(currentImageIndex - 1);
         });
 
-        // Nút chuyển ảnh phải
+        // Nút ảnh tiếp theo
         nextButton.addEventListener("click", function () {
             showProductImage(currentImageIndex + 1);
         });
@@ -751,33 +741,73 @@
         }
 
         // =====================================
-        // 2. TĂNG GIẢM SỐ LƯỢNG
+        // 2. TĂNG GIẢM VÀ NHẬP SỐ LƯỢNG
         // =====================================
 
         const quantityInput = document.getElementById("productQuantity");
         const decreaseButton = document.getElementById("btnDecrease");
         const increaseButton = document.getElementById("btnIncrease");
 
+        const minQuantity = 1;
+        const maxQuantity = parseInt(quantityInput.max, 10) || 1;
+
+        // Chuẩn hóa số lượng
+        function normalizeQuantity() {
+
+            let quantity = Number(quantityInput.value);
+
+            if (!Number.isInteger(quantity)) {
+                quantity = minQuantity;
+            }
+
+            if (quantity < minQuantity) {
+                quantity = minQuantity;
+            }
+
+            if (quantity > maxQuantity) {
+                quantity = maxQuantity;
+            }
+
+            quantityInput.value = quantity;
+
+            return quantity;
+        }
+
+        // Giảm số lượng
         decreaseButton.addEventListener("click", function () {
 
-            let quantity = parseInt(quantityInput.value) || 1;
+            let quantity = Number(quantityInput.value);
 
-            if (quantity > 1) {
+            if (!Number.isInteger(quantity)) {
+                quantity = minQuantity;
+            }
+
+            if (quantity > minQuantity) {
                 quantityInput.value = quantity - 1;
             }
 
         });
 
+        // Tăng số lượng
         increaseButton.addEventListener("click", function () {
 
-            let quantity = parseInt(quantityInput.value) || 1;
-            let maxQuantity = parseInt(quantityInput.max) || 1;
+            let quantity = Number(quantityInput.value);
+
+            if (!Number.isInteger(quantity)) {
+                quantity = minQuantity;
+            }
 
             if (quantity < maxQuantity) {
                 quantityInput.value = quantity + 1;
             }
 
         });
+
+        // Chuẩn hóa khi người dùng thay đổi giá trị
+        quantityInput.addEventListener("change", normalizeQuantity);
+
+        // Chuẩn hóa khi người dùng rời khỏi ô nhập
+        quantityInput.addEventListener("blur", normalizeQuantity);
 
         // =====================================
         // 3. CHUYỂN TAB THÔNG TIN
@@ -812,24 +842,5 @@
 
         });
 
-        // =====================================
-        // 4. GỬI SỐ LƯỢNG CHO GIỎ HÀNG
-        // =====================================
-
-        const buyButton = document.querySelector(".btn-buy-now");
-
-        if (buyButton) {
-
-            buyButton.addEventListener("click", function () {
-
-                const quantity = parseInt(quantityInput.value) || 1;
-
-                buyButton.setAttribute("data-quantity", quantity);
-
-            });
-
-        }
-
     });
 </script>
-```

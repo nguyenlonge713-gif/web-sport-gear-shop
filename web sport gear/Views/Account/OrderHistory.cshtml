@@ -1,277 +1,855 @@
 ﻿
 @model IEnumerable<web_sport_gear.Models.CustomerOrderHistoryViewModel>
 
+@using System.Linq
+@using System.Collections.Generic
+
 @{
     ViewBag.Title = "Lịch Sử Mua Hàng - Gear Sport";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var orderList = Model == null
+        ? new List<web_sport_gear.Models.CustomerOrderHistoryViewModel>()
+        : Model.ToList();
+
+    int totalOrders = orderList.Count;
+    int pendingCount = orderList.Count(o => (o.OrderStatus ?? "").Trim() == "Chờ xác nhận");
+    int processingCount = orderList.Count(o => (o.OrderStatus ?? "").Trim() == "Đang xử lý");
+    int shippingCount = orderList.Count(o => (o.OrderStatus ?? "").Trim() == "Đang giao");
+    int completedCount = orderList.Count(o => (o.OrderStatus ?? "").Trim() == "Đã giao");
+    int cancelledCount = orderList.Count(o => (o.OrderStatus ?? "").Trim() == "Đã hủy");
 }
 
 <style>
-    .history-container {
-        max-width: 1100px;
-        margin: 40px auto;
-        padding: 0 20px;
+    /* ==============================
+       GEAR SPORT - ORDER HISTORY
+       ============================== */
+
+    .gs-history-page {
+        min-height: 75vh;
+        padding: 40px 15px 70px;
+        background: #f3f6fb;
     }
 
-    .history-title {
-        font-size: 28px;
-        font-weight: 800;
-        color: #222;
-        margin-bottom: 8px;
+    .gs-history-container {
+        max-width: 1150px;
+        margin: 0 auto;
     }
 
-    .history-subtitle {
-        color: #777;
-        margin-bottom: 30px;
-    }
+    /* HEADER */
 
-    .order-card {
-        background: #fff;
-        border: 1px solid #e8e8e8;
-        border-radius: 12px;
+    .gs-history-header {
         margin-bottom: 25px;
-        overflow: hidden;
-        box-shadow: 0 3px 12px rgba(0,0,0,0.04);
     }
 
-    .order-header {
-        background: #f8f9fa;
-        padding: 18px 22px;
+        .gs-history-header h2 {
+            color: #142b4a;
+            font-size: 27px;
+            font-weight: 900;
+            margin: 0 0 9px;
+        }
+
+        .gs-history-header p {
+            color: #7b8798;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .gs-history-header i {
+            color: #2563eb;
+            margin-right: 8px;
+        }
+
+    /* SUMMARY */
+
+    .gs-history-summary {
         display: flex;
+        align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
-        gap: 12px;
-        border-bottom: 1px solid #eee;
+        gap: 15px;
+        padding: 20px 24px;
+        margin-bottom: 25px;
+        background: linear-gradient(120deg, #142b4a, #1e4e83);
+        border-radius: 13px;
+        color: #fff;
+        box-shadow: 0 6px 18px rgba(20,43,74,0.12);
     }
 
-    .order-code {
-        font-weight: 800;
-        font-size: 17px;
-        color: #222;
-    }
-
-    .order-date {
-        color: #777;
+    .gs-summary-label {
         font-size: 13px;
+        color: #d2e0f1;
+        margin-bottom: 6px;
+    }
+
+    .gs-summary-number {
+        font-size: 27px;
+        font-weight: 900;
+    }
+
+    .gs-summary-icon {
+        width: 55px;
+        height: 55px;
+        border-radius: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255,255,255,0.13);
+        color: #ffbd59;
+        font-size: 25px;
+    }
+
+    /* STATUS TABS */
+
+    .gs-order-tabs {
+        display: flex;
+        align-items: stretch;
+        background: #fff;
+        border-radius: 12px 12px 0 0;
+        border: 1px solid #e5eaf1;
+        border-bottom: none;
+        overflow-x: auto;
+        scrollbar-width: thin;
+    }
+
+    .gs-order-tab {
+        position: relative;
+        flex: 1 0 auto;
+        min-width: 115px;
+        padding: 17px 13px;
+        border: none;
+        border-bottom: 3px solid transparent;
+        background: #fff;
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+
+        .gs-order-tab:hover {
+            color: #2563eb;
+            background: #f8faff;
+        }
+
+        .gs-order-tab.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+            background: #fff;
+        }
+
+    .gs-tab-count {
+        display: inline-block;
+        min-width: 21px;
+        padding: 3px 6px;
+        margin-left: 4px;
+        border-radius: 20px;
+        background: #eef2f7;
+        color: #64748b;
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+    .gs-order-tab.active .gs-tab-count {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    /* ORDER LIST */
+
+    .gs-order-list {
+        padding: 20px;
+        background: #eef2f7;
+        border: 1px solid #e5eaf1;
+        border-radius: 0 0 12px 12px;
+    }
+
+    .gs-order-card {
+        background: #fff;
+        border: 1px solid #e5eaf1;
+        border-radius: 11px;
+        margin-bottom: 18px;
+        overflow: hidden;
+        box-shadow: 0 3px 10px rgba(15,23,42,0.035);
+        transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+        .gs-order-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .gs-order-card:hover {
+            box-shadow: 0 7px 18px rgba(15,23,42,0.07);
+            transform: translateY(-2px);
+        }
+
+    /* ORDER HEADER */
+
+    .gs-order-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 16px 20px;
+        border-bottom: 1px solid #edf0f5;
+    }
+
+    .gs-order-id {
+        color: #263b57;
+        font-size: 15px;
+        font-weight: 900;
+    }
+
+    .gs-order-date {
+        color: #94a0b1;
+        font-size: 12px;
         margin-top: 5px;
     }
 
-    .order-status {
-        font-weight: 700;
-        color: #e67e22;
+    /* STATUS BADGES */
+
+    .gs-order-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 12px;
+        border-radius: 30px;
+        font-size: 11px;
+        font-weight: 800;
     }
 
-    .order-body {
-        padding: 22px;
+    .gs-status-pending {
+        background: #fff7e6;
+        color: #c47b0a;
     }
 
-    .customer-info {
-        background: #fafafa;
-        border-radius: 8px;
-        padding: 15px;
+    .gs-status-processing {
+        background: #eaf2ff;
+        color: #2563eb;
+    }
+
+    .gs-status-shipping {
+        background: #f1eaff;
+        color: #7c3aed;
+    }
+
+    .gs-status-completed {
+        background: #e9f9ef;
+        color: #16834b;
+    }
+
+    .gs-status-cancelled {
+        background: #fff0f0;
+        color: #dc2626;
+    }
+
+    .gs-status-default {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    /* ORDER BODY */
+
+    .gs-order-body {
+        padding: 20px;
+    }
+
+    .gs-customer-info {
+        padding: 14px 16px;
         margin-bottom: 20px;
-        line-height: 1.8;
+        border-radius: 9px;
+        background: #f7f9fc;
+        border: 1px solid #edf0f5;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.9;
     }
 
-    .product-table {
+    .gs-customer-title {
+        color: #263b57;
+        font-weight: 800;
+        margin-bottom: 5px;
+    }
+
+    .gs-customer-info strong {
+        color: #33445c;
+    }
+
+    /* PRODUCT TABLE */
+
+    .gs-product-heading {
+        color: #263b57;
+        font-size: 14px;
+        font-weight: 800;
+        margin: 0 0 13px;
+    }
+
+    .gs-product-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .gs-product-table {
         width: 100%;
         border-collapse: collapse;
-        margin-bottom: 20px;
+        min-width: 500px;
+        margin-bottom: 18px;
     }
 
-        .product-table th,
-        .product-table td {
+        .gs-product-table th {
             padding: 12px 10px;
-            border-bottom: 1px solid #eee;
+            background: #f3f6fb;
+            color: #52647b;
+            font-size: 12px;
+            font-weight: 800;
             text-align: left;
+            border-bottom: 1px solid #e6ebf2;
         }
 
-        .product-table th {
-            background: #f8f9fa;
-            font-weight: 700;
-            color: #555;
+        .gs-product-table td {
+            padding: 14px 10px;
+            color: #52647b;
+            font-size: 13px;
+            border-bottom: 1px solid #edf0f5;
         }
 
-    .order-total {
+        .gs-product-table tr:last-child td {
+            border-bottom: none;
+        }
+
+    .gs-product-name {
+        color: #263b57;
+        font-weight: 700;
+    }
+
+    .gs-product-price {
+        white-space: nowrap;
+    }
+
+    /* PAYMENT */
+
+    .gs-order-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        flex-wrap: wrap;
+        gap: 20px;
+        padding-top: 18px;
+        border-top: 1px solid #edf0f5;
+    }
+
+    .gs-payment-info {
+        color: #78869a;
+        font-size: 12px;
+        line-height: 2;
+    }
+
+        .gs-payment-info strong {
+            color: #40536d;
+        }
+
+    .gs-order-total {
         text-align: right;
-        font-size: 19px;
-        font-weight: 800;
-        color: #e63946;
-        margin-top: 15px;
     }
 
-    .payment-info {
-        color: #666;
-        font-size: 14px;
-        line-height: 1.8;
+    .gs-order-total-label {
+        color: #7b8798;
+        font-size: 12px;
+        margin-bottom: 5px;
     }
 
-    .empty-history {
+    .gs-order-total-price {
+        color: #e65b35;
+        font-size: 21px;
+        font-weight: 900;
+    }
+
+    /* EMPTY STATE */
+
+    .gs-empty-history {
+        padding: 55px 20px;
         background: #fff;
-        border: 1px solid #eee;
-        border-radius: 12px;
-        padding: 60px 20px;
+        border: 1px solid #e5eaf1;
+        border-radius: 11px;
         text-align: center;
     }
 
-        .empty-history i {
-            font-size: 55px;
-            color: #ccc;
-            margin-bottom: 15px;
-        }
-
-        .empty-history h3 {
-            font-weight: 700;
-            color: #333;
-        }
-
-    .btn-shopping {
-        display: inline-block;
-        background: #e63946;
-        color: #fff;
-        padding: 11px 25px;
-        border-radius: 6px;
-        text-decoration: none;
-        font-weight: 700;
-        margin-top: 15px;
+    .gs-empty-icon {
+        width: 75px;
+        height: 75px;
+        margin: 0 auto 18px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #eff5ff;
+        border-radius: 50%;
+        color: #8ba9d4;
+        font-size: 30px;
     }
 
-        .btn-shopping:hover {
-            background: #c92d39;
+    .gs-empty-history h3 {
+        color: #263b57;
+        font-size: 19px;
+        font-weight: 800;
+        margin-bottom: 9px;
+    }
+
+    .gs-empty-history p {
+        color: #94a0b1;
+        font-size: 13px;
+        margin-bottom: 18px;
+    }
+
+    .gs-btn-shopping {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 23px;
+        background: #2563eb;
+        color: #fff;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 800;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+        .gs-btn-shopping:hover {
+            background: #174ea6;
             color: #fff;
             text-decoration: none;
+            transform: translateY(-2px);
         }
 
-    @@media (max-width: 600px) {
-        .product-table {
-            font-size: 13px;
+    .gs-tab-empty {
+        display: none;
+    }
+
+    /* RESPONSIVE */
+
+    @@media (max-width: 700px) {
+        .gs-history-page {
+            padding: 28px 10px 45px;
         }
 
-            .product-table th,
-            .product-table td {
-                padding: 9px 5px;
-            }
+        .gs-history-header h2 {
+            font-size: 23px;
+        }
 
-        .order-body {
+        .gs-order-list {
+            padding: 12px;
+        }
+
+        .gs-order-body {
             padding: 15px;
+        }
+
+        .gs-order-card-header {
+            padding: 14px 15px;
+        }
+
+        .gs-order-bottom {
+            align-items: flex-start;
+        }
+
+        .gs-order-total {
+            text-align: left;
+            width: 100%;
+        }
+
+        .gs-order-tabs {
+            border-radius: 10px 10px 0 0;
+        }
+
+        .gs-order-tab {
+            min-width: 125px;
+            padding: 15px 10px;
+        }
+    }
+
+    @@media (max-width: 420px) {
+        .gs-history-summary {
+            padding: 17px;
+        }
+
+        .gs-summary-number {
+            font-size: 23px;
+        }
+
+        .gs-order-card-header {
+            align-items: flex-start;
         }
     }
 </style>
 
-<div class="history-container">
+<div class="gs-history-page">
+    <div class="gs-history-container">
 
-    <h1 class="history-title">
-        <i class="fa-solid fa-clock-rotate-left"></i>
-        Lịch sử mua hàng
-    </h1>
+        <!-- PAGE HEADER -->
 
-    <p class="history-subtitle">
-        Theo dõi và xem lại những đơn hàng bạn đã đặt tại Gear Sport.
-    </p>
-
-    @if (Model != null && Model.Any())
-    {
-        foreach (var order in Model)
-        {
-            <div class="order-card">
-
-                <div class="order-header">
-                    <div>
-                        <div class="order-code">
-                            Đơn hàng #@order.OrderID
-                        </div>
-
-                        <div class="order-date">
-                            Ngày đặt:
-                            @order.CreatedAt.ToString("dd/MM/yyyy HH:mm")
-                        </div>
-                    </div>
-
-                    <div class="order-status">
-                        @order.OrderStatus
-                    </div>
-                </div>
-
-                <div class="order-body">
-
-                    <div class="customer-info">
-                        <strong>Thông tin nhận hàng</strong><br />
-
-                        Người nhận: @order.ReceiverName<br />
-
-                        Số điện thoại: @order.ReceiverPhone<br />
-
-                        Địa chỉ: @order.ShippingAddress
-                    </div>
-
-                    <h4>Danh sách sản phẩm</h4>
-
-                    <div style="overflow-x:auto;">
-                        <table class="product-table">
-                            <thead>
-                                <tr>
-                                    <th>Sản phẩm</th>
-                                    <th>Đơn giá</th>
-                                    <th>Số lượng</th>
-                                    <th>Thành tiền</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                @foreach (var item in order.Items)
-                                {
-                                    <tr>
-                                        <td>@item.ProductName</td>
-
-                                        <td>
-                                            @item.UnitPrice.ToString("N0") ₫
-                                        </td>
-
-                                        <td>@item.Quantity</td>
-
-                                        <td>
-                                            @item.SubTotal.ToString("N0") ₫
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="payment-info">
-                        Phương thức thanh toán:
-                        <strong>@order.PaymentMethod</strong><br />
-
-                        Trạng thái thanh toán:
-                        <strong>@order.PaymentStatus</strong>
-                    </div>
-
-                    <div class="order-total">
-                        Tổng tiền:
-                        @order.TotalAmount.ToString("N0") ₫
-                    </div>
-
-                </div>
-            </div>
-        }
-    }
-    else
-    {
-        <div class="empty-history">
-            <i class="fa-solid fa-bag-shopping"></i>
-
-            <h3>Bạn chưa có đơn hàng nào</h3>
+        <div class="gs-history-header">
+            <h2>
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                LỊCH SỬ MUA HÀNG
+            </h2>
 
             <p>
-                Hãy khám phá các sản phẩm thể thao tại Gear Sport
-                và bắt đầu mua sắm nhé!
+                Theo dõi trạng thái và quản lý các đơn hàng của bạn tại Gear Sport.
             </p>
-
-            <a href="@Url.Action("Index", "Home")"
-               class="btn-shopping">
-                Tiếp tục mua sắm
-            </a>
         </div>
-    }
 
+        @if (orderList.Any())
+        {
+            <!-- SUMMARY -->
+
+            <div class="gs-history-summary">
+                <div>
+                    <div class="gs-summary-label">
+                        Tổng số đơn hàng của bạn
+                    </div>
+
+                    <div class="gs-summary-number">
+                        @totalOrders đơn hàng
+                    </div>
+                </div>
+
+                <div class="gs-summary-icon">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                </div>
+            </div>
+
+            <!-- STATUS TABS -->
+
+            <div class="gs-order-tabs">
+
+                <button type="button"
+                        class="gs-order-tab active"
+                        data-status="all"
+                        onclick="filterOrders('all', this)">
+                    Tất cả
+                    <span class="gs-tab-count">@totalOrders</span>
+                </button>
+
+                <button type="button"
+                        class="gs-order-tab"
+                        data-status="Chờ xác nhận"
+                        onclick="filterOrders('Chờ xác nhận', this)">
+                    Chờ xác nhận
+                    <span class="gs-tab-count">@pendingCount</span>
+                </button>
+
+                <button type="button"
+                        class="gs-order-tab"
+                        data-status="Đang xử lý"
+                        onclick="filterOrders('Đang xử lý', this)">
+                    Đang xử lý
+                    <span class="gs-tab-count">@processingCount</span>
+                </button>
+
+                <button type="button"
+                        class="gs-order-tab"
+                        data-status="Đang giao"
+                        onclick="filterOrders('Đang giao', this)">
+                    Đang giao
+                    <span class="gs-tab-count">@shippingCount</span>
+                </button>
+
+                <button type="button"
+                        class="gs-order-tab"
+                        data-status="Đã giao"
+                        onclick="filterOrders('Đã giao', this)">
+                    Đã giao
+                    <span class="gs-tab-count">@completedCount</span>
+                </button>
+
+                <button type="button"
+                        class="gs-order-tab"
+                        data-status="Đã hủy"
+                        onclick="filterOrders('Đã hủy', this)">
+                    Đã hủy
+                    <span class="gs-tab-count">@cancelledCount</span>
+                </button>
+
+            </div>
+
+            <!-- ORDER LIST -->
+
+            <div class="gs-order-list">
+
+                @foreach (var order in orderList)
+                {
+                    var status = (order.OrderStatus ?? "").Trim();
+
+                    var statusClass = "gs-status-default";
+
+                    if (status == "Chờ xác nhận")
+                    {
+                        statusClass = "gs-status-pending";
+                    }
+                    else if (status == "Đang xử lý")
+                    {
+                        statusClass = "gs-status-processing";
+                    }
+                    else if (status == "Đang giao")
+                    {
+                        statusClass = "gs-status-shipping";
+                    }
+                    else if (status == "Đã giao")
+                    {
+                        statusClass = "gs-status-completed";
+                    }
+                    else if (status == "Đã hủy")
+                    {
+                        statusClass = "gs-status-cancelled";
+                    }
+
+                    <div class="gs-order-card"
+                         data-order-status="@status">
+
+                        <!-- ORDER HEADER -->
+
+                        <div class="gs-order-card-header">
+
+                            <div>
+                                <div class="gs-order-id">
+                                    <i class="fa-solid fa-receipt"></i>
+                                    Đơn hàng #@order.OrderID
+                                </div>
+
+                                <div class="gs-order-date">
+                                    <i class="fa-regular fa-calendar"></i>
+                                    Ngày đặt:
+                                    @order.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                </div>
+                            </div>
+
+                            <div class="gs-order-status @statusClass">
+                                <i class="fa-solid fa-circle"></i>
+                                @order.OrderStatus
+                            </div>
+
+                        </div>
+
+                        <!-- ORDER BODY -->
+
+                        <div class="gs-order-body">
+
+                            <!-- CUSTOMER INFO -->
+
+                            <div class="gs-customer-info">
+
+                                <div class="gs-customer-title">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                    Thông tin nhận hàng
+                                </div>
+
+                                <strong>Người nhận:</strong>
+                                @order.ReceiverName
+                                <br />
+
+                                <strong>Số điện thoại:</strong>
+                                @order.ReceiverPhone
+                                <br />
+
+                                <strong>Địa chỉ:</strong>
+                                @order.ShippingAddress
+
+                            </div>
+
+                            <!-- PRODUCTS -->
+
+                            <h4 class="gs-product-heading">
+                                <i class="fa-solid fa-box-open"></i>
+                                Danh sách sản phẩm
+                            </h4>
+
+                            <div class="gs-product-table-wrapper">
+
+                                <table class="gs-product-table">
+
+                                    <thead>
+                                        <tr>
+                                            <th>Sản phẩm</th>
+                                            <th>Đơn giá</th>
+                                            <th>Số lượng</th>
+                                            <th>Thành tiền</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+
+                                        @if (order.Items != null && order.Items.Any())
+                                        {
+                                            foreach (var item in order.Items)
+                                            {
+                                                <tr>
+                                                    <td class="gs-product-name">
+                                                        @item.ProductName
+                                                    </td>
+
+                                                    <td class="gs-product-price">
+                                                        @item.UnitPrice.ToString("N0") ₫
+                                                    </td>
+
+                                                    <td>
+                                                        @item.Quantity
+                                                    </td>
+
+                                                    <td class="gs-product-price">
+                                                        <strong>
+                                                            @item.SubTotal.ToString("N0") ₫
+                                                        </strong>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td colspan="4">
+                                                    Không có thông tin sản phẩm.
+                                                </td>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+                            <!-- PAYMENT & TOTAL -->
+
+                            <div class="gs-order-bottom">
+
+                                <div class="gs-payment-info">
+
+                                    <div>
+                                        <i class="fa-solid fa-credit-card"></i>
+                                        Phương thức thanh toán:
+                                        <strong>@order.PaymentMethod</strong>
+                                    </div>
+
+                                    <div>
+                                        <i class="fa-solid fa-circle-check"></i>
+                                        Trạng thái thanh toán:
+                                        <strong>@order.PaymentStatus</strong>
+                                    </div>
+
+                                </div>
+
+                                <div class="gs-order-total">
+
+                                    <div class="gs-order-total-label">
+                                        Tổng thanh toán
+                                    </div>
+
+                                    <div class="gs-order-total-price">
+                                        @order.TotalAmount.ToString("N0") ₫
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+
+                <!-- EMPTY FILTER RESULT -->
+
+                <div class="gs-empty-history gs-tab-empty"
+                     id="gsTabEmpty">
+
+                    <div class="gs-empty-icon">
+                        <i class="fa-solid fa-box-open"></i>
+                    </div>
+
+                    <h3>Chưa có đơn hàng ở trạng thái này</h3>
+
+                    <p>
+                        Hiện tại bạn chưa có đơn hàng nào thuộc trạng thái đã chọn.
+                    </p>
+
+                    <button type="button"
+                            class="gs-btn-shopping"
+                            onclick="filterOrders('all', document.querySelector('.gs-order-tab[data-status=all]'))">
+                        <i class="fa-solid fa-list"></i>
+                        Xem tất cả đơn hàng
+                    </button>
+
+                </div>
+
+            </div>
+        }
+        else
+        {
+            <!-- NO ORDER AT ALL -->
+
+            <div class="gs-empty-history">
+
+                <div class="gs-empty-icon">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                </div>
+
+                <h3>Bạn chưa có đơn hàng nào</h3>
+
+                <p>
+                    Hãy khám phá các sản phẩm thể thao tại Gear Sport
+                    và bắt đầu mua sắm nhé!
+                </p>
+
+                <a href="@Url.Action("Index", "Home")"
+                   class="gs-btn-shopping">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    Tiếp tục mua sắm
+                </a>
+
+            </div>
+        }
+
+    </div>
 </div>
+
+<script>
+    function filterOrders(status, button) {
+
+        var orderCards = document.querySelectorAll(".gs-order-card");
+        var tabs = document.querySelectorAll(".gs-order-tab");
+        var emptyMessage = document.getElementById("gsTabEmpty");
+
+        var visibleCount = 0;
+
+        // Cập nhật tab đang được chọn
+        tabs.forEach(function (tab) {
+            tab.classList.remove("active");
+        });
+
+        if (button) {
+            button.classList.add("active");
+        }
+
+        // Lọc đơn hàng theo trạng thái
+        orderCards.forEach(function (card) {
+
+            var orderStatus = card.getAttribute("data-order-status");
+
+            if (status === "all" || orderStatus === status) {
+                card.style.display = "";
+                visibleCount++;
+            }
+            else {
+                card.style.display = "none";
+            }
+
+        });
+
+        // Hiển thị thông báo nếu không có đơn hàng
+        if (emptyMessage) {
+            emptyMessage.style.display =
+                visibleCount === 0 ? "block" : "none";
+        }
+    }
+</script>

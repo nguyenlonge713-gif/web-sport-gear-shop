@@ -1,0 +1,563 @@
+﻿
+@model List<web_sport_gear.Models.OrderListViewModel>
+
+@using System.Linq
+
+@{
+    ViewBag.Title = "Quản lý đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    int totalOrders = Model == null ? 0 : Model.Count;
+    int pendingOrders = Model == null ? 0 : Model.Count(x => x.OrderStatus == "Chờ xác nhận");
+    int shippingOrders = Model == null ? 0 : Model.Count(x => x.OrderStatus == "Đang giao");
+    int completedOrders = Model == null ? 0 : Model.Count(x => x.OrderStatus == "Đã giao");
+}
+
+<style>
+    /* =========================
+       TỔNG THỂ
+    ========================= */
+    .order-page {
+        padding: 30px 0 50px;
+        color: #263445;
+        background: #f4f7fc;
+    }
+
+    /* =========================
+       HEADER
+    ========================= */
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 28px;
+    }
+
+    .order-heading h2 {
+        font-size: 28px;
+        font-weight: 800;
+        margin: 0 0 7px;
+        color: #142d59;
+        letter-spacing: .5px;
+        border-left: 5px solid #2878f0;
+        padding-left: 14px;
+    }
+
+    .order-heading p {
+        color: #8290a3;
+        margin: 8px 0 0 19px;
+        font-size: 14px;
+    }
+
+    .order-back {
+        display: inline-block;
+        padding: 12px 20px;
+        border-radius: 9px;
+        background: linear-gradient(135deg, #142d59, #2878f0);
+        color: white;
+        text-decoration: none;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(40, 120, 240, .2);
+        transition: .25s;
+    }
+
+        .order-back:hover {
+            background: linear-gradient(135deg, #2878f0, #142d59);
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+    /* =========================
+       THẺ THỐNG KÊ
+    ========================= */
+    .order-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 28px;
+    }
+
+    .order-stat-card {
+        position: relative;
+        overflow: hidden;
+        background: #fff;
+        border: none;
+        border-radius: 14px;
+        padding: 23px;
+        box-shadow: 0 5px 20px rgba(30, 50, 80, .07);
+        transition: .25s;
+    }
+
+        .order-stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(30, 50, 80, .12);
+        }
+
+        .order-stat-card:nth-child(1) {
+            border-top: 4px solid #2878f0;
+        }
+
+        .order-stat-card:nth-child(2) {
+            border-top: 4px solid #f59e0b;
+        }
+
+        .order-stat-card:nth-child(3) {
+            border-top: 4px solid #06a6c8;
+        }
+
+        .order-stat-card:nth-child(4) {
+            border-top: 4px solid #16a36a;
+        }
+
+    .order-stat-label {
+        color: #77869d;
+        font-size: 12px;
+        font-weight: 800;
+        margin-bottom: 13px;
+    }
+
+    .order-stat-number {
+        color: #142d59;
+        font-size: 32px;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .order-stat-card:nth-child(1) .order-stat-number {
+        color: #2878f0;
+    }
+
+    .order-stat-card:nth-child(2) .order-stat-number {
+        color: #e99a12;
+    }
+
+    .order-stat-card:nth-child(3) .order-stat-number {
+        color: #06a6c8;
+    }
+
+    .order-stat-card:nth-child(4) .order-stat-number {
+        color: #16a36a;
+    }
+
+    .order-stat-note {
+        color: #9aa5b3;
+        font-size: 12px;
+        margin-top: 12px;
+    }
+
+    /* =========================
+       KHUNG BẢNG ĐƠN HÀNG
+    ========================= */
+    .order-table-card {
+        background: #fff;
+        border: 1px solid #e5ebf5;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(30, 50, 80, .06);
+    }
+
+    .order-table-header {
+        padding: 23px 25px;
+        border-bottom: 1px solid #e9edf5;
+        background: linear-gradient(120deg, #fff, #f0f5ff);
+        border-left: 5px solid #2878f0;
+    }
+
+        .order-table-header h4 {
+            color: #142d59;
+            font-size: 18px;
+            font-weight: 800;
+            margin: 0 0 6px;
+        }
+
+        .order-table-header p {
+            color: #8492a8;
+            font-size: 13px;
+            margin: 0;
+        }
+
+    .order-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .order-table {
+        width: 100%;
+        min-width: 950px;
+        border-collapse: collapse;
+        margin: 0;
+    }
+
+        /* =========================
+       TIÊU ĐỀ BẢNG
+    ========================= */
+        .order-table thead {
+            background: linear-gradient(120deg, #142d59, #245bb0);
+        }
+
+        .order-table th {
+            padding: 16px;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            border: none;
+            white-space: nowrap;
+        }
+
+        /* =========================
+       DỮ LIỆU BẢNG
+    ========================= */
+        .order-table td {
+            padding: 17px 16px;
+            color: #526176;
+            font-size: 13px;
+            border-bottom: 1px solid #edf1f7;
+            vertical-align: middle;
+        }
+
+        .order-table tbody tr {
+            transition: .2s;
+        }
+
+            .order-table tbody tr:nth-child(even) {
+                background: #f8faff;
+            }
+
+            .order-table tbody tr:hover {
+                background: #eaf2ff;
+            }
+
+            .order-table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+    /* =========================
+       MÃ ĐƠN HÀNG
+    ========================= */
+    .order-id-link {
+        display: inline-block;
+        padding: 8px 12px;
+        background: linear-gradient(135deg, #2878f0, #5595ff);
+        color: white;
+        border-radius: 7px;
+        font-weight: 800;
+        text-decoration: none;
+        box-shadow: 0 3px 8px rgba(40, 120, 240, .2);
+        transition: .2s;
+    }
+
+        .order-id-link:hover {
+            background: linear-gradient(135deg, #1559c4, #2878f0);
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+    .order-customer {
+        color: #263d60;
+        font-weight: 700;
+    }
+
+    .order-phone {
+        white-space: nowrap;
+    }
+
+    .order-amount {
+        color: #e07816;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    /* =========================
+       PHƯƠNG THỨC THANH TOÁN
+    ========================= */
+    .order-payment {
+        display: inline-block;
+        padding: 7px 10px;
+        background: #eef3ff;
+        color: #3769b7;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    /* =========================
+       TRẠNG THÁI ĐƠN HÀNG
+    ========================= */
+    .order-status {
+        display: inline-block;
+        padding: 7px 11px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .status-pending {
+        background: #fff2d6;
+        color: #b87508;
+    }
+
+    .status-processing {
+        background: #e6efff;
+        color: #2864c8;
+    }
+
+    .status-shipping {
+        background: #dcf5ff;
+        color: #087ca5;
+    }
+
+    .status-completed {
+        background: #dcf8e9;
+        color: #16834e;
+    }
+
+    .status-cancelled {
+        background: #ffe4e4;
+        color: #c83232;
+    }
+
+    .status-default {
+        background: #edf0f4;
+        color: #697586;
+    }
+
+    .order-date {
+        white-space: nowrap;
+        color: #8793a3;
+        font-size: 12px;
+    }
+
+    /* =========================
+       TRẠNG THÁI DANH SÁCH RỖNG
+    ========================= */
+    .order-empty {
+        padding: 55px 20px;
+        text-align: center;
+        color: #8793a3;
+    }
+
+        .order-empty strong {
+            display: block;
+            color: #34445a;
+            font-size: 16px;
+            margin-bottom: 7px;
+        }
+
+    /* =========================
+       THÔNG BÁO
+    ========================= */
+    .order-alert {
+        border-radius: 9px;
+        padding: 13px 17px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================= */
+    @@media (max-width: 768px) {
+        .order-stat-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .order-stat-card {
+            padding: 16px;
+        }
+
+        .order-stat-number {
+            font-size: 25px;
+        }
+
+        .order-heading h2 {
+            font-size: 22px;
+        }
+    }
+
+    @@media (max-width: 420px) {
+        .order-stat-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+</style>
+
+<div class="container order-page">
+
+    <!-- HEADER -->
+    <div class="order-header">
+        <div class="order-heading">
+            <h2>QUẢN LÝ ĐƠN HÀNG</h2>
+            <p>Theo dõi và quản lý các đơn hàng của Gear Sport.</p>
+        </div>
+
+        <a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })"
+           class="order-back">
+            &#8592; Quay lại Dashboard
+        </a>
+    </div>
+
+    <!-- THÔNG BÁO -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success order-alert">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger order-alert">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <!-- THỐNG KÊ -->
+    <div class="order-stat-grid">
+
+        <div class="order-stat-card">
+            <div class="order-stat-label">TỔNG ĐƠN HÀNG</div>
+            <div class="order-stat-number">@totalOrders</div>
+            <div class="order-stat-note">Tất cả đơn hàng hiện có</div>
+        </div>
+
+        <div class="order-stat-card">
+            <div class="order-stat-label">CHỜ XÁC NHẬN</div>
+            <div class="order-stat-number">@pendingOrders</div>
+            <div class="order-stat-note">Đơn hàng cần xử lý</div>
+        </div>
+
+        <div class="order-stat-card">
+            <div class="order-stat-label">ĐANG GIAO</div>
+            <div class="order-stat-number">@shippingOrders</div>
+            <div class="order-stat-note">Đơn hàng đang vận chuyển</div>
+        </div>
+
+        <div class="order-stat-card">
+            <div class="order-stat-label">ĐÃ GIAO</div>
+            <div class="order-stat-number">@completedOrders</div>
+            <div class="order-stat-note">Đơn hàng đã hoàn tất</div>
+        </div>
+
+    </div>
+
+    <!-- DANH SÁCH ĐƠN HÀNG -->
+    <div class="order-table-card">
+
+        <div class="order-table-header">
+            <h4>Danh sách đơn hàng</h4>
+            <p>Thông tin các đơn hàng được đặt trên hệ thống.</p>
+        </div>
+
+        @if (Model == null || Model.Count == 0)
+        {
+            <div class="order-empty">
+                <strong>Chưa có đơn hàng nào</strong>
+                Hiện tại hệ thống chưa ghi nhận đơn hàng.
+            </div>
+        }
+        else
+        {
+            <div class="order-table-wrapper">
+                <table class="order-table">
+                    <thead>
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Khách hàng</th>
+                            <th>Người nhận</th>
+                            <th>Số điện thoại</th>
+                            <th>Tổng tiền</th>
+                            <th>Thanh toán</th>
+                            <th>Trạng thái đơn</th>
+                            <th>Ngày đặt</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var order in Model)
+                        {
+                            string statusClass = "status-default";
+
+                            if (order.OrderStatus == "Chờ xác nhận")
+                            {
+                                statusClass = "status-pending";
+                            }
+                            else if (order.OrderStatus == "Đang xử lý")
+                            {
+                                statusClass = "status-processing";
+                            }
+                            else if (order.OrderStatus == "Đang giao")
+                            {
+                                statusClass = "status-shipping";
+                            }
+                            else if (order.OrderStatus == "Đã giao")
+                            {
+                                statusClass = "status-completed";
+                            }
+                            else if (order.OrderStatus == "Đã hủy")
+                            {
+                                statusClass = "status-cancelled";
+                            }
+
+                            <tr>
+                                <td>
+                                    <a href="@Url.Action(
+                                        "OrderDetails",
+                                        "Orders",
+                                        new {
+                                            area = "Admin",
+                                            id = order.OrderID
+                                        })"
+                                       class="order-id-link">
+                                        #@order.OrderID
+                                    </a>
+                                </td>
+
+                                <td>
+                                    <span class="order-customer">
+                                        @order.CustomerName
+                                    </span>
+                                </td>
+
+                                <td>@order.ReceiverName</td>
+
+                                <td class="order-phone">
+                                    @order.ReceiverPhone
+                                </td>
+
+                                <td>
+                                    <span class="order-amount">
+                                        @order.TotalAmount.ToString("N0") đ
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="order-payment">
+                                        @order.PaymentMethod
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="order-status @statusClass">
+                                        @order.OrderStatus
+                                    </span>
+                                </td>
+
+                                <td class="order-date">
+                                    @order.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+    </div>
+</div>

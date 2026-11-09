@@ -50,6 +50,7 @@
             border-radius: 6px;
             font-family: inherit;
             font-size: 14px;
+            box-sizing: border-box;
         }
 
         .checkout-group textarea {
@@ -68,6 +69,10 @@
         font-size: 13px;
         margin-top: 5px;
         display: block;
+    }
+
+    .field-validation-error {
+        color: #dc2626;
     }
 
     .checkout-summary {
@@ -120,6 +125,19 @@
         font-weight: 600;
     }
 
+    .note-counter {
+        display: block;
+        text-align: right;
+        font-size: 12px;
+        color: #64748b;
+        margin-top: 5px;
+    }
+
+        .note-counter.over-limit {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
     @@media (max-width: 768px) {
         .checkout-container {
             grid-template-columns: 1fr;
@@ -139,7 +157,7 @@
             "Index",
             "Checkout",
             FormMethod.Post,
-            new { id = "checkout-form" }))
+            new { id = "checkout-form", novalidate = "novalidate" }))
         {
             @Html.AntiForgeryToken()
 
@@ -153,13 +171,13 @@
             <div class="checkout-group">
                 <label>Họ và tên người nhận *</label>
 
-                @Html.TextBoxFor(
-                    m => m.ReceiverName,
-                    new
-                         {
-                        placeholder = "Nhập họ tên người nhận",
-                        autocomplete = "name"
-                    })
+                @Html.TextBoxFor(m => m.ReceiverName, new
+                {
+                    placeholder = "Nhập họ tên người nhận",
+                    autocomplete = "name",
+                    maxlength = "100",
+                    required = "required"
+                })
 
                 @Html.ValidationMessageFor(
                     m => m.ReceiverName,
@@ -170,14 +188,15 @@
             <div class="checkout-group">
                 <label>Số điện thoại *</label>
 
-                @Html.TextBoxFor(
-                    m => m.ReceiverPhone,
-                    new
-                         {
-                        placeholder = "Nhập số điện thoại",
-                        type = "tel",
-                        autocomplete = "tel"
-                    })
+                @Html.TextBoxFor(m => m.ReceiverPhone, new
+                {
+                    placeholder = "Nhập số điện thoại",
+                    type = "tel",
+                    autocomplete = "tel",
+                    maxlength = "10",
+                    inputmode = "numeric",
+                    required = "required"
+                })
 
                 @Html.ValidationMessageFor(
                     m => m.ReceiverPhone,
@@ -188,13 +207,13 @@
             <div class="checkout-group">
                 <label>Địa chỉ giao hàng *</label>
 
-                @Html.TextAreaFor(
-                    m => m.ShippingAddress,
-                    new
-                         {
-                        placeholder = "Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố",
-                        autocomplete = "street-address"
-                    })
+                @Html.TextAreaFor(m => m.ShippingAddress, new
+                {
+                    placeholder = "Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố",
+                    autocomplete = "street-address",
+                    maxlength = "300",
+                    required = "required"
+                })
 
                 @Html.ValidationMessageFor(
                     m => m.ShippingAddress,
@@ -205,12 +224,16 @@
             <div class="checkout-group">
                 <label>Ghi chú đơn hàng</label>
 
-                @Html.TextAreaFor(
-                    m => m.Note,
-                    new
-                         {
-                        placeholder = "Ghi chú thêm cho người giao hàng (nếu có)"
-                    })
+                @Html.TextAreaFor(m => m.Note, new
+                {
+                    placeholder = "Ghi chú thêm cho người giao hàng (nếu có)",
+                    maxlength = "500",
+                    id = "Note"
+                })
+
+                <span id="note-counter" class="note-counter">
+                    0/500 ký tự
+                </span>
 
                 @Html.ValidationMessageFor(
                     m => m.Note,
@@ -267,119 +290,348 @@
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
 
-        const checkoutForm = document.getElementById("checkout-form");
-        const cartJsonInput = document.getElementById("cartJson");
-        const checkoutItems = document.getElementById("checkout-items");
-        const checkoutTotal = document.getElementById("checkout-total");
+    const checkoutForm = document.getElementById("checkout-form");
+    const cartJsonInput = document.getElementById("cartJson");
+    const checkoutItems = document.getElementById("checkout-items");
+    const checkoutTotal = document.getElementById("checkout-total");
 
-        function getCart() {
-            try {
-                const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-                return Array.isArray(cart) ? cart : [];
-            } catch (error) {
-                return [];
-            }
+    const phoneInput = document.getElementById("ReceiverPhone");
+    const addressInput = document.getElementById("ShippingAddress");
+    const nameInput = document.getElementById("ReceiverName");
+    const noteInput = document.getElementById("Note");
+    const noteCounter = document.getElementById("note-counter");
+
+    // Lấy khóa giỏ hàng theo tài khoản hiện tại
+    function getCartKey() {
+
+        if (
+            window.isUserLoggedIn !== true ||
+            !window.currentUserId ||
+            String(window.currentUserId).trim() === ""
+        ) {
+            return null;
         }
 
-        function renderCheckout() {
-            const cart = getCart();
+        return "cart_" + String(window.currentUserId).trim();
+    }
 
-            checkoutItems.innerHTML = "";
+    // Đọc giỏ hàng đúng tài khoản
+    function getCart() {
 
-            let total = 0;
-            let validItems = [];
+        const cartKey = getCartKey();
 
-            cart.forEach(function (item) {
-                if (!item) return;
-
-                const id = Number(item.id);
-                const quantity = Number(item.quantity);
-                const price = Number(item.price);
-
-                if (!Number.isInteger(id) || id <= 0 ||
-                    !Number.isInteger(quantity) || quantity <= 0 ||
-                    !Number.isFinite(price) || price <= 0) {
-                    return;
-                }
-
-                validItems.push({
-                    id: id,
-                    quantity: quantity
-                });
-
-                const subtotal = price * quantity;
-                total += subtotal;
-
-                const row = document.createElement("div");
-                row.style.cssText =
-                    "display:flex;justify-content:space-between;gap:12px;" +
-                    "padding:12px 0;border-bottom:1px solid #e2e8f0;";
-
-                const name = document.createElement("div");
-                name.style.cssText = "font-weight:600;color:#334155;";
-                name.textContent =
-                    (item.name || "Sản phẩm") + " × " + quantity;
-
-                const amount = document.createElement("div");
-                amount.style.cssText =
-                    "font-weight:700;color:#0f172a;white-space:nowrap;";
-                amount.textContent =
-                    subtotal.toLocaleString("vi-VN") + " đ";
-
-                row.appendChild(name);
-                row.appendChild(amount);
-
-                checkoutItems.appendChild(row);
-            });
-
-            checkoutTotal.textContent =
-                total.toLocaleString("vi-VN") + " đ";
-
-            cartJsonInput.value = JSON.stringify(validItems);
-
-            if (validItems.length === 0) {
-                checkoutItems.innerHTML =
-                    '<p style="color:#dc2626;">Giỏ hàng đang trống hoặc không hợp lệ.</p>';
-
-                checkoutTotal.textContent = "0 đ";
-            }
-
-            return validItems.length > 0;
+        if (!cartKey) {
+            return [];
         }
 
-        const hasItems = renderCheckout();
+        try {
+            const cart = JSON.parse(
+                localStorage.getItem(cartKey) || "[]"
+            );
 
-        checkoutForm.addEventListener("submit", function (event) {
-            if (!renderCheckout()) {
-                event.preventDefault();
+            return Array.isArray(cart) ? cart : [];
 
-                alert("Giỏ hàng đang trống! Vui lòng quay lại thêm sản phẩm.");
+        } catch (error) {
+            console.error("Lỗi đọc giỏ hàng:", error);
+            return [];
+        }
+    }
 
-                window.location.href = '@Url.Action("Cart", "Home")';
+    // Hiển thị thông báo lỗi
+    function showError(input, message) {
+
+        const errorElement = document.querySelector(
+            '[data-valmsg-for="' + input.name + '"]'
+        );
+
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.classList.add("field-validation-error");
+            errorElement.classList.remove("field-validation-valid");
+        }
+    }
+
+    // Xóa thông báo lỗi
+    function clearError(input) {
+
+        const errorElement = document.querySelector(
+            '[data-valmsg-for="' + input.name + '"]'
+        );
+
+        if (errorElement) {
+            errorElement.textContent = "";
+            errorElement.classList.remove("field-validation-error");
+            errorElement.classList.add("field-validation-valid");
+        }
+    }
+
+    // Kiểm tra họ tên
+    function validateName() {
+
+        const name = nameInput.value.trim();
+
+        if (name === "") {
+            showError(nameInput, "Vui lòng nhập họ tên người nhận.");
+            return false;
+        }
+
+        if (name.length > 100) {
+            showError(nameInput, "Họ tên không được vượt quá 100 ký tự.");
+            return false;
+        }
+
+        clearError(nameInput);
+        return true;
+    }
+
+    // Kiểm tra số điện thoại
+    function validatePhone() {
+
+        const phone = phoneInput.value.trim();
+
+        if (phone === "") {
+            showError(phoneInput, "Vui lòng nhập số điện thoại.");
+            return false;
+        }
+
+        if (!/^[0-9]+$/.test(phone)) {
+            showError(phoneInput,
+                "Số điện thoại chỉ được chứa chữ số từ 0 đến 9.");
+            return false;
+        }
+
+        if (phone.length !== 10) {
+            showError(phoneInput,
+                "Số điện thoại phải có đúng 10 chữ số.");
+            return false;
+        }
+
+        if (!phone.startsWith("0")) {
+            showError(phoneInput,
+                "Số điện thoại phải bắt đầu bằng số 0.");
+            return false;
+        }
+
+        if (/^([0-9])\1{9}$/.test(phone)) {
+            showError(phoneInput,
+                "Số điện thoại không được chứa toàn bộ chữ số giống nhau.");
+            return false;
+        }
+
+        clearError(phoneInput);
+        return true;
+    }
+
+    // Kiểm tra địa chỉ
+    function validateAddress() {
+
+        const address = addressInput.value.trim();
+
+        if (address === "") {
+            showError(addressInput, "Vui lòng nhập địa chỉ giao hàng.");
+            return false;
+        }
+
+        if (address.length < 10) {
+            showError(addressInput,
+                "Địa chỉ giao hàng phải có ít nhất 10 ký tự.");
+            return false;
+        }
+
+        if (address.length > 300) {
+            showError(addressInput,
+                "Địa chỉ giao hàng không được vượt quá 300 ký tự.");
+            return false;
+        }
+
+        clearError(addressInput);
+        return true;
+    }
+
+    // Cập nhật bộ đếm ký tự ghi chú
+    function updateNoteCounter() {
+
+        const length = noteInput.value.length;
+
+        noteCounter.textContent = length + "/500 ký tự";
+
+        if (length > 500) {
+            noteCounter.classList.add("over-limit");
+        } else {
+            noteCounter.classList.remove("over-limit");
+        }
+    }
+
+    // Kiểm tra ghi chú
+    function validateNote() {
+
+        const note = noteInput.value;
+
+        updateNoteCounter();
+
+        if (note.length > 500) {
+            showError(
+                noteInput,
+                "Ghi chú không được vượt quá 500 ký tự."
+            );
+
+            return false;
+        }
+
+        clearError(noteInput);
+        return true;
+    }
+
+    // Hiển thị thông tin sản phẩm trong đơn hàng
+    function renderCheckout() {
+
+        const cart = getCart();
+
+        checkoutItems.innerHTML = "";
+
+        let total = 0;
+        let validItems = [];
+
+        cart.forEach(function (item) {
+
+            if (!item) return;
+
+            const id = Number(item.id);
+            const quantity = Number(item.quantity);
+            const price = Number(item.price);
+
+            if (
+                !Number.isInteger(id) || id <= 0 ||
+                !Number.isInteger(quantity) || quantity <= 0 ||
+                !Number.isFinite(price) || price <= 0
+            ) {
                 return;
             }
 
-            // Cập nhật cartJson ngay trước khi gửi form.
-            cartJsonInput.value = JSON.stringify(
-                getCart()
-                    .filter(function (item) {
-                        return item &&
-                            Number.isInteger(Number(item.id)) &&
-                            Number(item.id) > 0 &&
-                            Number.isInteger(Number(item.quantity)) &&
-                            Number(item.quantity) > 0;
-                    })
-                    .map(function (item) {
-                        return {
-                            Id: Number(item.id),
-                            Quantity: Number(item.quantity)
-                        };
-                    })
-            );
+            validItems.push({
+                Id: id,
+                Quantity: quantity
+            });
+
+            const subtotal = price * quantity;
+            total += subtotal;
+
+            const row = document.createElement("div");
+
+            row.style.cssText =
+                "display:flex;justify-content:space-between;gap:12px;" +
+                "padding:12px 0;border-bottom:1px solid #e2e8f0;";
+
+            const name = document.createElement("div");
+
+            name.style.cssText =
+                "font-weight:600;color:#334155;";
+
+            name.textContent =
+                (item.name || "Sản phẩm") + " × " + quantity;
+
+            const amount = document.createElement("div");
+
+            amount.style.cssText =
+                "font-weight:700;color:#0f172a;white-space:nowrap;";
+
+            amount.textContent =
+                subtotal.toLocaleString("vi-VN") + " đ";
+
+            row.appendChild(name);
+            row.appendChild(amount);
+
+            checkoutItems.appendChild(row);
         });
+
+        checkoutTotal.textContent =
+            total.toLocaleString("vi-VN") + " đ";
+
+        // Gửi đúng dữ liệu của tài khoản hiện tại
+        cartJsonInput.value = JSON.stringify(validItems);
+
+        if (validItems.length === 0) {
+
+            checkoutItems.innerHTML =
+                '<p style="color:#dc2626;">Giỏ hàng đang trống hoặc không hợp lệ.</p>';
+
+            checkoutTotal.textContent = "0 đ";
+        }
+
+        return validItems.length > 0;
+    }
+
+    // Kiểm tra khi nhập
+    phoneInput.addEventListener("input", validatePhone);
+    addressInput.addEventListener("input", validateAddress);
+    nameInput.addEventListener("input", validateName);
+    noteInput.addEventListener("input", validateNote);
+
+    // Chặn dữ liệu vượt quá 500 ký tự khi dán
+    noteInput.addEventListener("paste", function (event) {
+
+        const pastedText =
+            event.clipboardData.getData("text");
+
+        const currentText = noteInput.value;
+
+        const start = noteInput.selectionStart;
+        const end = noteInput.selectionEnd;
+
+        const newLength =
+            currentText.length -
+            (end - start) +
+            pastedText.length;
+
+        if (newLength > 500) {
+            event.preventDefault();
+
+            showError(
+                noteInput,
+                "Ghi chú không được vượt quá 500 ký tự."
+            );
+
+            return;
+        }
+
+        setTimeout(validateNote, 0);
     });
+
+    updateNoteCounter();
+
+    renderCheckout();
+
+    // Kiểm tra toàn bộ trước khi đặt hàng
+    checkoutForm.addEventListener("submit", function (event) {
+
+        const validName = validateName();
+        const validPhone = validatePhone();
+        const validAddress = validateAddress();
+        const validNote = validateNote();
+
+        if (
+            !validName ||
+            !validPhone ||
+            !validAddress ||
+            !validNote
+        ) {
+            event.preventDefault();
+            return;
+        }
+
+        // Đọc lại giỏ hàng ngay trước khi gửi
+        if (!renderCheckout()) {
+
+            event.preventDefault();
+
+            alert("Giỏ hàng đang trống! Vui lòng quay lại thêm sản phẩm.");
+
+            window.location.href = '@Url.Action("Cart", "Home")';
+            return;
+        }
+    });
+
+});
 </script>
-
-
