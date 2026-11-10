@@ -8,7 +8,7 @@ using web_sport_gear.Models;
 
 namespace web_sport_gear.Areas.Admin.Controllers
 {
-    public class CategoriesController : Controller
+    public class CategoriesController : AdminBaseController
     {
         // Chuỗi kết nối database
         private string ConnectionString

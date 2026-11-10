@@ -26,37 +26,23 @@ namespace web_sport_gear.Controllers
             }
         }
 
-        // Kiem tra so dien thoai va tra ve loi cu the
+        // Kiem tra so dien thoai
         private string GetPhoneValidationError(string phone)
         {
             if (string.IsNullOrWhiteSpace(phone))
-            {
                 return "Vui lòng nhập số điện thoại.";
-            }
 
-            // Chi cho phep chu so tu 0 den 9
             if (!Regex.IsMatch(phone, @"^[0-9]+$"))
-            {
                 return "Số điện thoại chỉ được chứa chữ số từ 0 đến 9.";
-            }
 
-            // Phai co dung 10 chu so
             if (phone.Length != 10)
-            {
                 return "Số điện thoại phải có đúng 10 chữ số.";
-            }
 
-            // Phai bat dau bang so 0
             if (phone[0] != '0')
-            {
                 return "Số điện thoại phải bắt đầu bằng số 0.";
-            }
 
-            // Khong cho phep tat ca chu so giong nhau
             if (phone.Distinct().Count() == 1)
-            {
                 return "Số điện thoại không được chứa toàn bộ chữ số giống nhau.";
-            }
 
             return null;
         }
@@ -93,6 +79,14 @@ namespace web_sport_gear.Controllers
 
             try
             {
+                // Khai bao role ben ngoai using de co the su dung
+                // sau khi truy van SQL ket thuc.
+                int userId = 0;
+                string fullName = "";
+                string passwordHash = "";
+                string role = "";
+                bool isActive = false;
+
                 using (SqlConnection connection =
                     new SqlConnection(ConnectionString))
                 {
@@ -103,12 +97,6 @@ namespace web_sport_gear.Controllers
                         FROM dbo.Users
                         WHERE Email = @Login
                            OR Phone = @Login;";
-
-                    int userId = 0;
-                    string fullName = "";
-                    string passwordHash = "";
-                    string role = "";
-                    bool isActive = false;
 
                     using (SqlCommand command =
                         new SqlCommand(sql, connection))
@@ -175,7 +163,23 @@ namespace web_sport_gear.Controllers
                     Session["Role"] = role;
                 }
 
-                return RedirectToAction("Index", "Home");
+                // Chuyen huong theo vai tro tai khoan
+                if (string.Equals(
+                    role,
+                    "Admin",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    return RedirectToAction(
+                        "Index",
+                        "Dashboard",
+                        new { area = "Admin" });
+                }
+
+                // Customer ve trang chu
+                return RedirectToAction(
+                    "Index",
+                    "Home",
+                    new { area = "" });
             }
             catch (SqlException)
             {
@@ -203,9 +207,9 @@ namespace web_sport_gear.Controllers
             }
         }
 
+        // GET: Account/OrderHistory
         public ActionResult OrderHistory()
         {
-            // Kiem tra nguoi dung da dang nhap chua
             if (Session["UserID"] == null)
             {
                 return RedirectToAction("Login", "Account");
@@ -217,13 +221,15 @@ namespace web_sport_gear.Controllers
             {
                 Session.Clear();
                 Session.Abandon();
+
                 return RedirectToAction("Login", "Account");
             }
 
             List<CustomerOrderHistoryViewModel> orders =
                 new List<CustomerOrderHistoryViewModel>();
 
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            using (SqlConnection connection =
+                new SqlConnection(ConnectionString))
             {
                 string query = @"
                     SELECT
@@ -250,7 +256,8 @@ namespace web_sport_gear.Controllers
                         o.OrderID DESC,
                         d.OrderDetailID ASC;";
 
-                using (SqlCommand command = new SqlCommand(query, connection))
+                using (SqlCommand command =
+                    new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@UserID", userId);
 
@@ -258,8 +265,9 @@ namespace web_sport_gear.Controllers
 
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        Dictionary<int, CustomerOrderHistoryViewModel> orderDictionary =
-                            new Dictionary<int, CustomerOrderHistoryViewModel>();
+                        Dictionary<int, CustomerOrderHistoryViewModel>
+                            orderDictionary =
+                                new Dictionary<int, CustomerOrderHistoryViewModel>();
 
                         while (reader.Read())
                         {
@@ -268,11 +276,14 @@ namespace web_sport_gear.Controllers
 
                             CustomerOrderHistoryViewModel order;
 
-                            if (!orderDictionary.TryGetValue(orderId, out order))
+                            if (!orderDictionary.TryGetValue(
+                                orderId,
+                                out order))
                             {
                                 order = new CustomerOrderHistoryViewModel();
 
                                 order.OrderID = orderId;
+
                                 order.ReceiverName = reader.GetString(
                                     reader.GetOrdinal("ReceiverName"));
 
@@ -301,14 +312,16 @@ namespace web_sport_gear.Controllers
                                 orders.Add(order);
                             }
 
-                            int detailOrdinal = reader.GetOrdinal("OrderDetailID");
+                            int detailOrdinal =
+                                reader.GetOrdinal("OrderDetailID");
 
                             if (!reader.IsDBNull(detailOrdinal))
                             {
                                 CustomerOrderItemViewModel item =
                                     new CustomerOrderItemViewModel();
 
-                                item.OrderDetailID = reader.GetInt32(detailOrdinal);
+                                item.OrderDetailID =
+                                    reader.GetInt32(detailOrdinal);
 
                                 item.ProductID = reader.GetInt32(
                                     reader.GetOrdinal("ProductID"));
@@ -440,13 +453,11 @@ namespace web_sport_gear.Controllers
 
             int userId = Convert.ToInt32(Session["UserID"]);
 
-            // Chuan hoa du lieu
             model.FullName = (model.FullName ?? "").Trim();
             model.Phone = (model.Phone ?? "").Trim();
             model.Gender = (model.Gender ?? "").Trim();
             model.Address = (model.Address ?? "").Trim();
 
-            // Kiem tra ho va ten
             if (string.IsNullOrWhiteSpace(model.FullName))
             {
                 ModelState.AddModelError(
@@ -460,8 +471,6 @@ namespace web_sport_gear.Controllers
                     "Ho va ten khong duoc vuot qua 100 ky tu.");
             }
 
-            // Kiem tra so dien thoai
-            // Cho phep de trong tai trang ho so
             if (!string.IsNullOrWhiteSpace(model.Phone))
             {
                 string phoneError =
@@ -473,7 +482,6 @@ namespace web_sport_gear.Controllers
                 }
             }
 
-            // Kiem tra ngay sinh
             if (model.DateOfBirth.HasValue &&
                 model.DateOfBirth.Value.Date > DateTime.Today)
             {
@@ -482,7 +490,6 @@ namespace web_sport_gear.Controllers
                     "Ngay sinh khong duoc lon hon ngay hien tai.");
             }
 
-            // Kiem tra gioi tinh
             if (!string.IsNullOrWhiteSpace(model.Gender) &&
                 model.Gender != "Nam" &&
                 model.Gender != "Nu" &&
@@ -888,9 +895,7 @@ namespace web_sport_gear.Controllers
                             "@PasswordHash",
                             newPasswordHash);
 
-                        command.Parameters.AddWithValue(
-                            "@UserID",
-                            userId);
+                        command.Parameters.AddWithValue("@UserID", userId);
 
                         int rowsAffected = command.ExecuteNonQuery();
 
@@ -949,7 +954,6 @@ namespace web_sport_gear.Controllers
             Email = (Email ?? "").Trim();
             Phone = (Phone ?? "").Trim();
 
-            // Kiem tra ho va ten
             if (string.IsNullOrWhiteSpace(FullName))
             {
                 ModelState.AddModelError(
@@ -963,7 +967,6 @@ namespace web_sport_gear.Controllers
                     "Ho va ten khong duoc vuot qua 100 ky tu.");
             }
 
-            // Kiem tra email
             if (string.IsNullOrWhiteSpace(Email))
             {
                 ModelState.AddModelError(
@@ -980,7 +983,6 @@ namespace web_sport_gear.Controllers
                     "Email khong hop le.");
             }
 
-            // Kiem tra so dien thoai voi thong bao rieng
             string phoneError = GetPhoneValidationError(Phone);
 
             if (phoneError != null)
@@ -988,7 +990,6 @@ namespace web_sport_gear.Controllers
                 ModelState.AddModelError("Phone", phoneError);
             }
 
-            // Kiem tra mat khau
             if (string.IsNullOrEmpty(Password) || Password.Length < 8)
             {
                 ModelState.AddModelError(
@@ -996,7 +997,6 @@ namespace web_sport_gear.Controllers
                     "Mat khau phai co it nhat 8 ky tu.");
             }
 
-            // Kiem tra xac nhan mat khau
             if (Password != ConfirmPassword)
             {
                 ModelState.AddModelError(
@@ -1067,26 +1067,20 @@ namespace web_sport_gear.Controllers
                     string passwordHash =
                         Crypto.HashPassword(Password);
 
+                    // Tai khoan dang ky moi luon co quyen Customer
                     string insertSql = @"
                         INSERT INTO dbo.Users
-                            (FullName, Email, Phone, PasswordHash)
+                            (FullName, Email, Phone, PasswordHash, Role)
                         VALUES
-                            (@FullName, @Email, @Phone, @PasswordHash);";
+                            (@FullName, @Email, @Phone, @PasswordHash, N'Customer');";
 
                     using (SqlCommand command =
                         new SqlCommand(insertSql, connection))
                     {
-                        command.Parameters.AddWithValue(
-                            "@FullName", FullName);
-
-                        command.Parameters.AddWithValue(
-                            "@Email", Email);
-
-                        command.Parameters.AddWithValue(
-                            "@Phone", Phone);
-
-                        command.Parameters.AddWithValue(
-                            "@PasswordHash", passwordHash);
+                        command.Parameters.AddWithValue("@FullName", FullName);
+                        command.Parameters.AddWithValue("@Email", Email);
+                        command.Parameters.AddWithValue("@Phone", Phone);
+                        command.Parameters.AddWithValue("@PasswordHash", passwordHash);
 
                         command.ExecuteNonQuery();
                     }
@@ -1140,7 +1134,10 @@ namespace web_sport_gear.Controllers
             Session.Clear();
             Session.Abandon();
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction(
+                "Index",
+                "Home",
+                new { area = "" });
         }
     }
 }

@@ -1,11 +1,7 @@
 ﻿
 @{
-    // Kiểm tra trạng thái đăng nhập và quyền Admin
+    // Kiểm tra trạng thái đăng nhập
     bool isLoggedIn = Session["UserID"] != null;
-
-    bool isAdmin = isLoggedIn
-        && Session["Role"] != null
-        && Session["Role"].ToString() == "Admin";
 }
 
 <!DOCTYPE html>
@@ -296,16 +292,6 @@
             font-weight: 600;
         }
 
-        /* ==================== MENU QUẢN TRỊ ADMIN ==================== */
-        .admin-menu-title {
-            padding: 8px 12px;
-            color: #ff5722;
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
         /* ==================== ĐĂNG XUẤT ==================== */
         .logout-form {
             display: block;
@@ -571,7 +557,6 @@
                          id="accountMenu"
                          hidden>
 
-                        <!-- CÁC CHỨC NĂNG TÀI KHOẢN -->
                         <a href="@Url.Action("Profile", "Account", new { area = "" })">
                             <i class="fa-regular fa-id-card"></i>
                             Hồ sơ của tôi
@@ -593,48 +578,6 @@
                         <div class="account-role">
                             Vai trò: @(Session["Role"] ?? "Khách hàng")
                         </div>
-
-                        <!-- ==================== MENU RIÊNG CHO ADMIN ==================== -->
-                        @if (isAdmin)
-                        {
-                            <div class="account-menu-divider"></div>
-
-                            <div class="admin-menu-title">
-                                <i class="fa-solid fa-user-shield"></i>
-                                Khu vực quản trị
-                            </div>
-
-                            <!-- DASHBOARD -->
-                            <a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">
-                                <i class="fa-solid fa-gauge-high"></i>
-                                Trang quản trị
-                            </a>
-
-                            <!-- QUẢN LÝ SẢN PHẨM -->
-                            <a href="@Url.Action("ProductList", "Products", new { area = "Admin" })">
-                                <i class="fa-solid fa-box"></i>
-                                Quản lý sản phẩm
-                            </a>
-
-                            <!-- QUẢN LÝ DANH MỤC -->
-                            <a href="@Url.Action("CategoryList", "Categories", new { area = "Admin" })">
-                                <i class="fa-solid fa-list"></i>
-                                Quản lý danh mục
-                            </a>
-
-                            <!-- QUẢN LÝ ĐƠN HÀNG -->
-                            <a href="@Url.Action("OrderList", "Orders", new { area = "Admin" })">
-                                <i class="fa-solid fa-receipt"></i>
-                                Quản lý đơn hàng
-                            </a>
-
-                            <!-- QUẢN LÝ TÀI KHOẢN -->
-                            <a href="@Url.Action("Index", "Users", new { area = "Admin" })">
-                                <i class="fa-solid fa-users"></i>
-                                Quản lý tài khoản
-                            </a>
-
-                        }
 
                         <div class="account-menu-divider"></div>
 
@@ -693,14 +636,14 @@
 
     <!-- ==================== JAVASCRIPT ==================== -->
     <script>
-      // Kiểm tra trạng thái đăng nhập
-window.isUserLoggedIn = @(isLoggedIn ? "true" : "false");
+        // Kiểm tra trạng thái đăng nhập
+        window.isUserLoggedIn = @(isLoggedIn ? "true" : "false");
 
-// Lấy UserID từ Session ASP.NET MVC
-window.currentUserId = '@(isLoggedIn ? Session["UserID"].ToString() : "")';
+        // Lấy UserID từ Session ASP.NET MVC
+        window.currentUserId = '@(isLoggedIn ? Session["UserID"].ToString() : "")';
 
-// URL đăng nhập
-window.loginUrl = '@Url.Action("Login", "Account", new { area = "" })';
+        // URL đăng nhập
+        window.loginUrl = '@Url.Action("Login", "Account", new { area = "" })';
 
         // XỬ LÝ MENU TÀI KHOẢN
         document.addEventListener("DOMContentLoaded", function () {

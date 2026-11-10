@@ -3,462 +3,844 @@
 
 @{
     ViewBag.Title = "Quản lý tài khoản";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string currentKeyword = ViewBag.Keyword as string ?? "";
+    string currentRole = ViewBag.Role as string ?? "";
+
+    int currentUserId = 0;
+    int.TryParse(
+        Convert.ToString(Session["UserID"]),
+        out currentUserId
+    );
 }
 
 <style>
     .users-page {
-        background: #f3f6fb;
-        min-height: 75vh;
-        padding: 35px 0 60px;
+        padding: 30px;
+        color: #263445;
     }
 
     .users-header {
-        background: linear-gradient(120deg, #142b4a, #1769aa);
-        color: white;
-        padding: 28px;
-        border-radius: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
         margin-bottom: 25px;
     }
 
-        .users-header h2 {
-            color: white;
-            font-weight: 800;
-            margin: 0 0 8px;
-        }
-
-        .users-header p {
-            color: #dce9f7;
-            margin: 0;
-        }
-
-    .users-panel {
-        background: white;
-        border-radius: 14px;
-        padding: 24px;
-        box-shadow: 0 4px 18px rgba(0,0,0,.05);
+    .users-title {
+        margin: 0;
+        font-size: 27px;
+        font-weight: 700;
+        color: #20334d;
     }
 
-    /* Khu vực tìm kiếm */
-    .users-search {
-        display: flex;
-        gap: 10px;
+    .users-subtitle {
+        margin-top: 7px;
+        color: #7b8797;
+        font-size: 14px;
+    }
+
+    .users-total {
+        background: #eef4ff;
+        color: #315b9b;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .users-alert {
+        padding: 13px 16px;
+        border-radius: 9px;
+        margin-bottom: 18px;
+        font-size: 14px;
+    }
+
+        .users-alert.success {
+            background: #eaf8ef;
+            color: #247342;
+            border: 1px solid #c9ebd3;
+        }
+
+        .users-alert.error {
+            background: #fff0f0;
+            color: #b83232;
+            border: 1px solid #f2cccc;
+        }
+
+    .users-filter-card {
+        background: #fff;
+        padding: 20px;
+        border-radius: 13px;
+        box-shadow: 0 4px 18px rgba(25, 45, 75, 0.06);
         margin-bottom: 22px;
+    }
+
+    .users-filter-form {
+        display: flex;
         align-items: center;
         flex-wrap: wrap;
+        gap: 12px;
     }
 
-        .users-search input {
-            max-width: 380px;
-            border-radius: 8px;
-            height: 38px;
+    .users-search-input,
+    .users-role-select {
+        height: 42px;
+        border: 1px solid #dce3ed;
+        border-radius: 8px;
+        padding: 0 13px;
+        outline: none;
+        color: #34445a;
+        background: #fff;
+        font-size: 14px;
+    }
+
+    .users-search-input {
+        flex: 1;
+        min-width: 220px;
+    }
+
+    .users-role-select {
+        min-width: 170px;
+    }
+
+        .users-search-input:focus,
+        .users-role-select:focus,
+        .reset-input:focus {
+            border-color: #477ed0;
+            box-shadow: 0 0 0 3px rgba(71, 126, 208, 0.1);
         }
 
-    /* Bảng tài khoản */
+    .users-btn {
+        border: none;
+        border-radius: 8px;
+        padding: 10px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+    }
+
+    .users-btn-search {
+        background: #315f9f;
+        color: #fff;
+    }
+
+        .users-btn-search:hover {
+            background: #244b80;
+            color: #fff;
+        }
+
+    .users-btn-reset {
+        background: #edf0f5;
+        color: #536176;
+    }
+
+        .users-btn-reset:hover {
+            background: #dfe5ee;
+            color: #263445;
+            text-decoration: none;
+        }
+
+    .users-table-card {
+        background: #fff;
+        border-radius: 13px;
+        box-shadow: 0 4px 18px rgba(25, 45, 75, 0.06);
+        overflow: hidden;
+    }
+
     .users-table-wrapper {
         width: 100%;
         overflow-x: auto;
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
     }
 
     .users-table {
         width: 100%;
-        min-width: 1150px;
-        table-layout: fixed;
+        min-width: 1050px;
         border-collapse: collapse;
-        margin-bottom: 0;
+        margin: 0;
     }
 
+        .users-table thead {
+            background: #f5f7fb;
+        }
+
         .users-table th {
-            background: #edf3fa;
-            color: #30445c;
+            padding: 16px 14px;
+            color: #536176;
+            font-size: 12px;
             font-weight: 700;
-            text-align: center;
-            vertical-align: middle !important;
-            padding: 15px 8px !important;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
             white-space: nowrap;
-            border-bottom: 2px solid #dce5ef !important;
+            border-bottom: 1px solid #e8edf4;
         }
 
         .users-table td {
-            text-align: center;
-            vertical-align: middle !important;
-            padding: 14px 9px !important;
-            border-color: #e8edf3 !important;
-            overflow-wrap: anywhere;
+            padding: 16px 14px;
+            border-bottom: 1px solid #edf0f5;
+            vertical-align: middle;
+            font-size: 13px;
+            color: #46566c;
         }
 
         .users-table tbody tr:hover {
-            background: #f5f9ff;
+            background: #fafcff;
         }
 
-        .users-table .user-name,
-        .users-table .user-email,
-        .users-table .user-phone {
-            text-align: left;
-        }
+    .user-id {
+        font-weight: 700;
+        color: #75849a;
+    }
 
-        .users-table .user-name {
-            font-weight: 600;
-            color: #243b53;
-        }
+    .user-email {
+        color: #263e60;
+        font-weight: 600;
+        word-break: break-word;
+    }
 
-        .users-table .user-email {
-            color: #52677e;
-            font-size: 13px;
-        }
+    .user-phone {
+        color: #65758b;
+    }
 
-        .users-table .user-phone {
-            white-space: nowrap;
-        }
-
-        .users-table .user-date {
-            white-space: nowrap;
-        }
-
-    /* Nhãn trạng thái */
-    .user-status {
+    .role-badge {
         display: inline-block;
-        padding: 6px 10px;
+        padding: 6px 11px;
         border-radius: 20px;
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 700;
         white-space: nowrap;
     }
 
-    .status-active {
-        background: #e2f8ed;
-        color: #168653;
-    }
-
-    .status-locked {
-        background: #ffe8e8;
-        color: #c0392b;
-    }
-
     .role-admin {
-        color: #7045bd;
-        font-weight: 700;
+        background: #fff0dc;
+        color: #b66b16;
     }
 
     .role-customer {
-        color: #2475d0;
-        font-weight: 700;
+        background: #e8f2ff;
+        color: #3268a8;
     }
 
-    /* Khu vực thao tác */
+    .user-date {
+        white-space: nowrap;
+        color: #7b8797;
+    }
+
     .user-actions {
-        display: flex;
-        flex-direction: column;
-        align-items: stretch;
-        gap: 8px;
-        width: 100%;
+        min-width: 280px;
     }
 
     .role-form {
         display: flex;
         align-items: center;
-        gap: 5px;
-        width: 100%;
+        gap: 7px;
+        margin-bottom: 9px;
     }
 
-        .role-form select {
-            flex: 1;
-            min-width: 0;
-            height: 32px;
-            border: 1px solid #d7dfeb;
-            border-radius: 6px;
-            padding: 4px;
-            font-size: 12px;
-        }
-
-    .user-actions .btn {
-        font-size: 12px;
-        padding: 6px 9px;
+    .role-select {
+        height: 34px;
+        min-width: 115px;
+        padding: 0 8px;
+        border: 1px solid #dce3ed;
         border-radius: 6px;
-        white-space: nowrap;
+        background: #fff;
+        font-size: 12px;
+        color: #46566c;
     }
 
-    .role-form .btn {
-        flex-shrink: 0;
+    .role-submit {
+        height: 34px;
+        padding: 0 11px;
+        border: none;
+        border-radius: 6px;
+        background: #315f9f;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
     }
 
-    .status-form {
-        width: 100%;
-        margin: 0;
-    }
-
-        .status-form button {
-            width: 100%;
+        .role-submit:hover {
+            background: #244b80;
         }
 
-    .current-user {
-        color: #8795a5;
+    .reset-password-details {
+        margin-top: 5px;
+    }
+
+        .reset-password-details summary {
+            display: inline-block;
+            cursor: pointer;
+            color: #b66b16;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 5px 0;
+            outline: none;
+        }
+
+    .reset-password-panel {
+        width: 260px;
+        padding: 13px;
+        margin-top: 8px;
+        border: 1px solid #e4e9f1;
+        border-radius: 9px;
+        background: #fafbfd;
+    }
+
+        .reset-password-panel label {
+            display: block;
+            margin: 8px 0 5px;
+            color: #536176;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+    .reset-input {
+        width: 100%;
+        height: 36px;
+        padding: 0 10px;
+        border: 1px solid #dce3ed;
+        border-radius: 6px;
+        background: #fff;
+        outline: none;
         font-size: 12px;
+        box-sizing: border-box;
+    }
+
+        .reset-input.password-invalid {
+            border-color: #dc3545;
+            background: #fffafa;
+        }
+
+        .reset-input.password-valid {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+
+    .password-feedback {
+        display: none;
+        margin-top: 6px;
+        font-size: 11px;
         line-height: 1.5;
     }
 
-    .users-total {
-        margin-top: 18px;
-        margin-bottom: 0;
-        color: #64748b;
+        .password-feedback.error {
+            color: #c0392b;
+        }
+
+        .password-feedback.success {
+            color: #247342;
+        }
+
+    .reset-submit {
+        width: 100%;
+        margin-top: 12px;
+        padding: 9px 10px;
+        border: none;
+        border-radius: 6px;
+        background: #b66b16;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
     }
 
-    /* Responsive */
+        .reset-submit:hover {
+            background: #96550e;
+        }
+
+        .reset-submit:disabled {
+            background: #aab3c0;
+            cursor: not-allowed;
+        }
+
+    .current-user-label {
+        display: inline-block;
+        padding: 8px 10px;
+        border-radius: 7px;
+        background: #edf0f5;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .users-empty {
+        text-align: center;
+        padding: 45px 15px !important;
+        color: #8793a4 !important;
+    }
+
+        .users-empty i {
+            display: block;
+            font-size: 30px;
+            margin-bottom: 10px;
+            color: #b4bfce;
+        }
+
     @@media (max-width: 768px) {
-        .users-panel {
-            padding: 14px;
+        .users-page {
+            padding: 18px 12px;
         }
 
-        .users-header {
-            padding: 22px;
+        .users-title {
+            font-size: 22px;
         }
 
-        .users-search {
-            flex-direction: column;
+        .users-filter-form {
             align-items: stretch;
         }
 
-            .users-search input {
-                max-width: none;
-                width: 100%;
-            }
-
-            .users-search button,
-            .users-search a {
+            .users-search-input,
+            .users-role-select,
+            .users-filter-form .users-btn {
                 width: 100%;
             }
     }
 </style>
 
 <div class="users-page">
-    <div class="container">
 
-        <div class="users-header">
-            <h2>
-                <i class="fa-solid fa-users"></i>
-                QUẢN LÝ TÀI KHOẢN
+    <!-- HEADER -->
+    <div class="users-header">
+        <div>
+            <h2 class="users-title">
+                <i class="fa fa-users"></i>
+                Quản lý tài khoản
             </h2>
-            <p>Xem, tìm kiếm, khóa tài khoản và quản lý quyền người dùng.</p>
+
+            <div class="users-subtitle">
+                Quản lý tài khoản đăng nhập và phân quyền Admin, Customer.
+            </div>
         </div>
 
-        @if (TempData["SuccessMessage"] != null)
+        <div class="users-total">
+            <i class="fa fa-user-circle"></i>
+            Tổng số: @(Model == null ? 0 : Model.Count) tài khoản
+        </div>
+    </div>
+
+    <!-- THONG BAO -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="users-alert success">
+            <i class="fa fa-check-circle"></i>
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="users-alert error">
+            <i class="fa fa-exclamation-circle"></i>
+            @TempData["Error"]
+        </div>
+    }
+
+    <!-- TIM KIEM VA LOC -->
+    <div class="users-filter-card">
+        @using (Html.BeginForm(
+            "Index",
+            "Users",
+            new { area = "Admin" },
+            FormMethod.Get,
+            new { @class = "users-filter-form" }))
         {
-            <div class="alert alert-success">
-                @TempData["SuccessMessage"]
-            </div>
+            @Html.TextBox(
+                     "keyword",
+                     currentKeyword,
+                     new
+                     {
+                         @class = "users-search-input",
+                         placeholder = "Tìm theo email hoặc số điện thoại..."
+                     }
+                 )
+
+            @Html.DropDownList(
+                     "role",
+                     new List<SelectListItem>
+                     {
+                    new SelectListItem
+                    {
+                        Text = "Tất cả vai trò",
+                        Value = "",
+                        Selected = currentRole == ""
+                    },
+                    new SelectListItem
+                    {
+                        Text = "Admin",
+                        Value = "Admin",
+                        Selected = currentRole == "Admin"
+                    },
+                    new SelectListItem
+                    {
+                        Text = "Customer",
+                        Value = "Customer",
+                        Selected = currentRole == "Customer"
+                    }
+                         },
+                     new { @class = "users-role-select" }
+                 )
+
+            <button type="submit" class="users-btn users-btn-search">
+                <i class="fa fa-search"></i>
+                Tìm kiếm
+            </button>
+
+            <a href="@Url.Action("Index", "Users", new { area = "Admin" })"
+               class="users-btn users-btn-reset">
+                <i class="fa fa-refresh"></i>
+                Làm mới
+            </a>
         }
+    </div>
 
-        @if (TempData["ErrorMessage"] != null)
-        {
-            <div class="alert alert-danger">
-                @TempData["ErrorMessage"]
-            </div>
-        }
+    <!-- BANG TAI KHOAN -->
+    <div class="users-table-card">
+        <div class="users-table-wrapper">
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>Mã tài khoản</th>
+                        <th>Email đăng nhập</th>
+                        <th>Số điện thoại</th>
+                        <th>Vai trò</th>
+                        <th>Ngày tạo</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
 
-        <div class="users-panel">
-
-            <!-- TÌM KIẾM -->
-            <form method="get"
-                  action="@Url.Action("Index", "Users", new { area = "Admin" })"
-                  class="users-search">
-
-                <input type="text"
-                       name="keyword"
-                       value="@ViewBag.Keyword"
-                       class="form-control"
-                       placeholder="Tìm theo họ tên, email hoặc số điện thoại..." />
-
-                <button type="submit" class="btn btn-primary">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    Tìm kiếm
-                </button>
-
-                <a href="@Url.Action("Index", "Users", new { area = "Admin" })"
-                   class="btn btn-default">
-                    <i class="fa-solid fa-rotate-left"></i>
-                    Làm mới
-                </a>
-            </form>
-
-            <!-- DANH SÁCH TÀI KHOẢN -->
-            <div class="users-table-wrapper">
-                <table class="table table-hover table-bordered users-table">
-
-                    <!-- CỐ ĐỊNH ĐỘ RỘNG 8 CỘT -->
-                    <colgroup>
-                        <col style="width: 6%;" />
-                        <col style="width: 14%;" />
-                        <col style="width: 19%;" />
-                        <col style="width: 11%;" />
-                        <col style="width: 9%;" />
-                        <col style="width: 12%;" />
-                        <col style="width: 11%;" />
-                        <col style="width: 18%;" />
-                    </colgroup>
-
-                    <thead>
-                        <tr>
-                            <th>Mã</th>
-                            <th>Họ và tên</th>
-                            <th>Email</th>
-                            <th>Số điện thoại</th>
-                            <th>Vai trò</th>
-                            <th>Trạng thái</th>
-                            <th>Ngày tạo</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        @if (Model != null && Model.Count > 0)
+                <tbody>
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        foreach (var user in Model)
                         {
-                            foreach (var user in Model)
-                            {
-                                <tr>
-                                    <td>@user.UserID</td>
+                            <tr>
+                                <td>
+                                    <span class="user-id">
+                                        #@user.UserID
+                                    </span>
+                                </td>
 
-                                    <td class="user-name">
-                                        @user.FullName
-                                    </td>
+                                <td>
+                                    <span class="user-email">
+                                        @(string.IsNullOrWhiteSpace(user.Email)
+                                            ? "Chưa cập nhật"
+                                            : user.Email)
+                                    </span>
+                                </td>
 
-                                    <td class="user-email">
-                                        @user.Email
-                                    </td>
-
-                                    <td class="user-phone">
+                                <td>
+                                    <span class="user-phone">
                                         @(string.IsNullOrWhiteSpace(user.Phone)
                                             ? "Chưa cập nhật"
                                             : user.Phone)
-                                    </td>
+                                    </span>
+                                </td>
 
-                                    <td>
-                                        <span class="@(user.Role == "Admin"
-                                            ? "role-admin"
-                                            : "role-customer")">
-                                            @user.Role
+                                <td>
+                                    @if (user.Role == "Admin")
+                                    {
+                                        <span class="role-badge role-admin">
+                                            <i class="fa fa-shield"></i>
+                                            Admin
                                         </span>
-                                    </td>
+                                    }
+                                    else
+                                    {
+                                        <span class="role-badge role-customer">
+                                            <i class="fa fa-user"></i>
+                                            Customer
+                                        </span>
+                                    }
+                                </td>
 
-                                    <td>
-                                        @if (user.IsActive)
+                                <td>
+                                    <span class="user-date">
+                                        @(user.CreatedAt == DateTime.MinValue
+                                            ? "-"
+                                            : user.CreatedAt.ToString("dd/MM/yyyy"))
+                                    </span>
+                                </td>
+
+                                <td class="user-actions">
+                                    @if (user.UserID == currentUserId)
+                                    {
+                                        <span class="current-user-label">
+                                            <i class="fa fa-user-circle"></i>
+                                            Tài khoản đang đăng nhập
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <!-- DOI QUYEN -->
+                                        using (Html.BeginForm(
+                                            "ChangeRole",
+                                            "Users",
+                                            new { area = "Admin" },
+                                            FormMethod.Post,
+                                            new { @class = "role-form" }))
                                         {
-                                            <span class="user-status status-active">
-                                                Đang hoạt động
-                                            </span>
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@user.UserID" />
+
+                                            <input type="hidden"
+                                                   name="keyword"
+                                                   value="@currentKeyword" />
+
+                                            <input type="hidden"
+                                                   name="filterRole"
+                                                   value="@currentRole" />
+
+                                            <select name="role" class="role-select">
+                                                <option value="Customer"
+                                                        @(user.Role == "Customer" ? "selected" : "")>
+                                                    Customer
+                                                </option>
+
+                                                <option value="Admin"
+                                                        @(user.Role == "Admin" ? "selected" : "")>
+                                                    Admin
+                                                </option>
+                                            </select>
+
+                                            <button type="submit"
+                                                    class="role-submit"
+                                                    onclick="return confirm('Bạn có chắc chắn muốn thay đổi quyền tài khoản này?');">
+                                                <i class="fa fa-save"></i>
+                                                Lưu
+                                            </button>
                                         }
-                                        else
-                                        {
-                                            <span class="user-status status-locked">
-                                                Đã khóa
-                                            </span>
-                                        }
-                                    </td>
 
-                                    <td class="user-date">
-                                        @user.CreatedAt.ToString("dd/MM/yyyy")
-                                    </td>
+                                        <!-- DAT LAI MAT KHAU -->
+                                        <details class="reset-password-details">
+                                            <summary>
+                                                <i class="fa fa-key"></i>
+                                                Đặt lại mật khẩu
+                                            </summary>
 
-                                    <td>
-                                        @if (Session["UserID"] != null &&
-                                            user.UserID != Convert.ToInt32(Session["UserID"]))
-                                        {
-                                            <div class="user-actions">
-
-                                                <!-- ĐỔI QUYỀN -->
-                                                <form method="post"
-                                                      action="@Url.Action("ChangeRole", "Users", new { area = "Admin" })"
-                                                      class="role-form">
-
+                                            <div class="reset-password-panel">
+                                                @using (Html.BeginForm(
+                                                    "ResetPassword",
+                                                    "Users",
+                                                    new { area = "Admin" },
+                                                    FormMethod.Post,
+                                                    new { @class = "reset-password-form" }))
+                                                {
                                                     @Html.AntiForgeryToken()
 
                                                     <input type="hidden"
                                                            name="id"
                                                            value="@user.UserID" />
 
-                                                    <select name="role" class="form-control">
-                                                        <option value="Customer"
-                                                                @(user.Role == "Customer" ? "selected" : "")>
-                                                            Customer
-                                                        </option>
+                                                    <input type="hidden"
+                                                           name="keyword"
+                                                           value="@currentKeyword" />
 
-                                                        <option value="Admin"
-                                                                @(user.Role == "Admin" ? "selected" : "")>
-                                                            Admin
-                                                        </option>
-                                                    </select>
+                                                    <input type="hidden"
+                                                           name="filterRole"
+                                                           value="@currentRole" />
+
+                                                    <label>Mật khẩu mới</label>
+
+                                                    <input type="password"
+                                                           name="newPassword"
+                                                           class="reset-input new-password"
+                                                           minlength="8"
+                                                           maxlength="128"
+                                                           autocomplete="new-password"
+                                                           required
+                                                           placeholder="Ít nhất 8 ký tự" />
+
+                                                    <label>Xác nhận mật khẩu</label>
+
+                                                    <input type="password"
+                                                           name="confirmPassword"
+                                                           class="reset-input confirm-password"
+                                                           minlength="8"
+                                                           maxlength="128"
+                                                           autocomplete="new-password"
+                                                           required
+                                                           placeholder="Nhập lại mật khẩu" />
+
+                                                    <div class="password-feedback error">
+                                                        <i class="fa fa-exclamation-circle"></i>
+                                                        Hai mật khẩu không khớp.
+                                                    </div>
+
+                                                    <div class="password-feedback success">
+                                                        <i class="fa fa-check-circle"></i>
+                                                        Hai mật khẩu đã khớp.
+                                                    </div>
 
                                                     <button type="submit"
-                                                            class="btn btn-primary btn-sm"
-                                                            onclick="return confirm('Bạn có chắc muốn thay đổi quyền tài khoản này?');">
-                                                        Lưu
+                                                            class="reset-submit"
+                                                            disabled>
+                                                        <i class="fa fa-lock"></i>
+                                                        Xác nhận đặt lại
                                                     </button>
-                                                </form>
-
-                                                <!-- KHÓA / MỞ KHÓA -->
-                                                <form method="post"
-                                                      action="@Url.Action("ToggleStatus", "Users", new { area = "Admin" })"
-                                                      class="status-form">
-
-                                                    @Html.AntiForgeryToken()
-
-                                                    <input type="hidden"
-                                                           name="id"
-                                                           value="@user.UserID" />
-
-                                                    @if (user.IsActive)
-                                                    {
-                                                        <button type="submit"
-                                                                class="btn btn-danger btn-sm"
-                                                                onclick="return confirm('Bạn có chắc muốn khóa tài khoản này?');">
-                                                            <i class="fa-solid fa-lock"></i>
-                                                            Khóa tài khoản
-                                                        </button>
-                                                    }
-                                                    else
-                                                    {
-                                                        <button type="submit"
-                                                                class="btn btn-success btn-sm"
-                                                                onclick="return confirm('Bạn có chắc muốn mở khóa tài khoản này?');">
-                                                            <i class="fa-solid fa-lock-open"></i>
-                                                            Mở khóa
-                                                        </button>
-                                                    }
-                                                </form>
-
+                                                }
                                             </div>
-                                        }
-                                        else
-                                        {
-                                            <span class="current-user">
-                                                <i class="fa-solid fa-user-shield"></i>
-                                                Tài khoản đang đăng nhập
-                                            </span>
-                                        }
-                                    </td>
-                                </tr>
-                            }
-                        }
-                        else
-                        {
-                            <tr>
-                                <td colspan="8" class="text-center text-muted">
-                                    Không tìm thấy tài khoản nào.
+                                        </details>
+                                    }
                                 </td>
                             </tr>
                         }
-                    </tbody>
-
-                </table>
-            </div>
-
-            <p class="users-total">
-                <i class="fa-solid fa-users"></i>
-                Tổng số tài khoản hiển thị:
-                <strong>@(Model == null ? 0 : Model.Count)</strong>
-            </p>
-
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="users-empty">
+                                <i class="fa fa-search"></i>
+                                Không tìm thấy tài khoản phù hợp.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
+
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const resetForms = document.querySelectorAll(
+            ".reset-password-form"
+        );
+
+        resetForms.forEach(function (form) {
+
+            const newPassword = form.querySelector(
+                ".new-password"
+            );
+
+            const confirmPassword = form.querySelector(
+                ".confirm-password"
+            );
+
+            const errorMessage = form.querySelector(
+                ".password-feedback.error"
+            );
+
+            const successMessage = form.querySelector(
+                ".password-feedback.success"
+            );
+
+            const submitButton = form.querySelector(
+                ".reset-submit"
+            );
+
+            if (
+                !newPassword ||
+                !confirmPassword ||
+                !errorMessage ||
+                !successMessage ||
+                !submitButton
+            ) {
+                return;
+            }
+
+            function validatePasswords() {
+
+                const newValue = newPassword.value;
+                const confirmValue = confirmPassword.value;
+
+                confirmPassword.setCustomValidity("");
+
+                errorMessage.style.display = "none";
+                successMessage.style.display = "none";
+
+                confirmPassword.classList.remove(
+                    "password-invalid",
+                    "password-valid"
+                );
+
+                submitButton.disabled = true;
+
+                if (newValue.length === 0 || confirmValue.length === 0) {
+                    return false;
+                }
+
+                if (newValue.length < 8 || newValue.length > 128) {
+                    return false;
+                }
+
+                if (newValue !== confirmValue) {
+
+                    confirmPassword.classList.add(
+                        "password-invalid"
+                    );
+
+                    confirmPassword.setCustomValidity(
+                        "Mật khẩu xác nhận không khớp."
+                    );
+
+                    errorMessage.style.display = "block";
+
+                    return false;
+                }
+
+                confirmPassword.classList.add(
+                    "password-valid"
+                );
+
+                successMessage.style.display = "block";
+
+                submitButton.disabled = false;
+
+                return true;
+            }
+
+            newPassword.addEventListener(
+                "input",
+                validatePasswords
+            );
+
+            confirmPassword.addEventListener(
+                "input",
+                validatePasswords
+            );
+
+            form.addEventListener("submit", function (event) {
+
+                const isValid = validatePasswords();
+
+                if (!isValid || !form.checkValidity()) {
+
+                    event.preventDefault();
+
+                    if (newPassword.value === confirmPassword.value) {
+                        form.reportValidity();
+                    } else {
+                        confirmPassword.reportValidity();
+                    }
+
+                    return false;
+                }
+
+                const confirmed = confirm(
+                    "Bạn có chắc chắn muốn đặt lại mật khẩu tài khoản này?"
+                );
+
+                if (!confirmed) {
+                    event.preventDefault();
+                    return false;
+                }
+
+            });
+
+        });
+
+    });
+</script>

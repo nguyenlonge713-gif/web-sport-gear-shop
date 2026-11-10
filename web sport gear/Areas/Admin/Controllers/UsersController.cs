@@ -4,71 +4,85 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Web.Helpers;
 using System.Web.Mvc;
 using web_sport_gear.Models;
 
 namespace web_sport_gear.Areas.Admin.Controllers
 {
-    public class UsersController : Controller
+    public class UsersController : AdminBaseController
     {
-        private readonly string connectionString =
-            ConfigurationManager.ConnectionStrings["GearSportDB"].ConnectionString;
-
-        // Kiểm tra quyền Admin
-        private bool IsAdmin()
+        private string ConnectionString
         {
-            return Session["UserID"] != null
-                && Session["Role"] != null
-                && Session["Role"].ToString() == "Admin";
+            get
+            {
+                return ConfigurationManager
+                    .ConnectionStrings["GearSportDB"].ConnectionString;
+            }
         }
 
-        private ActionResult CheckAdmin()
+        // DANH SACH TAI KHOAN
+        public ActionResult Index(string keyword, string role)
         {
-            if (Session["UserID"] == null)
-            {
-                return RedirectToAction(
-                    "Login", "Account", new { area = "" });
-            }
-
-            if (!IsAdmin())
-            {
-                return RedirectToAction(
-                    "Index", "Home", new { area = "" });
-            }
-
-            return null;
-        }
-
-        // DANH SÁCH TÀI KHOẢN
-        public ActionResult Index(string keyword)
-        {
-            var check = CheckAdmin();
-            if (check != null) return check;
-
             List<AdminUserViewModel> users =
                 new List<AdminUserViewModel>();
 
-            using (SqlConnection conn =
-                new SqlConnection(connectionString))
+            if (role != "Admin" && role != "Customer")
             {
-                string sql = @"
-                    SELECT UserID, FullName, Email, Phone,
-                           Role, IsActive, CreatedAt
-                    FROM dbo.Users
-                    WHERE
-                        (@Keyword IS NULL
-                         OR FullName LIKE N'%' + @Keyword + N'%'
-                         OR Email LIKE N'%' + @Keyword + N'%'
-                         OR Phone LIKE N'%' + @Keyword + N'%')
-                    ORDER BY CreatedAt DESC";
+                role = "";
+            }
 
-                using (SqlCommand cmd = new SqlCommand(sql, conn))
+            string sql = @"
+                SELECT
+                    UserID,
+                    FullName,
+                    Email,
+                    Phone,
+                    Role,
+                    IsActive,
+                    CreatedAt
+                FROM dbo.Users
+                WHERE 1 = 1";
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                sql += @"
+                    AND (
+                        Email LIKE @Keyword
+                        OR Phone LIKE @Keyword
+                    )";
+            }
+
+            if (!string.IsNullOrEmpty(role))
+            {
+                sql += " AND Role = @Role";
+            }
+
+            sql += " ORDER BY CreatedAt DESC";
+
+            using (SqlConnection conn =
+                new SqlConnection(ConnectionString))
+            {
+                using (SqlCommand cmd =
+                    new SqlCommand(sql, conn))
                 {
-                    cmd.Parameters.Add("@Keyword",
-                        SqlDbType.NVarChar, 255).Value =
-                        string.IsNullOrWhiteSpace(keyword)
-                            ? (object)DBNull.Value
-                            : keyword.Trim();
+                    if (!string.IsNullOrWhiteSpace(keyword))
+                    {
+                        cmd.Parameters.Add(
+                            "@Keyword",
+                            SqlDbType.NVarChar,
+                            255
+                        ).Value = "%" + keyword.Trim() + "%";
+                    }
+
+                    if (!string.IsNullOrEmpty(role))
+                    {
+                        cmd.Parameters.Add(
+                            "@Role",
+                            SqlDbType.NVarChar,
+                            50
+                        ).Value = role;
+                    }
 
                     conn.Open();
 
@@ -76,253 +90,406 @@ namespace web_sport_gear.Areas.Admin.Controllers
                     {
                         while (reader.Read())
                         {
-                            users.Add(new AdminUserViewModel
-                            {
-                                UserID = Convert.ToInt32(reader["UserID"]),
-                                FullName = reader["FullName"].ToString(),
-                                Email = reader["Email"].ToString(),
-                                Phone = reader["Phone"] == DBNull.Value
-                                    ? ""
-                                    : reader["Phone"].ToString(),
-                                Role = reader["Role"].ToString(),
-                                IsActive = Convert.ToBoolean(reader["IsActive"]),
-                                CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
-                            });
+                            AdminUserViewModel user =
+                                new AdminUserViewModel();
+
+                            user.UserID =
+                                Convert.ToInt32(reader["UserID"]);
+
+                            user.FullName =
+                                reader["FullName"] == DBNull.Value
+                                ? ""
+                                : reader["FullName"].ToString();
+
+                            user.Email =
+                                reader["Email"] == DBNull.Value
+                                ? ""
+                                : reader["Email"].ToString();
+
+                            user.Phone =
+                                reader["Phone"] == DBNull.Value
+                                ? ""
+                                : reader["Phone"].ToString();
+
+                            user.Role =
+                                reader["Role"] == DBNull.Value
+                                ? ""
+                                : reader["Role"].ToString();
+
+                            user.IsActive =
+                                reader["IsActive"] != DBNull.Value
+                                && Convert.ToBoolean(reader["IsActive"]);
+
+                            user.CreatedAt =
+                                reader["CreatedAt"] == DBNull.Value
+                                ? DateTime.MinValue
+                                : Convert.ToDateTime(reader["CreatedAt"]);
+
+                            users.Add(user);
                         }
                     }
                 }
             }
 
             ViewBag.Keyword = keyword;
+            ViewBag.Role = role;
 
             return View(users);
         }
 
-        // KHÓA / MỞ KHÓA TÀI KHOẢN
+        // THAY DOI QUYEN TAI KHOAN
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult ToggleStatus(int id)
+        public ActionResult ChangeRole(
+            int id,
+            string role,
+            string keyword,
+            string filterRole)
         {
-            var check = CheckAdmin();
-            if (check != null) return check;
+            int currentUserId;
 
-            int currentUserID = Convert.ToInt32(Session["UserID"]);
-
-            // Không cho phép tự khóa tài khoản đang đăng nhập
-            if (id == currentUserID)
+            if (!int.TryParse(
+                Convert.ToString(Session["UserID"]),
+                out currentUserId))
             {
-                TempData["ErrorMessage"] =
-                    "Bạn không thể tự khóa tài khoản đang đăng nhập.";
+                TempData["Error"] =
+                    "Không xác định được tài khoản đang đăng nhập.";
 
                 return RedirectToAction("Index");
             }
 
-            using (SqlConnection conn =
-                new SqlConnection(connectionString))
+            if (id == currentUserId)
             {
-                conn.Open();
+                TempData["Error"] =
+                    "Bạn không thể tự thay đổi quyền tài khoản của mình.";
 
-                using (SqlTransaction transaction = conn.BeginTransaction())
-                {
-                    try
-                    {
-                        string selectSql = @"
-                            SELECT Role, IsActive
-                            FROM dbo.Users WITH (UPDLOCK, HOLDLOCK)
-                            WHERE UserID = @UserID";
-
-                        string role;
-                        bool isActive;
-
-                        using (SqlCommand cmd =
-                            new SqlCommand(selectSql, conn, transaction))
-                        {
-                            cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = id;
-
-                            using (SqlDataReader reader = cmd.ExecuteReader())
-                            {
-                                if (!reader.Read())
-                                {
-                                    throw new Exception("Không tìm thấy tài khoản.");
-                                }
-
-                                role = reader["Role"].ToString();
-                                isActive = Convert.ToBoolean(reader["IsActive"]);
-                            }
-                        }
-
-                        // Không cho khóa Admin cuối cùng còn hoạt động
-                        if (isActive && role == "Admin")
-                        {
-                            string countSql = @"
-                                SELECT COUNT(*)
-                                FROM dbo.Users
-                                WHERE Role = N'Admin'
-                                  AND IsActive = 1";
-
-                            int activeAdmins;
-
-                            using (SqlCommand cmd =
-                                new SqlCommand(countSql, conn, transaction))
-                            {
-                                activeAdmins = Convert.ToInt32(cmd.ExecuteScalar());
-                            }
-
-                            if (activeAdmins <= 1)
-                            {
-                                throw new Exception(
-                                    "Không thể khóa Admin cuối cùng đang hoạt động.");
-                            }
-                        }
-
-                        string updateSql = @"
-                            UPDATE dbo.Users
-                            SET IsActive = @IsActive
-                            WHERE UserID = @UserID";
-
-                        using (SqlCommand cmd =
-                            new SqlCommand(updateSql, conn, transaction))
-                        {
-                            cmd.Parameters.Add("@IsActive", SqlDbType.Bit).Value =
-                                !isActive;
-
-                            cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = id;
-
-                            cmd.ExecuteNonQuery();
-                        }
-
-                        transaction.Commit();
-
-                        TempData["SuccessMessage"] = !isActive
-                            ? "Đã mở khóa tài khoản thành công."
-                            : "Đã khóa tài khoản thành công.";
-                    }
-                    catch (Exception ex)
-                    {
-                        transaction.Rollback();
-                        TempData["ErrorMessage"] = ex.Message;
-                    }
-                }
-            }
-
-            return RedirectToAction("Index");
-        }
-
-        // THAY ĐỔI VAI TRÒ
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult ChangeRole(int id, string role)
-        {
-            var check = CheckAdmin();
-            if (check != null) return check;
-
-            int currentUserID = Convert.ToInt32(Session["UserID"]);
-
-            if (id == currentUserID)
-            {
-                TempData["ErrorMessage"] =
-                    "Bạn không thể tự thay đổi quyền của tài khoản đang đăng nhập.";
-
-                return RedirectToAction("Index");
+                return RedirectToIndex(keyword, filterRole);
             }
 
             if (role != "Admin" && role != "Customer")
             {
-                TempData["ErrorMessage"] = "Vai trò không hợp lệ.";
-                return RedirectToAction("Index");
+                TempData["Error"] =
+                    "Vai trò được chọn không hợp lệ.";
+
+                return RedirectToIndex(keyword, filterRole);
             }
 
+            SqlTransaction transaction = null;
+
             using (SqlConnection conn =
-                new SqlConnection(connectionString))
+                new SqlConnection(ConnectionString))
             {
-                conn.Open();
-
-                using (SqlTransaction transaction = conn.BeginTransaction())
+                try
                 {
-                    try
+                    conn.Open();
+                    transaction = conn.BeginTransaction();
+
+                    string oldRole = "";
+                    bool isActive = false;
+                    bool userExists = false;
+
+                    string selectSql = @"
+                        SELECT Role, IsActive
+                        FROM dbo.Users WITH (UPDLOCK, HOLDLOCK)
+                        WHERE UserID = @UserID";
+
+                    using (SqlCommand cmd =
+                        new SqlCommand(selectSql, conn, transaction))
                     {
-                        string selectSql = @"
-                            SELECT Role, IsActive
-                            FROM dbo.Users WITH (UPDLOCK, HOLDLOCK)
-                            WHERE UserID = @UserID";
+                        cmd.Parameters.Add(
+                            "@UserID",
+                            SqlDbType.Int
+                        ).Value = id;
 
-                        string oldRole;
-                        bool isActive;
-
-                        using (SqlCommand cmd =
-                            new SqlCommand(selectSql, conn, transaction))
+                        using (SqlDataReader reader =
+                            cmd.ExecuteReader())
                         {
-                            cmd.Parameters.Add("@UserID", SqlDbType.Int).Value = id;
-
-                            using (SqlDataReader reader = cmd.ExecuteReader())
+                            if (reader.Read())
                             {
-                                if (!reader.Read())
-                                {
-                                    throw new Exception("Không tìm thấy tài khoản.");
-                                }
+                                userExists = true;
 
                                 oldRole = reader["Role"].ToString();
-                                isActive = Convert.ToBoolean(reader["IsActive"]);
+
+                                isActive =
+                                    reader["IsActive"] != DBNull.Value
+                                    && Convert.ToBoolean(reader["IsActive"]);
                             }
                         }
+                    }
 
-                        // Không hạ quyền Admin cuối cùng còn hoạt động
-                        if (oldRole == "Admin"
-                            && role == "Customer"
-                            && isActive)
-                        {
-                            string countSql = @"
-                                SELECT COUNT(*)
-                                FROM dbo.Users
-                                WHERE Role = N'Admin'
-                                  AND IsActive = 1";
+                    if (!userExists)
+                    {
+                        throw new InvalidOperationException(
+                            "Không tìm thấy tài khoản cần thay đổi."
+                        );
+                    }
 
-                            int activeAdmins;
+                    // KHONG CHO HA QUYEN ADMIN CUOI CUNG
+                    if (
+                        oldRole == "Admin"
+                        && role == "Customer"
+                        && isActive
+                    )
+                    {
+                        string countSql = @"
+                            SELECT COUNT(*)
+                            FROM dbo.Users WITH (UPDLOCK, HOLDLOCK)
+                            WHERE Role = 'Admin'
+                            AND IsActive = 1";
 
-                            using (SqlCommand cmd =
-                                new SqlCommand(countSql, conn, transaction))
-                            {
-                                activeAdmins = Convert.ToInt32(cmd.ExecuteScalar());
-                            }
-
-                            if (activeAdmins <= 1)
-                            {
-                                throw new Exception(
-                                    "Không thể hạ quyền Admin cuối cùng đang hoạt động.");
-                            }
-                        }
-
-                        string updateSql = @"
-                            UPDATE dbo.Users
-                            SET Role = @Role
-                            WHERE UserID = @UserID";
+                        int activeAdminCount;
 
                         using (SqlCommand cmd =
-                            new SqlCommand(updateSql, conn, transaction))
+                            new SqlCommand(
+                                countSql,
+                                conn,
+                                transaction))
                         {
-                            cmd.Parameters.Add("@Role",
-                                SqlDbType.NVarChar, 20).Value = role;
-
-                            cmd.Parameters.Add("@UserID",
-                                SqlDbType.Int).Value = id;
-
-                            cmd.ExecuteNonQuery();
+                            activeAdminCount =
+                                Convert.ToInt32(cmd.ExecuteScalar());
                         }
 
-                        transaction.Commit();
+                        if (activeAdminCount <= 1)
+                        {
+                            throw new InvalidOperationException(
+                                "Không thể hạ quyền Admin cuối cùng đang hoạt động."
+                            );
+                        }
+                    }
 
-                        TempData["SuccessMessage"] =
-                            "Đã cập nhật quyền tài khoản thành công.";
-                    }
-                    catch (Exception ex)
+                    string updateSql = @"
+                        UPDATE dbo.Users
+                        SET Role = @Role
+                        WHERE UserID = @UserID";
+
+                    using (SqlCommand cmd =
+                        new SqlCommand(updateSql, conn, transaction))
                     {
-                        transaction.Rollback();
-                        TempData["ErrorMessage"] = ex.Message;
+                        cmd.Parameters.Add(
+                            "@Role",
+                            SqlDbType.NVarChar,
+                            50
+                        ).Value = role;
+
+                        cmd.Parameters.Add(
+                            "@UserID",
+                            SqlDbType.Int
+                        ).Value = id;
+
+                        cmd.ExecuteNonQuery();
                     }
+
+                    transaction.Commit();
+
+                    TempData["Success"] =
+                        "Cập nhật quyền tài khoản thành công.";
+                }
+                catch (InvalidOperationException ex)
+                {
+                    if (transaction != null)
+                    {
+                        try
+                        {
+                            transaction.Rollback();
+                        }
+                        catch
+                        {
+                        }
+                    }
+
+                    TempData["Error"] = ex.Message;
+                }
+                catch (Exception)
+                {
+                    if (transaction != null)
+                    {
+                        try
+                        {
+                            transaction.Rollback();
+                        }
+                        catch
+                        {
+                        }
+                    }
+
+                    TempData["Error"] =
+                        "Đã xảy ra lỗi khi cập nhật quyền tài khoản.";
                 }
             }
 
-            return RedirectToAction("Index");
+            return RedirectToIndex(keyword, filterRole);
+        }
+
+        // DAT LAI MAT KHAU
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ResetPassword(
+            int id,
+            string newPassword,
+            string confirmPassword,
+            string keyword,
+            string filterRole)
+        {
+            int currentUserId;
+
+            // KIEM TRA ADMIN DANG DANG NHAP
+            if (!int.TryParse(
+                Convert.ToString(Session["UserID"]),
+                out currentUserId))
+            {
+                TempData["Error"] =
+                    "Không xác định được tài khoản đang đăng nhập.";
+
+                return RedirectToAction("Index");
+            }
+
+            // KHONG CHO TU DAT LAI MAT KHAU
+            if (id == currentUserId)
+            {
+                TempData["Error"] =
+                    "Bạn không thể tự đặt lại mật khẩu tại chức năng này.";
+
+                return RedirectToIndex(keyword, filterRole);
+            }
+
+            // KIEM TRA MAT KHAU MOI
+            if (string.IsNullOrWhiteSpace(newPassword))
+            {
+                TempData["Error"] =
+                    "Vui lòng nhập mật khẩu mới.";
+
+                return RedirectToIndex(keyword, filterRole);
+            }
+
+            // KIEM TRA MAT KHAU XAC NHAN
+            if (string.IsNullOrWhiteSpace(confirmPassword))
+            {
+                TempData["Error"] =
+                    "Vui lòng nhập mật khẩu xác nhận.";
+
+                return RedirectToIndex(keyword, filterRole);
+            }
+
+            // KIEM TRA DO DAI MAT KHAU
+            if (newPassword.Length < 8 || newPassword.Length > 128)
+            {
+                TempData["Error"] =
+                    "Mật khẩu phải có từ 8 đến 128 ký tự.";
+
+                return RedirectToIndex(keyword, filterRole);
+            }
+
+            // SO SANH CHINH XAC HAI MAT KHAU
+            if (!string.Equals(
+                newPassword,
+                confirmPassword,
+                StringComparison.Ordinal))
+            {
+                TempData["Error"] =
+                    "Mật khẩu mới và mật khẩu xác nhận không trùng khớp.";
+
+                return RedirectToIndex(keyword, filterRole);
+            }
+
+            try
+            {
+                // KIEM TRA TAI KHOAN CO TON TAI KHONG
+                string checkSql = @"
+                    SELECT COUNT(*)
+                    FROM dbo.Users
+                    WHERE UserID = @UserID";
+
+                using (SqlConnection conn =
+                    new SqlConnection(ConnectionString))
+                {
+                    conn.Open();
+
+                    using (SqlCommand checkCmd =
+                        new SqlCommand(checkSql, conn))
+                    {
+                        checkCmd.Parameters.Add(
+                            "@UserID",
+                            SqlDbType.Int
+                        ).Value = id;
+
+                        int userCount =
+                            Convert.ToInt32(checkCmd.ExecuteScalar());
+
+                        if (userCount == 0)
+                        {
+                            TempData["Error"] =
+                                "Không tìm thấy tài khoản cần đặt lại mật khẩu.";
+
+                            return RedirectToIndex(keyword, filterRole);
+                        }
+                    }
+
+                    // HASH MAT KHAU
+                    string passwordHash =
+                        Crypto.HashPassword(newPassword);
+
+                    // CAP NHAT MAT KHAU
+                    string updateSql = @"
+                        UPDATE dbo.Users
+                        SET PasswordHash = @PasswordHash
+                        WHERE UserID = @UserID";
+
+                    using (SqlCommand cmd =
+                        new SqlCommand(updateSql, conn))
+                    {
+                        cmd.Parameters.Add(
+                            "@PasswordHash",
+                            SqlDbType.NVarChar,
+                            -1
+                        ).Value = passwordHash;
+
+                        cmd.Parameters.Add(
+                            "@UserID",
+                            SqlDbType.Int
+                        ).Value = id;
+
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        if (rowsAffected == 1)
+                        {
+                            TempData["Success"] =
+                                "Đặt lại mật khẩu thành công.";
+                        }
+                        else
+                        {
+                            TempData["Error"] =
+                                "Không thể cập nhật mật khẩu tài khoản.";
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                TempData["Error"] =
+                    "Đã xảy ra lỗi khi đặt lại mật khẩu.";
+            }
+
+            return RedirectToIndex(keyword, filterRole);
+        }
+
+        // GIU LAI BO LOC SAU KHI THAO TAC
+        private ActionResult RedirectToIndex(
+            string keyword,
+            string role)
+        {
+            if (role != "Admin" && role != "Customer")
+            {
+                role = "";
+            }
+
+            return RedirectToAction(
+                "Index",
+                new
+                {
+                    keyword = keyword,
+                    role = role
+                }
+            );
         }
     }
 }

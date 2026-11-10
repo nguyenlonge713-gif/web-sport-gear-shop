@@ -3,7 +3,7 @@ using System.Web.Mvc;
 
 namespace web_sport_gear.Areas.Admin.Controllers
 {
-    public class DashboardController : Controller
+    public class DashboardController : AdminBaseController
     {
         // Kiểm tra quyền Admin
         private bool IsAdmin()

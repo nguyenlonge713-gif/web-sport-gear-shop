@@ -1,0 +1,493 @@
+﻿
+@{
+    string currentController = ViewContext.RouteData.Values["controller"] == null
+        ? ""
+        : ViewContext.RouteData.Values["controller"].ToString();
+
+    string currentAction = ViewContext.RouteData.Values["action"] == null
+        ? ""
+        : ViewContext.RouteData.Values["action"].ToString();
+
+    string adminName = Session["FullName"] == null
+        ? "Quản trị viên"
+        : Session["FullName"].ToString();
+
+    Func<string, string, string> activeClass = (controller, action) =>
+        currentController.Equals(controller, StringComparison.OrdinalIgnoreCase)
+        ? "active"
+        : "";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewBag.Title - Gear Sport Admin</title>
+
+    @Styles.Render("~/Content/css")
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+    <style>
+        :root {
+            --admin-sidebar: #111c36;
+            --admin-sidebar-light: #1b2a4a;
+            --admin-primary: #2563eb;
+            --admin-bg: #f3f6fc;
+            --admin-text: #25324a;
+            --admin-muted: #8a97ad;
+            --admin-border: #e8edf5;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--admin-bg);
+            color: var(--admin-text);
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        a {
+            text-decoration: none !important;
+        }
+
+        .admin-shell {
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+
+        .admin-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 1000;
+            width: 255px;
+            padding: 25px 17px;
+            overflow-y: auto;
+            background: linear-gradient(180deg, #111c36, #172746);
+            color: white;
+            transition: transform .25s ease;
+        }
+
+        .admin-brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 4px 10px 27px;
+            border-bottom: 1px solid rgba(255,255,255,.1);
+            color: white !important;
+        }
+
+        .admin-brand-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 43px;
+            height: 43px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #2563eb, #60a5fa);
+            font-size: 19px;
+        }
+
+        .admin-brand-name {
+            font-size: 19px;
+            font-weight: 900;
+            letter-spacing: .5px;
+        }
+
+            .admin-brand-name span {
+                color: #60a5fa;
+            }
+
+        .admin-brand-subtitle {
+            display: block;
+            margin-top: 3px;
+            color: #9eacc4;
+            font-size: 10px;
+            letter-spacing: 2px;
+        }
+
+        .admin-menu-label {
+            padding: 25px 12px 10px;
+            color: #8190aa;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .admin-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+            .admin-nav a {
+                display: flex;
+                align-items: center;
+                gap: 13px;
+                padding: 13px 14px;
+                border-radius: 10px;
+                color: #c2cde0 !important;
+                font-size: 13px;
+                font-weight: 650;
+                transition: .2s;
+            }
+
+                .admin-nav a i {
+                    width: 19px;
+                    text-align: center;
+                    font-size: 15px;
+                }
+
+                .admin-nav a:hover {
+                    background: rgba(255,255,255,.08);
+                    color: white !important;
+                    transform: translateX(3px);
+                }
+
+                .admin-nav a.active {
+                    background: linear-gradient(135deg, #2563eb, #3b82f6);
+                    color: white !important;
+                    box-shadow: 0 6px 15px rgba(37,99,235,.25);
+                }
+
+        .admin-sidebar-bottom {
+            margin-top: 30px;
+            padding-top: 17px;
+            border-top: 1px solid rgba(255,255,255,.1);
+        }
+
+        /* MAIN */
+
+        .admin-main {
+            min-height: 100vh;
+            margin-left: 255px;
+        }
+
+        .admin-topbar {
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            min-height: 76px;
+            padding: 13px 30px;
+            background: rgba(255,255,255,.96);
+            border-bottom: 1px solid var(--admin-border);
+            box-shadow: 0 3px 14px rgba(15,23,42,.025);
+        }
+
+        .admin-topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .admin-page-label {
+            color: #172554;
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .admin-page-caption {
+            margin-top: 3px;
+            color: var(--admin-muted);
+            font-size: 11px;
+        }
+
+        .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .admin-avatar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 39px;
+            height: 39px;
+            border-radius: 50%;
+            background: #dbeafe;
+            color: #1d4ed8;
+            font-size: 16px;
+        }
+
+        .admin-user-name {
+            color: #263449;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .admin-user-role {
+            margin-top: 3px;
+            color: #16a34a;
+            font-size: 10px;
+            font-weight: 750;
+        }
+
+        .admin-content {
+            width: 100%;
+            padding: 25px 30px 45px;
+        }
+
+        .admin-menu-toggle {
+            display: none;
+            width: 39px;
+            height: 39px;
+            border: 0;
+            border-radius: 9px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 17px;
+        }
+
+        .admin-overlay {
+            display: none;
+        }
+
+        .admin-logout-form {
+            margin: 0;
+        }
+
+        .admin-logout-button {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            width: 100%;
+            padding: 13px 14px;
+            border: 0;
+            border-radius: 10px;
+            background: transparent;
+            color: #fca5a5;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: left;
+            cursor: pointer;
+        }
+
+            .admin-logout-button i {
+                width: 19px;
+                text-align: center;
+            }
+
+            .admin-logout-button:hover {
+                background: rgba(239,68,68,.12);
+                color: #fecaca;
+            }
+
+        @@media (max-width: 900px) {
+            .admin-sidebar {
+                transform: translateX(-100%);
+            }
+
+                .admin-sidebar.open {
+                    transform: translateX(0);
+                }
+
+            .admin-main {
+                margin-left: 0;
+            }
+
+            .admin-menu-toggle {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .admin-overlay.show {
+                display: block;
+                position: fixed;
+                inset: 0;
+                z-index: 950;
+                background: rgba(15,23,42,.48);
+            }
+
+            .admin-content {
+                padding: 20px 16px 35px;
+            }
+
+            .admin-topbar {
+                padding: 12px 16px;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .admin-user-name {
+                max-width: 115px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .admin-page-label {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-shell">
+
+        <aside class="admin-sidebar" id="adminSidebar">
+
+            <a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })"
+               class="admin-brand">
+
+                <div class="admin-brand-icon">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+
+                <div>
+                    <div class="admin-brand-name">
+                        GEAR<span>SPORT</span>
+                    </div>
+                    <span class="admin-brand-subtitle">ADMINISTRATION</span>
+                </div>
+            </a>
+
+            <div class="admin-menu-label">Tổng quan</div>
+
+            <nav class="admin-nav">
+                <a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })"
+                   class="@activeClass("Dashboard", "Index")">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+            </nav>
+
+            <div class="admin-menu-label">Quản lý cửa hàng</div>
+
+            <nav class="admin-nav">
+                <a href="@Url.Action("ProductList", "Products", new { area = "Admin" })"
+                   class="@activeClass("Products", "ProductList")">
+                    <i class="fa-solid fa-box"></i>
+                    <span>Quản lý sản phẩm</span>
+                </a>
+
+                <a href="@Url.Action("CategoryList", "Categories", new { area = "Admin" })"
+                   class="@activeClass("Categories", "CategoryList")">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span>Quản lý danh mục</span>
+                </a>
+
+                <a href="@Url.Action("OrderList", "Orders", new { area = "Admin" })"
+                   class="@activeClass("Orders", "OrderList")">
+                    <i class="fa-solid fa-receipt"></i>
+                    <span>Quản lý đơn hàng</span>
+                </a>
+            </nav>
+
+            <div class="admin-menu-label">Hệ thống</div>
+
+            <nav class="admin-nav">
+                <a href="@Url.Action("Index", "Users", new { area = "Admin" })"
+                   class="@activeClass("Users", "Index")">
+                    <i class="fa-solid fa-users-gear"></i>
+                    <span>Quản lý tài khoản</span>
+                </a>
+            </nav>
+
+            <div class="admin-sidebar-bottom">
+                <nav class="admin-nav">
+                    <a href="@Url.Action("Index", "Home", new { area = "" })">
+                        <i class="fa-solid fa-store"></i>
+                        <span>Quay về cửa hàng</span>
+                    </a>
+
+                    @using (Html.BeginForm("Logout", "Account",
+                        new { area = "" }, FormMethod.Post,
+                        new { @class = "admin-logout-form" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit" class="admin-logout-button">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span>Đăng xuất</span>
+                        </button>
+                    }
+                </nav>
+            </div>
+
+        </aside>
+
+        <div class="admin-overlay" id="adminOverlay"></div>
+
+        <main class="admin-main">
+
+            <header class="admin-topbar">
+
+                <div class="admin-topbar-left">
+                    <button type="button"
+                            class="admin-menu-toggle"
+                            id="adminMenuToggle"
+                            aria-label="Mở menu quản trị">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+
+                    <div>
+                        <div class="admin-page-label">
+                            @ViewBag.Title
+                        </div>
+                        <div class="admin-page-caption">
+                            HỆ THỐNG QUẢN TRỊ GEAR SPORT
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-user">
+                    <div class="admin-avatar">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+
+                    <div>
+                        <div class="admin-user-name">@adminName</div>
+                        <div class="admin-user-role">ADMINISTRATOR</div>
+                    </div>
+                </div>
+
+            </header>
+
+            <section class="admin-content">
+                @RenderBody()
+            </section>
+
+        </main>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+
+    <script>(function () {
+            var sidebar = document.getElementById("adminSidebar");
+            var toggle = document.getElementById("adminMenuToggle");
+            var overlay = document.getElementById("adminOverlay");
+
+            function closeMenu() {
+                sidebar.classList.remove("open");
+                overlay.classList.remove("show");
+            }
+
+            toggle.addEventListener("click", function () {
+                sidebar.classList.toggle("open");
+                overlay.classList.toggle("show");
+            });
+
+            overlay.addEventListener("click", closeMenu);
+        })();</script>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>
