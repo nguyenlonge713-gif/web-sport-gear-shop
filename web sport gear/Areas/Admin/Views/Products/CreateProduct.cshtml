@@ -304,6 +304,32 @@
             padding-left: 20px;
         }
 
+    /* DESCRIPTION COUNTER */
+
+    .gs-description-counter {
+        display: flex !important;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 8px;
+        font-size: 12px;
+        color: #8794A6;
+        width: 100%;
+        visibility: visible;
+        opacity: 1;
+    }
+
+        .gs-description-counter.warning {
+            color: #DC3545;
+            font-weight: 700;
+        }
+
+    .gs-description-warning {
+        display: none;
+        color: #DC3545;
+        font-size: 12px;
+        margin-top: 7px;
+    }
+
     /* IMAGE UPLOAD PREVIEW */
 
     .gs-image-preview {
@@ -580,9 +606,7 @@
 
 <div class="container gs-create-page">
 
-    <!-- ==================================
-         HEADER
-    =================================== -->
+    <!-- HEADER -->
 
     <div class="gs-hero">
         <div class="gs-hero-content">
@@ -644,11 +668,13 @@
         </div>
     </div>
 
-    <!-- ==================================
-         FORM
-    =================================== -->
+    <!-- FORM -->
 
-    @using (Html.BeginForm("CreateProduct", "Admin", FormMethod.Post))
+    @using (Html.BeginForm(
+        "CreateProduct",
+        "Products",
+        new { area = "Admin" },
+        FormMethod.Post))
     {
         @Html.AntiForgeryToken()
 
@@ -659,9 +685,7 @@
 
         <div class="row">
 
-            <!-- ==================================
-                 LEFT COLUMN
-            =================================== -->
+            <!-- LEFT COLUMN -->
 
             <div class="col-md-8">
 
@@ -806,11 +830,11 @@
                             <i class="glyphicon glyphicon-th-large gs-input-icon"></i>
 
                             @Html.DropDownListFor(
-                                m => m.CategoryID,
-                                (IEnumerable<SelectListItem>)ViewBag.Categories,
-                                "-- Chọn danh mục sản phẩm --",
-                                new { @class = "form-control" }
-                            )
+                                     m => m.CategoryID,
+                                     (IEnumerable<SelectListItem>)ViewBag.Categories,
+                                     "-- Chọn danh mục sản phẩm --",
+                                     new { @class = "form-control" }
+                                 )
 
                         </div>
 
@@ -849,8 +873,37 @@
                         @Html.TextAreaFor(m => m.Description, new
                         {
                             @class = "form-control",
+                            id = "Description",
                             rows = "6",
+                            maxlength = "1000",
                             placeholder = "Nhập mô tả chi tiết về sản phẩm, chất liệu, kích thước, tính năng và những ưu điểm nổi bật..."
+                        })
+
+                        <!-- BỘ ĐẾM KÝ TỰ -->
+
+                        <div class="gs-description-counter"
+                             id="descriptionCounter"
+                             style="display:flex;">
+
+                            <span>Giới hạn tối đa 1000 ký tự</span>
+
+                            <span id="descriptionCount">0/1000 ký tự</span>
+
+                        </div>
+
+                        <!-- THÔNG BÁO ĐẠT GIỚI HẠN -->
+
+                        <div class="gs-description-warning"
+                             id="descriptionWarning">
+
+                            <i class="glyphicon glyphicon-warning-sign"></i>
+                            Bạn đã đạt giới hạn tối đa 1000 ký tự cho phần mô tả!
+
+                        </div>
+
+                        @Html.ValidationMessageFor(m => m.Description, "", new
+                        {
+                            @class = "text-danger"
                         })
 
                         <small class="gs-help">
@@ -863,9 +916,7 @@
 
             </div>
 
-            <!-- ==================================
-                 RIGHT COLUMN
-            =================================== -->
+            <!-- RIGHT COLUMN -->
 
             <div class="col-md-4">
 
@@ -1033,9 +1084,7 @@
 
         </div>
 
-        <!-- ==================================
-             ACTION BUTTONS
-        =================================== -->
+        <!-- ACTION BUTTONS -->
 
         <div class="gs-action-panel">
 
@@ -1052,7 +1101,8 @@
 
             <div class="gs-action-buttons">
 
-                <a href="@Url.Action("ProductList", "Products", new { area = "Admin" })" class="gs-btn-cancel">
+                <a href="@Url.Action("ProductList", "Products", new { area = "Admin" })"
+                   class="gs-btn-cancel">
                     <i class="fas fa-arrow-left"></i>
                     Quay lại danh sách
                 </a>
@@ -1070,219 +1120,299 @@
 
 </div>
 
-<!-- ==================================
-     LIVE PRODUCT PREVIEW
-=================================== -->
+<!-- LIVE PRODUCT PREVIEW -->
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    (function () {
 
-        var imageInput = document.getElementById("ImageUrl");
-        var imagePreview = document.getElementById("gsProductImage");
-        var imagePlaceholder = document.getElementById("gsImagePlaceholder");
-        var imageStatus = document.getElementById("gsImageStatus");
+        // Khởi tạo ngay nếu DOM đã tải xong.
+        // Nếu DOM chưa tải xong thì chờ DOMContentLoaded.
 
-        var nameInput = document.getElementById("ProductName");
-        var priceInput = document.getElementById("Price");
-        var stockInput = document.getElementById("StockQuantity");
-        var activeInput = document.getElementById("IsActive");
+        function initializeProductPage() {
 
-        var previewName = document.getElementById("gsPreviewName");
-        var previewPrice = document.getElementById("gsPreviewPrice");
-        var previewStock = document.getElementById("gsPreviewStock");
-        var previewStatus = document.getElementById("gsPreviewStatus");
-        var statusDescription = document.getElementById("gsStatusDescription");
+            var imageInput = document.getElementById("ImageUrl");
+            var imagePreview = document.getElementById("gsProductImage");
+            var imagePlaceholder = document.getElementById("gsImagePlaceholder");
+            var imageStatus = document.getElementById("gsImageStatus");
 
-        // ==================================
-        // 1. IMAGE PREVIEW
-        // ==================================
+            var nameInput = document.getElementById("ProductName");
+            var priceInput = document.getElementById("Price");
+            var stockInput = document.getElementById("StockQuantity");
+            var activeInput = document.getElementById("IsActive");
 
-        function updateImagePreview() {
+            var previewName = document.getElementById("gsPreviewName");
+            var previewPrice = document.getElementById("gsPreviewPrice");
+            var previewStock = document.getElementById("gsPreviewStock");
+            var previewStatus = document.getElementById("gsPreviewStatus");
+            var statusDescription = document.getElementById("gsStatusDescription");
 
-            if (!imageInput || !imagePreview) {
-                return;
+            // ==================================
+            // 0. DESCRIPTION CHARACTER COUNTER
+            // ==================================
+
+            var descriptionInput = document.getElementById("Description");
+            var descriptionCounter = document.getElementById("descriptionCounter");
+            var descriptionCount = document.getElementById("descriptionCount");
+            var descriptionWarning = document.getElementById("descriptionWarning");
+
+            function updateDescriptionCounter() {
+
+                if (!descriptionInput || !descriptionCount) {
+                    return;
+                }
+
+                var length = descriptionInput.value.length;
+
+                descriptionCount.textContent =
+                    length.toLocaleString("vi-VN") + "/1000 ký tự";
+
+                if (length >= 1000) {
+
+                    if (descriptionCounter) {
+                        descriptionCounter.classList.add("warning");
+                    }
+
+                    if (descriptionWarning) {
+                        descriptionWarning.style.display = "block";
+                    }
+
+                } else {
+
+                    if (descriptionCounter) {
+                        descriptionCounter.classList.remove("warning");
+                    }
+
+                    if (descriptionWarning) {
+                        descriptionWarning.style.display = "none";
+                    }
+
+                }
             }
 
-            var url = imageInput.value.trim();
+            if (descriptionInput) {
 
-            if (url === "") {
+                descriptionInput.addEventListener(
+                    "input",
+                    updateDescriptionCounter
+                );
 
-                imagePreview.style.display = "none";
-                imagePreview.removeAttribute("src");
-
-                imagePlaceholder.style.display = "block";
-
-                imageStatus.innerHTML =
-                    '<i class="glyphicon glyphicon-picture"></i> IMAGE PREVIEW';
-
-                return;
+                // Cập nhật ngay khi trang được mở.
+                updateDescriptionCounter();
             }
 
-            imagePreview.onload = function () {
+            // ==================================
+            // 1. IMAGE PREVIEW
+            // ==================================
 
-                imagePreview.style.display = "block";
-                imagePlaceholder.style.display = "none";
+            function updateImagePreview() {
 
-                imageStatus.innerHTML =
-                    '<i class="glyphicon glyphicon-ok-circle"></i> IMAGE LOADED';
-            };
+                if (!imageInput || !imagePreview || !imagePlaceholder || !imageStatus) {
+                    return;
+                }
 
-            imagePreview.onerror = function () {
+                var url = imageInput.value.trim();
 
-                imagePreview.style.display = "none";
-                imagePlaceholder.style.display = "block";
+                if (url === "") {
+
+                    imagePreview.style.display = "none";
+                    imagePreview.removeAttribute("src");
+
+                    imagePlaceholder.style.display = "block";
+
+                    imageStatus.innerHTML =
+                        '<i class="glyphicon glyphicon-picture"></i> IMAGE PREVIEW';
+
+                    return;
+                }
+
+                imagePreview.onload = function () {
+
+                    imagePreview.style.display = "block";
+                    imagePlaceholder.style.display = "none";
+
+                    imageStatus.innerHTML =
+                        '<i class="glyphicon glyphicon-ok-circle"></i> IMAGE LOADED';
+                };
+
+                imagePreview.onerror = function () {
+
+                    imagePreview.style.display = "none";
+                    imagePlaceholder.style.display = "block";
+
+                    imagePlaceholder.querySelector("strong").textContent =
+                        "KHÔNG TẢI ĐƯỢC ẢNH";
+
+                    imagePlaceholder.querySelector("span").textContent =
+                        "Vui lòng kiểm tra lại URL hình ảnh.";
+
+                    imageStatus.innerHTML =
+                        '<i class="glyphicon glyphicon-warning-sign"></i> INVALID IMAGE';
+                };
 
                 imagePlaceholder.querySelector("strong").textContent =
-                    "KHÔNG TẢI ĐƯỢC ẢNH";
+                    "PRODUCT IMAGE";
 
                 imagePlaceholder.querySelector("span").textContent =
-                    "Vui lòng kiểm tra lại URL hình ảnh.";
+                    "Đang tải hình ảnh...";
 
-                imageStatus.innerHTML =
-                    '<i class="glyphicon glyphicon-warning-sign"></i> INVALID IMAGE';
-            };
-
-            imagePlaceholder.querySelector("strong").textContent =
-                "PRODUCT IMAGE";
-
-            imagePlaceholder.querySelector("span").textContent =
-                "Đang tải hình ảnh...";
-
-            imagePreview.src = url;
-        }
-
-        // ==================================
-        // 2. PRODUCT NAME PREVIEW
-        // ==================================
-
-        function updateNamePreview() {
-
-            if (!nameInput || !previewName) {
-                return;
+                imagePreview.src = url;
             }
 
-            var name = nameInput.value.trim();
+            // ==================================
+            // 2. PRODUCT NAME PREVIEW
+            // ==================================
 
-            previewName.textContent =
-                name !== "" ? name : "Tên sản phẩm của bạn";
-        }
+            function updateNamePreview() {
 
-        // ==================================
-        // 3. PRICE PREVIEW
-        // ==================================
+                if (!nameInput || !previewName) {
+                    return;
+                }
 
-        function updatePricePreview() {
+                var name = nameInput.value.trim();
 
-            if (!priceInput || !previewPrice) {
-                return;
+                previewName.textContent =
+                    name !== "" ? name : "Tên sản phẩm của bạn";
             }
 
-            var price = parseFloat(priceInput.value);
+            // ==================================
+            // 3. PRICE PREVIEW
+            // ==================================
 
-            if (isNaN(price) || price < 0) {
-                previewPrice.textContent = "0 đ";
-                return;
+            function updatePricePreview() {
+
+                if (!priceInput || !previewPrice) {
+                    return;
+                }
+
+                var price = parseFloat(priceInput.value);
+
+                if (isNaN(price) || price < 0) {
+                    previewPrice.textContent = "0 đ";
+                    return;
+                }
+
+                previewPrice.textContent =
+                    price.toLocaleString("vi-VN") + " đ";
             }
 
-            previewPrice.textContent =
-                price.toLocaleString("vi-VN") + " đ";
-        }
+            // ==================================
+            // 4. STOCK PREVIEW
+            // ==================================
 
-        // ==================================
-        // 4. STOCK PREVIEW
-        // ==================================
+            function updateStockPreview() {
 
-        function updateStockPreview() {
+                if (!stockInput || !previewStock) {
+                    return;
+                }
 
-            if (!stockInput || !previewStock) {
-                return;
+                var stock = parseInt(stockInput.value, 10);
+
+                if (isNaN(stock) || stock < 0) {
+                    stock = 0;
+                }
+
+                previewStock.innerHTML =
+                    '<i class="glyphicon glyphicon-inbox"></i> ' +
+                    stock.toLocaleString("vi-VN") + " sản phẩm";
+
+                if (stock === 0) {
+
+                    previewStock.style.background = "#FFF0F0";
+                    previewStock.style.color = "#D93636";
+
+                } else {
+
+                    previewStock.style.background = "#E8F7EF";
+                    previewStock.style.color = "#16824E";
+
+                }
             }
 
-            var stock = parseInt(stockInput.value, 10);
+            // ==================================
+            // 5. STATUS PREVIEW
+            // ==================================
 
-            if (isNaN(stock) || stock < 0) {
-                stock = 0;
+            function updateStatusPreview() {
+
+                if (!activeInput || !previewStatus) {
+                    return;
+                }
+
+                if (activeInput.checked) {
+
+                    previewStatus.textContent = "ĐANG HIỂN THỊ";
+                    previewStatus.style.background = "#E8F7EF";
+                    previewStatus.style.color = "#16824E";
+
+                    if (statusDescription) {
+                        statusDescription.textContent =
+                            "Sản phẩm sẽ được hiển thị cho khách hàng khi được bật.";
+                    }
+
+                } else {
+
+                    previewStatus.textContent = "ĐÃ ẨN";
+                    previewStatus.style.background = "#F0F1F3";
+                    previewStatus.style.color = "#697586";
+
+                    if (statusDescription) {
+                        statusDescription.textContent =
+                            "Sản phẩm sẽ không hiển thị công khai trên website.";
+                    }
+
+                }
             }
 
-            previewStock.innerHTML =
-                '<i class="glyphicon glyphicon-inbox"></i> ' +
-                stock.toLocaleString("vi-VN") + " sản phẩm";
+            // ==================================
+            // 6. EVENT LISTENERS
+            // ==================================
 
-            if (stock === 0) {
-
-                previewStock.style.background = "#FFF0F0";
-                previewStock.style.color = "#D93636";
-
-            } else {
-
-                previewStock.style.background = "#E8F7EF";
-                previewStock.style.color = "#16824E";
-
-            }
-        }
-
-        // ==================================
-        // 5. STATUS PREVIEW
-        // ==================================
-
-        function updateStatusPreview() {
-
-            if (!activeInput || !previewStatus) {
-                return;
+            if (imageInput) {
+                imageInput.addEventListener("input", updateImagePreview);
             }
 
-            if (activeInput.checked) {
-
-                previewStatus.textContent = "ĐANG HIỂN THỊ";
-                previewStatus.style.background = "#E8F7EF";
-                previewStatus.style.color = "#16824E";
-
-                statusDescription.textContent =
-                    "Sản phẩm sẽ được hiển thị cho khách hàng khi được bật.";
-
-            } else {
-
-                previewStatus.textContent = "ĐÃ ẨN";
-                previewStatus.style.background = "#F0F1F3";
-                previewStatus.style.color = "#697586";
-
-                statusDescription.textContent =
-                    "Sản phẩm sẽ không hiển thị công khai trên website.";
-
+            if (nameInput) {
+                nameInput.addEventListener("input", updateNamePreview);
             }
+
+            if (priceInput) {
+                priceInput.addEventListener("input", updatePricePreview);
+            }
+
+            if (stockInput) {
+                stockInput.addEventListener("input", updateStockPreview);
+            }
+
+            if (activeInput) {
+                activeInput.addEventListener("change", updateStatusPreview);
+            }
+
+            // ==================================
+            // 7. INITIAL PREVIEW
+            // ==================================
+
+            updateImagePreview();
+            updateNamePreview();
+            updatePricePreview();
+            updateStockPreview();
+            updateStatusPreview();
+
         }
 
-        // ==================================
-        // 6. EVENT LISTENERS
-        // ==================================
+        // Kiểm tra trạng thái tải DOM.
 
-        if (imageInput) {
-            imageInput.addEventListener("input", updateImagePreview);
+        if (document.readyState === "loading") {
+
+            document.addEventListener(
+                "DOMContentLoaded",
+                initializeProductPage
+            );
+
+        } else {
+
+            initializeProductPage();
+
         }
 
-        if (nameInput) {
-            nameInput.addEventListener("input", updateNamePreview);
-        }
-
-        if (priceInput) {
-            priceInput.addEventListener("input", updatePricePreview);
-        }
-
-        if (stockInput) {
-            stockInput.addEventListener("input", updateStockPreview);
-        }
-
-        if (activeInput) {
-            activeInput.addEventListener("change", updateStatusPreview);
-        }
-
-        // Initial preview
-
-        updateImagePreview();
-        updateNamePreview();
-        updatePricePreview();
-        updateStockPreview();
-        updateStatusPreview();
-
-    });
+    })();
 </script>

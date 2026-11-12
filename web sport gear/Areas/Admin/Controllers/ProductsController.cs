@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -51,6 +52,19 @@ namespace web_sport_gear.Areas.Admin.Controllers
             }
 
             return null;
+        }
+
+        // Kiểm tra giới hạn mô tả sản phẩm
+        private void ValidateDescription(Product product)
+        {
+            if (product.Description != null &&
+                product.Description.Length > 1000)
+            {
+                ModelState.AddModelError(
+                    "Description",
+                    "Mô tả sản phẩm không được vượt quá 1000 ký tự."
+                );
+            }
         }
 
         // Trang mặc định của Products
@@ -208,6 +222,18 @@ namespace web_sport_gear.Areas.Admin.Controllers
                 );
             }
 
+            // Kiểm tra số lượng tồn kho
+            if (product.StockQuantity < 0)
+            {
+                ModelState.AddModelError(
+                    "StockQuantity",
+                    "Số lượng tồn kho không được âm."
+                );
+            }
+
+            // Kiểm tra mô tả tối đa 1000 ký tự
+            ValidateDescription(product);
+
             // Kiểm tra danh mục
             if (product.CategoryID <= 0)
             {
@@ -311,7 +337,7 @@ namespace web_sport_gear.Areas.Admin.Controllers
                 command.Parameters.Add(
                     "@Description",
                     SqlDbType.NVarChar,
-                    -1
+                    1000
                 ).Value = string.IsNullOrWhiteSpace(product.Description)
                     ? (object)DBNull.Value
                     : product.Description.Trim();
@@ -443,6 +469,9 @@ namespace web_sport_gear.Areas.Admin.Controllers
                 );
             }
 
+            // Kiểm tra mô tả tối đa 1000 ký tự
+            ValidateDescription(product);
+
             // Kiểm tra danh mục
             if (product.CategoryID <= 0)
             {
@@ -545,7 +574,7 @@ namespace web_sport_gear.Areas.Admin.Controllers
                 command.Parameters.Add(
                     "@Description",
                     SqlDbType.NVarChar,
-                    -1
+                    1000
                 ).Value = string.IsNullOrWhiteSpace(product.Description)
                     ? (object)DBNull.Value
                     : product.Description.Trim();
@@ -616,6 +645,7 @@ namespace web_sport_gear.Areas.Admin.Controllers
 
             return RedirectToAction("ProductList");
         }
+
         // POST: Admin/Products/DeleteProduct
         // Xóa sản phẩm nếu chưa có trong lịch sử đơn hàng
         [HttpPost]
@@ -628,14 +658,14 @@ namespace web_sport_gear.Areas.Admin.Controllers
                 return check;
 
             string sql = @"
-        DELETE FROM dbo.Products
-        WHERE ProductID = @ProductID
-          AND NOT EXISTS
-          (
-              SELECT 1
-              FROM dbo.OrderDetails
-              WHERE OrderDetails.ProductID = dbo.Products.ProductID
-          )";
+                DELETE FROM dbo.Products
+                WHERE ProductID = @ProductID
+                  AND NOT EXISTS
+                  (
+                      SELECT 1
+                      FROM dbo.OrderDetails
+                      WHERE OrderDetails.ProductID = dbo.Products.ProductID
+                  )";
 
             int rowsAffected;
 
@@ -667,8 +697,8 @@ namespace web_sport_gear.Areas.Admin.Controllers
                     new SqlConnection(ConnectionString))
                 using (SqlCommand command = new SqlCommand(
                     @"SELECT COUNT(*)
-              FROM dbo.Products
-              WHERE ProductID = @ProductID",
+                      FROM dbo.Products
+                      WHERE ProductID = @ProductID",
                     connection))
                 {
                     command.Parameters.Add(
