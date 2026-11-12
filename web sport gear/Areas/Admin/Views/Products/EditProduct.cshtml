@@ -3,135 +3,729 @@
 
 @{
     ViewBag.Title = "Sửa sản phẩm";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container" style="padding: 35px 0; max-width: 850px;">
+<style>
+    /* =========================================
+       GEAR SPORT - PREMIUM PRODUCT EDIT
+    ========================================= */
 
-    <h2>SỬA THÔNG TIN SẢN PHẨM</h2>
-
-    <p>Cập nhật thông tin sản phẩm trong hệ thống Gear Sport.</p>
-
-    <hr />
-
-    @using (Html.BeginForm(
-        "EditProduct",
-        "Products",
-        new { area = "Admin" },
-        FormMethod.Post))
-    {
-        @Html.AntiForgeryToken()
-
-        @Html.HiddenFor(m => m.ProductID)
-
-        <div class="form-group">
-            <label>Tên sản phẩm</label>
-
-            @Html.TextBoxFor(m => m.ProductName, new
-            {
-                @class = "form-control"
-            })
-
-            @Html.ValidationMessageFor(m => m.ProductName, "", new
-            {
-                @class = "text-danger"
-            })
-        </div>
-
-        <div class="form-group">
-            <label>Giá sản phẩm (VNĐ)</label>
-
-            @Html.TextBoxFor(m => m.Price, new
-            {
-                @class = "form-control",
-                type = "number",
-                min = "1",
-                step = "0.01"
-            })
-
-            @Html.ValidationMessageFor(m => m.Price, "", new
-            {
-                @class = "text-danger"
-            })
-        </div>
-
-        <div class="form-group">
-            <label>Số lượng tồn kho</label>
-
-            @Html.TextBoxFor(m => m.StockQuantity, new
-            {
-                @class = "form-control",
-                type = "number",
-                min = "0",
-                step = "1"
-            })
-
-            @Html.ValidationMessageFor(m => m.StockQuantity, "", new
-            {
-                @class = "text-danger"
-            })
-
-            <small class="text-muted">
-                Cập nhật số lượng sản phẩm hiện có trong kho.
-            </small>
-        </div>
-
-        <div class="form-group">
-            <label>Danh mục</label>
-
-            @Html.DropDownListFor(
-                m => m.CategoryID,
-                (IEnumerable<SelectListItem>)ViewBag.Categories,
-                "-- Chọn danh mục --",
-                new { @class = "form-control" }
-            )
-
-            @Html.ValidationMessageFor(m => m.CategoryID, "", new
-            {
-                @class = "text-danger"
-            })
-        </div>
-
-        <div class="form-group">
-            <label>URL hình ảnh</label>
-
-            @Html.TextBoxFor(m => m.ImageUrl, new
-            {
-                @class = "form-control",
-                placeholder = "Nhập URL hình ảnh..."
-            })
-        </div>
-
-        <div class="form-group">
-            <label>Mô tả sản phẩm</label>
-
-            @Html.TextAreaFor(m => m.Description, new
-            {
-                @class = "form-control",
-                rows = "4"
-            })
-        </div>
-
-        <div class="checkbox">
-            <label>
-                @Html.CheckBoxFor(m => m.IsActive)
-                Hiển thị sản phẩm trên website
-            </label>
-        </div>
-
-        <hr />
-
-        <button type="submit" class="btn btn-primary">
-            Lưu thay đổi
-        </button>
-
-        <a href="@Url.Action(
-            "ProductList",
-            "Products",
-            new { area = "Admin" })"
-           class="btn btn-default">
-            Hủy
-        </a>
+    .edit-product-page {
+        max-width: 1250px;
+        margin: 0 auto;
+        padding: 30px 25px 55px;
+        color: #263445;
     }
+
+    /* HEADER */
+
+    .edit-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 18px;
+        margin-bottom: 25px;
+    }
+
+    .edit-breadcrumb {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 9px;
+        margin-bottom: 12px;
+        color: #8491a3;
+        font-size: 13px;
+    }
+
+        .edit-breadcrumb a {
+            color: #64748b;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+            .edit-breadcrumb a:hover {
+                color: #f15a24;
+            }
+
+        .edit-breadcrumb i {
+            font-size: 10px;
+        }
+
+    .edit-page-title {
+        margin: 0;
+        color: #17263d;
+        font-size: 27px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    .edit-page-subtitle {
+        margin: 8px 0 0;
+        color: #8491a3;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .edit-product-id {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 15px;
+        background: #eef4ff;
+        color: #315f9f;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    /* MAIN CARD */
+
+    .edit-product-card {
+        background: #fff;
+        border: 1px solid #e9edf3;
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(25, 45, 75, 0.055);
+        overflow: hidden;
+    }
+
+    .edit-card-heading {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 23px 28px;
+        border-bottom: 1px solid #edf0f5;
+        background: #fcfdff;
+    }
+
+    .edit-heading-icon {
+        width: 43px;
+        height: 43px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        background: #fff0e9;
+        color: #f15a24;
+        font-size: 19px;
+    }
+
+    .edit-heading-title {
+        margin: 0;
+        color: #20334d;
+        font-size: 16px;
+        font-weight: 750;
+    }
+
+    .edit-heading-description {
+        margin: 5px 0 0;
+        color: #8a96a7;
+        font-size: 12px;
+    }
+
+    .edit-card-body {
+        padding: 28px;
+    }
+
+    /* SECTION */
+
+    .edit-section {
+        margin-bottom: 30px;
+    }
+
+        .edit-section:last-child {
+            margin-bottom: 0;
+        }
+
+    .edit-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 20px;
+        padding-bottom: 13px;
+        border-bottom: 1px solid #edf0f5;
+        color: #263e60;
+        font-size: 14px;
+        font-weight: 750;
+    }
+
+        .edit-section-title i {
+            color: #f15a24;
+            font-size: 15px;
+        }
+
+    /* FORM */
+
+    .edit-form-group {
+        margin-bottom: 21px;
+    }
+
+    .edit-form-label {
+        display: block;
+        margin-bottom: 9px;
+        color: #394b63;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .edit-required {
+        color: #ed542d;
+        margin-left: 3px;
+    }
+
+    .edit-form-control {
+        display: block;
+        width: 100%;
+        height: 46px;
+        padding: 10px 14px;
+        border: 1px solid #dce3ed;
+        border-radius: 8px;
+        outline: none;
+        background: #fff;
+        color: #34445a;
+        font-family: inherit;
+        font-size: 13px;
+        box-shadow: none;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        box-sizing: border-box;
+    }
+
+        .edit-form-control:focus {
+            border-color: #477ed0;
+            box-shadow: 0 0 0 3px rgba(71, 126, 208, 0.10);
+        }
+
+        .edit-form-control::placeholder {
+            color: #aab4c2;
+        }
+
+    textarea.edit-form-control {
+        height: auto;
+        min-height: 125px;
+        resize: vertical;
+        line-height: 1.7;
+    }
+
+    select.edit-form-control {
+        cursor: pointer;
+    }
+
+    .edit-form-help {
+        display: block;
+        margin-top: 8px;
+        color: #8a96a7;
+        font-size: 11px;
+        line-height: 1.5;
+    }
+
+    .edit-validation {
+        display: block;
+        margin-top: 6px;
+        color: #d93636;
+        font-size: 12px;
+    }
+
+    .edit-two-columns {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+    }
+
+    /* PRICE AND STOCK */
+
+    .edit-number-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .edit-number-wrapper .edit-form-control {
+            flex: 1;
+            width: auto;
+            min-width: 0;
+            padding-right: 14px;
+        }
+
+    .edit-input-suffix {
+        position: static;
+        transform: none;
+        color: #8491a3;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    /* STATUS */
+
+    .edit-status-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 15px;
+        padding: 17px 19px;
+        border: 1px solid #e5eaf1;
+        border-radius: 10px;
+        background: #fafbfd;
+    }
+
+    .edit-status-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .edit-status-icon {
+        width: 39px;
+        height: 39px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e9f7ee;
+        color: #269653;
+        border-radius: 9px;
+        font-size: 16px;
+    }
+
+    .edit-status-title {
+        margin: 0;
+        color: #34445a;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .edit-status-description {
+        margin: 5px 0 0;
+        color: #8a96a7;
+        font-size: 11px;
+    }
+
+    .edit-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin: 0;
+        color: #34445a;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+        .edit-checkbox input {
+            width: 17px;
+            height: 17px;
+            margin: 0;
+            accent-color: #f15a24;
+            cursor: pointer;
+        }
+
+    /* ACTIONS */
+
+    .edit-card-footer {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 11px;
+        padding: 20px 28px;
+        border-top: 1px solid #edf0f5;
+        background: #fcfdff;
+    }
+
+    .edit-btn {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        min-width: 135px;
+        height: 43px;
+        padding: 0 19px;
+        border: none;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .edit-btn-save {
+        background: #f15a24;
+        color: #fff;
+        box-shadow: 0 4px 10px rgba(241, 90, 36, 0.17);
+    }
+
+        .edit-btn-save:hover {
+            background: #d94816;
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(241, 90, 36, 0.23);
+        }
+
+    .edit-btn-cancel {
+        background: #edf0f5;
+        color: #536176;
+    }
+
+        .edit-btn-cancel:hover {
+            background: #dfe5ee;
+            color: #263445;
+            text-decoration: none;
+        }
+
+    /* RESPONSIVE */
+
+    @@media (max-width: 768px) {
+
+        .edit-product-page {
+            padding: 20px 12px 35px;
+        }
+
+        .edit-page-title {
+            font-size: 22px;
+        }
+
+        .edit-card-heading {
+            padding: 19px;
+        }
+
+        .edit-card-body {
+            padding: 20px;
+        }
+
+        .edit-two-columns {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        .edit-card-footer {
+            padding: 17px 20px;
+        }
+
+        .edit-btn {
+            flex: 1;
+            min-width: 110px;
+        }
+    }
+
+    @@media (max-width: 480px) {
+
+        .edit-page-header {
+            align-items: flex-start;
+        }
+
+        .edit-product-id {
+            font-size: 12px;
+        }
+
+        .edit-card-footer {
+            flex-direction: column-reverse;
+        }
+
+        .edit-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="edit-product-page">
+
+    <!-- HEADER -->
+    <div class="edit-page-header">
+
+        <div>
+            <div class="edit-breadcrumb">
+                <a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">
+                    Trang quản trị
+                </a>
+
+                <i class="fa fa-chevron-right"></i>
+
+                <a href="@Url.Action("ProductList", "Products", new { area = "Admin" })">
+                    Quản lý sản phẩm
+                </a>
+
+                <i class="fa fa-chevron-right"></i>
+
+                <span>Chỉnh sửa</span>
+            </div>
+
+            <h2 class="edit-page-title">
+                Chỉnh sửa sản phẩm
+            </h2>
+
+            <p class="edit-page-subtitle">
+                Cập nhật thông tin sản phẩm trong hệ thống Gear Sport.
+            </p>
+        </div>
+
+        <div class="edit-product-id">
+            <i class="fa fa-cube"></i>
+            Mã sản phẩm: #@Model.ProductID
+        </div>
+
+    </div>
+
+    <!-- FORM CARD -->
+    <div class="edit-product-card">
+
+        <div class="edit-card-heading">
+            <div class="edit-heading-icon">
+                <i class="fa fa-pencil"></i>
+            </div>
+
+            <div>
+                <h3 class="edit-heading-title">
+                    Thông tin sản phẩm
+                </h3>
+
+                <p class="edit-heading-description">
+                    Kiểm tra và cập nhật các thông tin bên dưới.
+                </p>
+            </div>
+        </div>
+
+        <div class="edit-card-body">
+
+            @using (Html.BeginForm(
+                "EditProduct",
+                "Products",
+                new { area = "Admin" },
+                FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                @Html.HiddenFor(m => m.ProductID)
+
+                <!-- THONG TIN CO BAN -->
+                <div class="edit-section">
+
+                    <h4 class="edit-section-title">
+                        <i class="fa fa-info-circle"></i>
+                        Thông tin cơ bản
+                    </h4>
+
+                    <div class="edit-form-group">
+
+                        <label class="edit-form-label">
+                            Tên sản phẩm
+                            <span class="edit-required">*</span>
+                        </label>
+
+                        @Html.TextBoxFor(m => m.ProductName, new
+                        {
+                            @class = "edit-form-control",
+                            placeholder = "Nhập tên sản phẩm..."
+                        })
+
+                        @Html.ValidationMessageFor(m => m.ProductName, "", new
+                        {
+                            @class = "edit-validation"
+                        })
+
+                    </div>
+
+                    <div class="edit-two-columns">
+
+                        <div class="edit-form-group">
+
+                            <label class="edit-form-label">
+                                Giá sản phẩm
+                                <span class="edit-required">*</span>
+                            </label>
+
+                            <div class="edit-number-wrapper">
+
+                                @Html.TextBoxFor(m => m.Price, new
+                                {
+                                    @class = "edit-form-control",
+                                    type = "number",
+                                    min = "1",
+                                    step = "0.01",
+                                    placeholder = "Nhập giá sản phẩm"
+                                })
+
+                                <span class="edit-input-suffix">
+                                    VNĐ
+                                </span>
+
+                            </div>
+
+                            @Html.ValidationMessageFor(m => m.Price, "", new
+                            {
+                                @class = "edit-validation"
+                            })
+
+                        </div>
+
+                        <div class="edit-form-group">
+
+                            <label class="edit-form-label">
+                                Số lượng tồn kho
+                                <span class="edit-required">*</span>
+                            </label>
+
+                            <div class="edit-number-wrapper">
+
+                                @Html.TextBoxFor(m => m.StockQuantity, new
+                                {
+                                    @class = "edit-form-control",
+                                    type = "number",
+                                    min = "0",
+                                    step = "1",
+                                    placeholder = "Nhập số lượng tồn kho"
+                                })
+
+                                <span class="edit-input-suffix">
+                                    Sản phẩm
+                                </span>
+
+                            </div>
+
+                            @Html.ValidationMessageFor(m => m.StockQuantity, "", new
+                            {
+                                @class = "edit-validation"
+                            })
+
+                            <small class="edit-form-help">
+                                Cập nhật số lượng sản phẩm hiện có trong kho.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                    <div class="edit-form-group">
+
+                        <label class="edit-form-label">
+                            Danh mục
+                            <span class="edit-required">*</span>
+                        </label>
+
+                        @Html.DropDownListFor(
+                                 m => m.CategoryID,
+                                 (IEnumerable<SelectListItem>)ViewBag.Categories,
+                                 "-- Chọn danh mục --",
+                                 new { @class = "edit-form-control" }
+                             )
+
+                        @Html.ValidationMessageFor(m => m.CategoryID, "", new
+                        {
+                            @class = "edit-validation"
+                        })
+
+                    </div>
+
+                </div>
+
+                <!-- HINH ANH VA MO TA -->
+                <div class="edit-section">
+
+                    <h4 class="edit-section-title">
+                        <i class="fa fa-picture-o"></i>
+                        Hình ảnh và mô tả
+                    </h4>
+
+                    <div class="edit-form-group">
+
+                        <label class="edit-form-label">
+                            URL hình ảnh
+                        </label>
+
+                        @Html.TextBoxFor(m => m.ImageUrl, new
+                        {
+                            @class = "edit-form-control",
+                            placeholder = "Nhập URL hình ảnh sản phẩm..."
+                        })
+
+                        <small class="edit-form-help">
+                            Nhập đường dẫn hình ảnh sản phẩm đang sử dụng.
+                        </small>
+
+                    </div>
+
+                    <div class="edit-form-group">
+
+                        <label class="edit-form-label">
+                            Mô tả sản phẩm
+                        </label>
+
+                        @Html.TextAreaFor(m => m.Description, new
+                        {
+                            @class = "edit-form-control",
+                            rows = "5",
+                            placeholder = "Nhập mô tả chi tiết sản phẩm..."
+                        })
+
+                    </div>
+
+                </div>
+
+                <!-- TRANG THAI -->
+                <div class="edit-section">
+
+                    <h4 class="edit-section-title">
+                        <i class="fa fa-toggle-on"></i>
+                        Trạng thái hiển thị
+                    </h4>
+
+                    <div class="edit-status-card">
+
+                        <div class="edit-status-info">
+
+                            <div class="edit-status-icon">
+                                <i class="fa fa-eye"></i>
+                            </div>
+
+                            <div>
+                                <p class="edit-status-title">
+                                    Hiển thị sản phẩm trên website
+                                </p>
+
+                                <p class="edit-status-description">
+                                    Cho phép khách hàng nhìn thấy sản phẩm trên cửa hàng.
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <label class="edit-checkbox">
+                            @Html.CheckBoxFor(m => m.IsActive)
+                            Đang hiển thị
+                        </label>
+
+                    </div>
+
+                </div>
+
+                <!-- ACTION BUTTONS -->
+                <div class="edit-card-footer">
+
+                    <a href="@Url.Action(
+                        "ProductList",
+                        "Products",
+                        new { area = "Admin" })"
+                       class="edit-btn edit-btn-cancel">
+
+                        <i class="fa fa-times"></i>
+                        Hủy
+
+                    </a>
+
+                    <button type="submit" class="edit-btn edit-btn-save">
+
+                        <i class="fa fa-save"></i>
+                        Lưu thay đổi
+
+                    </button>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
 
 </div>
