@@ -441,69 +441,41 @@ namespace web_sport_gear.Controllers
             }
         }
 
+
+
         // POST: Account/UpdateProfile
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult UpdateProfile(UserProfileViewModel model)
         {
+            // 1. Kiem tra dang nhap
             if (Session["UserID"] == null)
             {
                 return RedirectToAction("Login");
             }
 
-            int userId = Convert.ToInt32(Session["UserID"]);
+            int userId;
 
+            if (!int.TryParse(Session["UserID"].ToString(), out userId))
+            {
+                Session.Clear();
+                Session.Abandon();
+
+                return RedirectToAction("Login");
+            }
+
+            if (model == null)
+            {
+                TempData["ProfileError"] = "Du lieu cap nhat khong hop le.";
+                return RedirectToAction("Profile");
+            }
+
+            // 2. Chuan hoa du lieu
             model.FullName = (model.FullName ?? "").Trim();
+            model.Email = (model.Email ?? "").Trim().ToLowerInvariant();
             model.Phone = (model.Phone ?? "").Trim();
             model.Gender = (model.Gender ?? "").Trim();
             model.Address = (model.Address ?? "").Trim();
-
-            if (string.IsNullOrWhiteSpace(model.FullName))
-            {
-                ModelState.AddModelError(
-                    "FullName",
-                    "Vui long nhap ho va ten.");
-            }
-            else if (model.FullName.Length > 100)
-            {
-                ModelState.AddModelError(
-                    "FullName",
-                    "Ho va ten khong duoc vuot qua 100 ky tu.");
-            }
-
-            if (!string.IsNullOrWhiteSpace(model.Phone))
-            {
-                string phoneError =
-                    GetPhoneValidationError(model.Phone);
-
-                if (phoneError != null)
-                {
-                    ModelState.AddModelError("Phone", phoneError);
-                }
-            }
-
-            if (model.DateOfBirth.HasValue &&
-                model.DateOfBirth.Value.Date > DateTime.Today)
-            {
-                ModelState.AddModelError(
-                    "DateOfBirth",
-                    "Ngay sinh khong duoc lon hon ngay hien tai.");
-            }
-
-            if (!string.IsNullOrWhiteSpace(model.Gender) &&
-                model.Gender != "Nam" &&
-                model.Gender != "Nu" &&
-                model.Gender != "Khac")
-            {
-                ModelState.AddModelError(
-                    "Gender",
-                    "Gioi tinh khong hop le.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return View("Profile", model);
-            }
 
             try
             {
@@ -512,27 +484,193 @@ namespace web_sport_gear.Controllers
                 {
                     connection.Open();
 
-                    string sql = @"
-                        UPDATE dbo.Users
-                        SET FullName = @FullName,
-                            Phone = @Phone,
-                            DateOfBirth = @DateOfBirth,
-                            Gender = @Gender,
-                            Address = @Address
-                        WHERE UserID = @UserID
-                          AND IsActive = 1;";
+                    // 3. Lay Avatar hien tai
+                    // Khong lay Email de tranh ghi de Email moi
+                    string profileSql = @"
+                SELECT Avatar
+                FROM dbo.Users
+                WHERE UserID = @UserID
+                  AND IsActive = 1;";
+
+                    using (SqlCommand profileCommand =
+                        new SqlCommand(profileSql, connection))
+                    {
+                        profileCommand.Parameters.AddWithValue("@UserID", userId);
+
+                        object avatarResult = profileCommand.ExecuteScalar();
+
+                        if (avatarResult == null)
+                        {
+                            Session.Clear();
+                            Session.Abandon();
+
+                            return RedirectToAction("Login");
+                        }
+
+                        model.Avatar = avatarResult == DBNull.Value
+                            ? ""
+                            : avatarResult.ToString();
+                    }
+
+                    // 4. Kiem tra ho ten
+                    if (string.IsNullOrWhiteSpace(model.FullName))
+                    {
+                        ModelState.AddModelError(
+                            "FullName",
+                            "Vui long nhap ho va ten.");
+                    }
+                    else if (model.FullName.Length > 100)
+                    {
+                        ModelState.AddModelError(
+                            "FullName",
+                            "Ho va ten khong duoc vuot qua 100 ky tu.");
+                    }
+
+                    // 5. Kiem tra Email
+                    if (string.IsNullOrWhiteSpace(model.Email))
+                    {
+                        ModelState.AddModelError(
+                            "Email",
+                            "Vui long nhap email.");
+                    }
+                    else if (model.Email.Length > 255 ||
+                             !Regex.IsMatch(
+                                 model.Email,
+                                 @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+                    {
+                        ModelState.AddModelError(
+                            "Email",
+                            "Email khong hop le.");
+                    }
+
+                    // 6. Kiem tra so dien thoai
+                    string phoneError = GetPhoneValidationError(model.Phone);
+
+                    if (phoneError != null)
+                    {
+                        ModelState.AddModelError("Phone", phoneError);
+                    }
+
+                    // 7. Kiem tra gioi han ngay sinh
+                    if (model.DateOfBirth.HasValue)
+                    {
+                        DateTime birthDate = model.DateOfBirth.Value.Date;
+
+                        DateTime minBirthDate = DateTime.Today.AddYears(-100);
+                        DateTime maxBirthDate = DateTime.Today.AddYears(-16);
+
+                        if (birthDate > maxBirthDate)
+                        {
+                            ModelState.AddModelError(
+                                "DateOfBirth",
+                                "Ban phai tu 16 tuoi tro len.");
+                        }
+                        else if (birthDate < minBirthDate)
+                        {
+                            ModelState.AddModelError(
+                                "DateOfBirth",
+                                "Tuoi toi da duoc phep la 100 tuoi.");
+                        }
+                    }
+
+                    // 8. Kiem tra gioi tinh
+                    if (!string.IsNullOrWhiteSpace(model.Gender) &&
+                        model.Gender != "Nam" &&
+                        model.Gender != "Nu" &&
+                        model.Gender != "Khac")
+                    {
+                        ModelState.AddModelError(
+                            "Gender",
+                            "Gioi tinh khong hop le.");
+                    }
+
+                    // 9. Neu du lieu khong hop le
+                    if (!ModelState.IsValid)
+                    {
+                        return View("Profile", model);
+                    }
+
+                    // 10. Kiem tra Email da duoc tai khoan khac su dung
+                    string checkEmailSql = @"
+                SELECT COUNT(1)
+                FROM dbo.Users
+                WHERE Email = @Email
+                  AND UserID <> @UserID;";
+
+                    using (SqlCommand checkCommand =
+                        new SqlCommand(checkEmailSql, connection))
+                    {
+                        checkCommand.Parameters.AddWithValue(
+                            "@Email", model.Email);
+
+                        checkCommand.Parameters.AddWithValue(
+                            "@UserID", userId);
+
+                        int emailExists =
+                            Convert.ToInt32(checkCommand.ExecuteScalar());
+
+                        if (emailExists > 0)
+                        {
+                            ModelState.AddModelError(
+                                "Email",
+                                "Email nay da duoc tai khoan khac su dung.");
+
+                            return View("Profile", model);
+                        }
+                    }
+
+                    // 11. Kiem tra so dien thoai trung
+                    string checkPhoneSql = @"
+                SELECT COUNT(1)
+                FROM dbo.Users
+                WHERE Phone = @Phone
+                  AND UserID <> @UserID;";
+
+                    using (SqlCommand checkCommand =
+                        new SqlCommand(checkPhoneSql, connection))
+                    {
+                        checkCommand.Parameters.AddWithValue(
+                            "@Phone", model.Phone);
+
+                        checkCommand.Parameters.AddWithValue(
+                            "@UserID", userId);
+
+                        int phoneExists =
+                            Convert.ToInt32(checkCommand.ExecuteScalar());
+
+                        if (phoneExists > 0)
+                        {
+                            ModelState.AddModelError(
+                                "Phone",
+                                "So dien thoai nay da duoc tai khoan khac su dung.");
+
+                            return View("Profile", model);
+                        }
+                    }
+
+                    // 12. Cap nhat thong tin bao gom Email
+                    string updateSql = @"
+                UPDATE dbo.Users
+                SET FullName = @FullName,
+                    Email = @Email,
+                    Phone = @Phone,
+                    DateOfBirth = @DateOfBirth,
+                    Gender = @Gender,
+                    Address = @Address
+                WHERE UserID = @UserID
+                  AND IsActive = 1;";
 
                     using (SqlCommand command =
-                        new SqlCommand(sql, connection))
+                        new SqlCommand(updateSql, connection))
                     {
                         command.Parameters.AddWithValue(
                             "@FullName", model.FullName);
 
                         command.Parameters.AddWithValue(
-                            "@Phone",
-                            string.IsNullOrWhiteSpace(model.Phone)
-                                ? (object)DBNull.Value
-                                : model.Phone);
+                            "@Email", model.Email);
+
+                        command.Parameters.AddWithValue(
+                            "@Phone", model.Phone);
 
                         command.Parameters.AddWithValue(
                             "@DateOfBirth",
@@ -552,7 +690,8 @@ namespace web_sport_gear.Controllers
                                 ? (object)DBNull.Value
                                 : model.Address);
 
-                        command.Parameters.AddWithValue("@UserID", userId);
+                        command.Parameters.AddWithValue(
+                            "@UserID", userId);
 
                         int rowsAffected = command.ExecuteNonQuery();
 
@@ -566,6 +705,7 @@ namespace web_sport_gear.Controllers
                     }
                 }
 
+                // 13. Cap nhat Session
                 Session["FullName"] = model.FullName;
 
                 TempData["ProfileSuccess"] =
@@ -573,8 +713,18 @@ namespace web_sport_gear.Controllers
 
                 return RedirectToAction("Profile");
             }
-            catch (SqlException)
+            catch (SqlException ex)
             {
+                // Loi trung Email hoac Phone do UNIQUE constraint
+                if (ex.Number == 2601 || ex.Number == 2627)
+                {
+                    ModelState.AddModelError(
+                        "",
+                        "Email hoac so dien thoai da duoc tai khoan khac su dung.");
+
+                    return View("Profile", model);
+                }
+
                 ModelState.AddModelError(
                     "",
                     "Khong the cap nhat ho so. Vui long thu lai sau.");
@@ -593,11 +743,13 @@ namespace web_sport_gear.Controllers
             {
                 ModelState.AddModelError(
                     "",
-                    "Khong the ket noi co so du lieu.");
+                    "Khong the ket noi co so du lieu. Vui long thu lai.");
 
                 return View("Profile", model);
             }
         }
+
+
 
         // POST: Account/UploadAvatar
         [HttpPost]

@@ -657,10 +657,11 @@
                                                            class="reset-input new-password"
                                                            minlength="8"
                                                            maxlength="128"
+                                                           pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9\s]).{8,128}"
+                                                           title="Mật khẩu phải có 8-128 ký tự, gồm chữ hoa, chữ thường, chữ số và ký tự đặc biệt."
                                                            autocomplete="new-password"
                                                            required
-                                                           placeholder="Ít nhất 8 ký tự" />
-
+                                                           placeholder="Chữ hoa, chữ thường, số và ký tự đặc biệt" />
                                                     <label>Xác nhận mật khẩu</label>
 
                                                     <input type="password"
@@ -756,6 +757,10 @@
                 const newValue = newPassword.value;
                 const confirmValue = confirmPassword.value;
 
+                const passwordPattern =
+                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9\s]).{8,128}$/;
+
+                newPassword.setCustomValidity("");
                 confirmPassword.setCustomValidity("");
 
                 errorMessage.style.display = "none";
@@ -768,14 +773,22 @@
 
                 submitButton.disabled = true;
 
+                // Chưa nhập đủ hai ô
                 if (newValue.length === 0 || confirmValue.length === 0) {
                     return false;
                 }
 
-                if (newValue.length < 8 || newValue.length > 128) {
+                // Kiểm tra độ dài và độ phức tạp
+                if (!passwordPattern.test(newValue)) {
+
+                    newPassword.setCustomValidity(
+                        "Mật khẩu phải có 8-128 ký tự, gồm chữ hoa, chữ thường, chữ số và ký tự đặc biệt."
+                    );
+
                     return false;
                 }
 
+                // Kiểm tra mật khẩu xác nhận
                 if (newValue !== confirmValue) {
 
                     confirmPassword.classList.add(

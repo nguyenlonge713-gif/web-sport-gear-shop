@@ -8,6 +8,11 @@
     string avatarUrl = string.IsNullOrWhiteSpace(Model.Avatar)
         ? Url.Content("~/Content/Images/default-avatar.png")
         : Url.Content(Model.Avatar);
+    // Giới hạn ngày sinh từ 16 đến 100 tuổi
+    DateTime today = DateTime.Today;
+
+    string minBirthDate = today.AddYears(-100).ToString("yyyy-MM-dd");
+    string maxBirthDate = today.AddYears(-16).ToString("yyyy-MM-dd");
 }
 
 <style>
@@ -764,6 +769,15 @@
                 }
 
                 <!-- UPDATE PROFILE FORM -->
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="gs-profile-alert error">
+                        <i class="glyphicon glyphicon-exclamation-sign"></i>
+                        Vui lòng kiểm tra lại thông tin đã nhập.
+
+                        @Html.ValidationSummary(false, "", new { @class = "gs-validation-summary" })
+                    </div>
+                }
                 @using (Html.BeginForm(
                     "UpdateProfile",
                     "Account",
@@ -774,7 +788,7 @@
 
                     @Html.HiddenFor(model => model.UserID)
 
-                   
+
 
                     <h4 class="gs-form-section-title">
                         <i class="glyphicon glyphicon-user"></i>
@@ -806,18 +820,26 @@
                         <!-- EMAIL -->
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Email đăng nhập</label>
+                                <label>Email đăng nhập *</label>
 
                                 @Html.TextBoxFor(
                                     model => model.Email,
                                     new
                                     {
                                         @class = "form-control",
-                                        @readonly = "readonly"
+                                        type = "email",
+                                        placeholder = "Nhập địa chỉ email mới",
+                                        maxlength = "255",
+                                        autocomplete = "email"
                                     })
 
+                                @Html.ValidationMessageFor(
+                                    model => model.Email,
+                                    "",
+                                    new { @class = "gs-field-error" })
+
                                 <small class="gs-email-hint">
-                                    Email hiện chưa hỗ trợ thay đổi.
+                                    Bạn có thể thay đổi email đăng nhập tại đây.
                                 </small>
                             </div>
                         </div>
@@ -858,13 +880,19 @@
                                     new
                                     {
                                         @class = "form-control",
-                                        type = "date"
+                                        type = "date",
+                                        min = minBirthDate,
+                                        max = maxBirthDate
                                     })
 
                                 @Html.ValidationMessageFor(
                                     model => model.DateOfBirth,
                                     "",
                                     new { @class = "gs-field-error" })
+
+                                <small class="gs-email-hint">
+                                    Độ tuổi được phép: từ 16 đến 100 tuổi.
+                                </small>
                             </div>
                         </div>
 
@@ -963,7 +991,8 @@
                     <i class="glyphicon glyphicon-info-sign"></i>
                     <div>
                         <strong>Lưu ý:</strong>
-                        Email đăng nhập hiện được giữ cố định.
+                        Email đăng nhập có thể thay đổi trong phần thông tin cá nhân.
+                        Ngày sinh chỉ chấp nhận độ tuổi từ 16 đến 100 tuổi.
                         Ảnh đại diện chỉ chấp nhận định dạng JPG, JPEG hoặc PNG
                         và dung lượng tối đa 2MB.
                     </div>

@@ -1,4 +1,4 @@
-﻿
+﻿using System.Text.RegularExpressions;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -320,6 +320,7 @@ namespace web_sport_gear.Areas.Admin.Controllers
             return RedirectToIndex(keyword, filterRole);
         }
 
+
         // DAT LAI MAT KHAU
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -379,6 +380,18 @@ namespace web_sport_gear.Areas.Admin.Controllers
                 return RedirectToIndex(keyword, filterRole);
             }
 
+            // KIEM TRA DO PHUC TAP MAT KHAU
+            string passwordPattern =
+                @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9\s]).{8,128}$";
+
+            if (!Regex.IsMatch(newPassword, passwordPattern))
+            {
+                TempData["Error"] =
+                    "Mật khẩu phải có ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt.";
+
+                return RedirectToIndex(keyword, filterRole);
+            }
+
             // SO SANH CHINH XAC HAI MAT KHAU
             if (!string.Equals(
                 newPassword,
@@ -395,9 +408,9 @@ namespace web_sport_gear.Areas.Admin.Controllers
             {
                 // KIEM TRA TAI KHOAN CO TON TAI KHONG
                 string checkSql = @"
-                    SELECT COUNT(*)
-                    FROM dbo.Users
-                    WHERE UserID = @UserID";
+            SELECT COUNT(*)
+            FROM dbo.Users
+            WHERE UserID = @UserID";
 
                 using (SqlConnection conn =
                     new SqlConnection(ConnectionString))
@@ -430,9 +443,9 @@ namespace web_sport_gear.Areas.Admin.Controllers
 
                     // CAP NHAT MAT KHAU
                     string updateSql = @"
-                        UPDATE dbo.Users
-                        SET PasswordHash = @PasswordHash
-                        WHERE UserID = @UserID";
+                UPDATE dbo.Users
+                SET PasswordHash = @PasswordHash
+                WHERE UserID = @UserID";
 
                     using (SqlCommand cmd =
                         new SqlCommand(updateSql, conn))
@@ -471,6 +484,7 @@ namespace web_sport_gear.Areas.Admin.Controllers
 
             return RedirectToIndex(keyword, filterRole);
         }
+
 
         // GIU LAI BO LOC SAU KHI THAO TAC
         private ActionResult RedirectToIndex(
