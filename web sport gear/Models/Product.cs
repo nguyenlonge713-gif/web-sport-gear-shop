@@ -20,5 +20,8 @@ namespace web_sport_gear.Models
         public int StockQuantity { get; set; }
 
         public string CategoryName { get; set; }
+
+        // Danh mục con của sản phẩm
+        public string SubCategory { get; set; }
     }
 }

@@ -1,8 +1,9 @@
-﻿using System.Configuration;
-using System.Data.SqlClient;
+﻿
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
 using System.Web.Mvc;
 
 namespace web_sport_gear.Controllers
@@ -20,94 +21,10 @@ namespace web_sport_gear.Controllers
 
     public class HomeController : Controller
     {
-        // Danh sách sản phẩm hiện có trong Details.cshtml
-        private List<ProductSearchItem> GetProducts()
-        {
-            return new List<ProductSearchItem>
-            {
-                new ProductSearchItem {
-                    Id = 1,
-                    Name = "Giày Tennis/Pickleball Nike Zoom Vapor 12",
-                    Brand = "NIKE",
-                    Category = "Giày Thể Thao",
-                    Price = 1500000,
-                    Image = "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500"
-                },
-                new ProductSearchItem {
-                    Id = 18,
-                    Name = "Giày Chạy Bộ Nam Adidas Supernova",
-                    Brand = "ADIDAS",
-                    Category = "Giày Chạy Bộ",
-                    Price = 1350000,
-                    Image = "https://images.unsplash.com/photo-1562183241-b937e95585b6?w=500"
-                },
-                new ProductSearchItem {
-                    Id = 17,
-                    Name = "Giày Đá Banh Sân Cỏ Nhân Tạo Pro",
-                    Brand = "PUMA",
-                    Category = "Giày Đá Bóng",
-                    Price = 890000,
-                    Image = "https://images.unsplash.com/photo-1511886929837-354d827aae26?q=80&w=764"
-                },
-                new ProductSearchItem {
-                    Id = 15,
-                    Name = "Giày Thể Thao Nam Asics Court FF 3",
-                    Brand = "ASICS",
-                    Category = "Giày Thể Thao",
-                    Price = 1650000,
-                    Image = "https://images.unsplash.com/photo-1579338559194-a162d19bf842?w=500"
-                },
-                new ProductSearchItem {
-                    Id = 2,
-                    Name = "Áo Thun Thể Thao Nam Dry-Fit",
-                    Brand = "GEAR SPORT",
-                    Category = "Áo Thể Thao",
-                    Price = 350000,
-                    Image = "https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=500"
-                },
-                new ProductSearchItem {
-                    Id = 9,
-                    Name = "Áo Khoác Gió Thể Thao Nam",
-                    Brand = "ADIDAS",
-                    Category = "Áo Khoác Nam",
-                    Price = 550000,
-                    Image = "https://images.unsplash.com/photo-1611308725032-74f0a551d018?w=500"
-                },
-                new ProductSearchItem {
-                    Id = 4,
-                    Name = "Bình Nước Thể Thao Cao Cấp 1L",
-                    Brand = "GEAR SPORT",
-                    Category = "Phụ Kiện",
-                    Price = 180000,
-                    Image = "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500"
-                },
-                new ProductSearchItem {
-                    Id = 5,
-                    Name = "Bóng Đá Tiêu Chuẩn FIFA Pro",
-                    Brand = "MOLTEN",
-                    Category = "Phụ Kiện Bóng Đá",
-                    Price = 650000,
-                    Image = "https://images.unsplash.com/photo-1518091043644-c1d4457512c6?w=500"
-                },
-                new ProductSearchItem {
-                    Id = 6,
-                    Name = "Găng Tay Thủ Môn Dính Xương",
-                    Brand = "PRO GOAL",
-                    Category = "Phụ Kiện Thủ Môn",
-                    Price = 450000,
-                    Image = "https://plus.unsplash.com/premium_photo-1781205755096-6caab3faf2a1?w=500"
-                },
-                new ProductSearchItem {
-                    Id = 16,
-                    Name = "Áo Polo Thể Thao Nam",
-                    Brand = "NIKE",
-                    Category = "Áo Polo",
-                    Price = 290000,
-                    Image = "https://plus.unsplash.com/premium_photo-1747861981617-1512bc2c06e8?w=500"
-                }
-            };
-        }
+        private readonly string connectionString =
+            ConfigurationManager.ConnectionStrings["GearSportDB"].ConnectionString;
 
+        // Trang chủ
         public ActionResult Index()
         {
             try
@@ -116,7 +33,6 @@ namespace web_sport_gear.Controllers
             }
             catch (Exception ex)
             {
-                // Ghi log để kiểm tra nếu không lấy được dữ liệu tồn kho
                 System.Diagnostics.Debug.WriteLine(
                     "Lỗi lấy tồn kho: " + ex.Message
                 );
@@ -136,7 +52,7 @@ namespace web_sport_gear.Controllers
 
         public ActionResult Contact()
         {
-            ViewBag.Message = "Your contact page.";
+            ViewBag.Message = "Your application description page.";
             return View();
         }
 
@@ -155,24 +71,25 @@ namespace web_sport_gear.Controllers
             return View();
         }
 
-
+        // Chuyển đến trang áo thể thao
         public ActionResult AoTheThao()
         {
             return RedirectToAction("AOTHETHAO", "Product");
         }
 
+        // Chuyển đến trang giày thể thao
         public ActionResult GiayDaBong()
         {
             return RedirectToAction("GiayDaBong", "Product");
         }
 
+        // Chuyển đến trang phụ kiện
         public ActionResult PhuKien()
         {
             return RedirectToAction("PHUKIEN", "Product");
         }
 
-
-
+        // Xem chi tiết sản phẩm theo ProductID
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -180,56 +97,73 @@ namespace web_sport_gear.Controllers
                 return HttpNotFound();
             }
 
-            string connectionString =
-                ConfigurationManager.ConnectionStrings["GearSportDB"].ConnectionString;
-
             web_sport_gear.Models.Product product = null;
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlConnection connection =
+                new SqlConnection(connectionString))
             {
                 connection.Open();
 
                 string sql = @"
-            SELECT 
-                p.ProductID,
-                p.ProductName,
-                p.Price,
-                p.ImageUrl,
-                p.CategoryID,
-                p.Description,
-                p.IsActive,
-                p.StockQuantity,
-                c.CategoryName
-            FROM dbo.Products p
-            LEFT JOIN dbo.Categories c
-                ON p.CategoryID = c.CategoryID
-            WHERE p.ProductID = @ProductID";
+                    SELECT
+                        p.ProductID,
+                        p.ProductName,
+                        p.Price,
+                        p.ImageUrl,
+                        p.CategoryID,
+                        p.Description,
+                        p.IsActive,
+                        p.StockQuantity,
+                        c.CategoryName
+                    FROM dbo.Products p
+                    LEFT JOIN dbo.Categories c
+                        ON p.CategoryID = c.CategoryID
+                    WHERE p.ProductID = @ProductID";
 
-                using (SqlCommand command = new SqlCommand(sql, connection))
+                using (SqlCommand command =
+                    new SqlCommand(sql, connection))
                 {
-                    command.Parameters.AddWithValue("@ProductID", id.Value);
+                    command.Parameters.Add(
+                        "@ProductID", SqlDbType.Int
+                    ).Value = id.Value;
 
-                    using (SqlDataReader reader = command.ExecuteReader())
+                    using (SqlDataReader reader =
+                        command.ExecuteReader())
                     {
                         if (reader.Read())
                         {
                             product = new web_sport_gear.Models.Product
                             {
-                                ProductID = Convert.ToInt32(reader["ProductID"]),
-                                ProductName = reader["ProductName"].ToString(),
-                                Price = Convert.ToDecimal(reader["Price"]),
+                                ProductID = Convert.ToInt32(
+                                    reader["ProductID"]
+                                ),
+
+                                ProductName =
+                                    reader["ProductName"].ToString(),
+
+                                Price = Convert.ToDecimal(
+                                    reader["Price"]
+                                ),
+
                                 ImageUrl = reader["ImageUrl"] == DBNull.Value
                                     ? ""
                                     : reader["ImageUrl"].ToString(),
 
-                                CategoryID = Convert.ToInt32(reader["CategoryID"]),
+                                CategoryID = Convert.ToInt32(
+                                    reader["CategoryID"]
+                                ),
 
                                 Description = reader["Description"] == DBNull.Value
                                     ? ""
                                     : reader["Description"].ToString(),
 
-                                IsActive = Convert.ToBoolean(reader["IsActive"]),
-                                StockQuantity = Convert.ToInt32(reader["StockQuantity"]),
+                                IsActive = Convert.ToBoolean(
+                                    reader["IsActive"]
+                                ),
+
+                                StockQuantity = Convert.ToInt32(
+                                    reader["StockQuantity"]
+                                ),
 
                                 CategoryName = reader["CategoryName"] == DBNull.Value
                                     ? "Sản phẩm"
@@ -248,54 +182,120 @@ namespace web_sport_gear.Controllers
             return View(product);
         }
 
-
-        // Tìm kiếm sản phẩm theo tên, thương hiệu hoặc danh mục
+        // Tìm kiếm sản phẩm trực tiếp từ SQL Server
         [HttpGet]
         public ActionResult Search(string q)
         {
             q = (q ?? "").Trim();
 
-            var products = GetProducts();
+            List<ProductSearchItem> results =
+                new List<ProductSearchItem>();
 
-            var results = string.IsNullOrWhiteSpace(q)
-                ? new List<ProductSearchItem>()
-                : products.Where(p =>
-                    p.Name.IndexOf(q, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                    p.Brand.IndexOf(q, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                    p.Category.IndexOf(q, StringComparison.OrdinalIgnoreCase) >= 0
-                  ).ToList();
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                string sql = @"
+                    SELECT
+                        p.ProductID,
+                        p.ProductName,
+                        p.Price,
+                        p.ImageUrl,
+                        p.SubCategory,
+                        c.CategoryName
+                    FROM dbo.Products p
+                    LEFT JOIN dbo.Categories c
+                        ON p.CategoryID = c.CategoryID
+                    WHERE p.IsActive = 1
+                        AND (
+                            p.ProductName LIKE @Keyword
+                            OR ISNULL(p.SubCategory, '') LIKE @Keyword
+                            OR ISNULL(c.CategoryName, '') LIKE @Keyword
+                        )
+                    ORDER BY p.ProductID DESC";
+
+                using (SqlConnection connection =
+                    new SqlConnection(connectionString))
+                using (SqlCommand command =
+                    new SqlCommand(sql, connection))
+                {
+                    command.Parameters.Add(
+                        "@Keyword", SqlDbType.NVarChar, 200
+                    ).Value = "%" + q + "%";
+
+                    connection.Open();
+
+                    using (SqlDataReader reader =
+                        command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            results.Add(new ProductSearchItem
+                            {
+                                Id = Convert.ToInt32(
+                                    reader["ProductID"]
+                                ),
+
+                                Name = reader["ProductName"].ToString(),
+
+                                Brand = "",
+
+                                Category = reader["SubCategory"] == DBNull.Value
+                                    ? (reader["CategoryName"] == DBNull.Value
+                                        ? "Sản phẩm"
+                                        : reader["CategoryName"].ToString())
+                                    : reader["SubCategory"].ToString(),
+
+                                Price = Convert.ToDecimal(
+                                    reader["Price"]
+                                ),
+
+                                Image = reader["ImageUrl"] == DBNull.Value
+                                    ? ""
+                                    : reader["ImageUrl"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
 
             ViewBag.Keyword = q;
+
             return View(results);
         }
-        // Lấy số lượng tồn kho của các sản phẩm hiển thị trên trang chủ
+
         // Lấy số lượng tồn kho của các sản phẩm hiển thị trên trang chủ
         private Dictionary<int, int> GetProductStocks()
         {
             var stocks = new Dictionary<int, int>();
 
-            string connectionString =
-                ConfigurationManager.ConnectionStrings["GearSportDB"].ConnectionString;
+            int[] productIds = {
+                1, 18, 17, 15, 2, 9, 4, 5, 6, 16
+            };
 
-            int[] productIds = { 1, 18, 17, 15, 2, 9, 4, 5, 6, 16 };
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlConnection connection =
+                new SqlConnection(connectionString))
             {
                 connection.Open();
 
                 string sql = @"
-            SELECT ProductID, StockQuantity
-            FROM dbo.Products
-            WHERE ProductID IN (1, 18, 17, 15, 2, 9, 4, 5, 6, 16)
-              AND IsActive = 1";
+                    SELECT ProductID, StockQuantity
+                    FROM dbo.Products
+                    WHERE ProductID IN (1, 18, 17, 15, 2, 9, 4, 5, 6, 16)
+                        AND IsActive = 1";
 
-                using (SqlCommand command = new SqlCommand(sql, connection))
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (SqlCommand command =
+                    new SqlCommand(sql, connection))
+                using (SqlDataReader reader =
+                    command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        int id = Convert.ToInt32(reader["ProductID"]);
-                        int stock = Convert.ToInt32(reader["StockQuantity"]);
+                        int id = Convert.ToInt32(
+                            reader["ProductID"]
+                        );
+
+                        int stock = Convert.ToInt32(
+                            reader["StockQuantity"]
+                        );
 
                         stocks[id] = stock;
                     }

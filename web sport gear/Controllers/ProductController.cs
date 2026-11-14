@@ -13,8 +13,9 @@ namespace web_sport_gear.Controllers
         private readonly string connectionString =
             ConfigurationManager.ConnectionStrings["GearSportDB"].ConnectionString;
 
-        // Lấy tất cả sản phẩm đang hoạt động theo danh mục
-        private List<Product> GetProductsByCategory(int categoryId)
+        // Lấy sản phẩm theo danh mục và danh mục con
+        private List<Product> GetProductsByCategory(
+            int categoryId, string subCategory = null)
         {
             List<Product> products = new List<Product>();
 
@@ -28,18 +29,33 @@ namespace web_sport_gear.Controllers
                     p.Description,
                     p.IsActive,
                     p.StockQuantity,
+                    p.SubCategory,
                     c.CategoryName
                 FROM Products p
                 INNER JOIN Categories c
                     ON p.CategoryID = c.CategoryID
                 WHERE p.CategoryID = @CategoryID
-                    AND p.IsActive = 1
-                ORDER BY p.ProductID";
+                    AND p.IsActive = 1";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            if (!string.IsNullOrWhiteSpace(subCategory))
+            {
+                query += " AND p.SubCategory = @SubCategory";
+            }
+
+            query += " ORDER BY p.ProductID";
+
+            using (SqlConnection connection =
+                new SqlConnection(connectionString))
+            using (SqlCommand command =
+                new SqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@CategoryID", categoryId);
+
+                if (!string.IsNullOrWhiteSpace(subCategory))
+                {
+                    command.Parameters.AddWithValue(
+                        "@SubCategory", subCategory);
+                }
 
                 connection.Open();
 
@@ -61,10 +77,14 @@ namespace web_sport_gear.Controllers
 
                             IsActive = Convert.ToBoolean(reader["IsActive"]),
 
-                            // Lấy số lượng tồn kho từ SQL Server
-                            StockQuantity = Convert.ToInt32(reader["StockQuantity"]),
+                            StockQuantity = Convert.ToInt32(
+                                reader["StockQuantity"]),
 
-                            CategoryName = reader["CategoryName"].ToString()
+                            CategoryName = reader["CategoryName"].ToString(),
+
+                            SubCategory = reader["SubCategory"] == DBNull.Value
+                                ? null
+                                : reader["SubCategory"].ToString()
                         };
 
                         products.Add(product);
@@ -75,24 +95,72 @@ namespace web_sport_gear.Controllers
             return products;
         }
 
-        // Trang áo thể thao
-        public ActionResult AOTHETHAO()
+        // Trang áo thể thao và lọc danh mục con
+        public ActionResult AOTHETHAO(string subCategory)
         {
-            var products = GetProductsByCategory(1);
+            string[] validCategories =
+            {
+                "Áo Thun Thể Thao",
+                "Áo Khoác Gió",
+                "Áo Polo Thể Thao"
+            };
+
+            if (!string.IsNullOrWhiteSpace(subCategory) &&
+                Array.IndexOf(validCategories, subCategory) == -1)
+            {
+                subCategory = null;
+            }
+
+            var products = GetProductsByCategory(1, subCategory);
+
+            ViewBag.SelectedSubCategory = subCategory;
+
             return View("~/Views/Home/AOTHETHAO.cshtml", products);
         }
 
-        // Trang phụ kiện
-        public ActionResult PHUKIEN()
+        // Trang phụ kiện và lọc danh mục con
+        public ActionResult PHUKIEN(string subCategory)
         {
-            var products = GetProductsByCategory(2);
+            string[] validCategories =
+            {
+                  "Vợt Cầu Lông",
+                  "Bóng Thể Thao",
+                  "Găng Tay"
+            };
+
+            if (!string.IsNullOrWhiteSpace(subCategory) &&
+                Array.IndexOf(validCategories, subCategory) == -1)
+            {
+                subCategory = null;
+            }
+
+            var products = GetProductsByCategory(2, subCategory);
+
+            ViewBag.SelectedSubCategory = subCategory;
+
             return View("~/Views/Home/PHUKIEN.cshtml", products);
         }
 
-        // Trang giày thể thao
-        public ActionResult GiayDaBong()
+        // Trang giày thể thao và lọc danh mục con
+        public ActionResult GiayDaBong(string subCategory)
         {
-            var products = GetProductsByCategory(3);
+            string[] validCategories =
+            {
+                "Giày Đá Banh",
+                "Giày Chạy Bộ",
+                "Giày Bóng Rổ"
+            };
+
+            if (!string.IsNullOrWhiteSpace(subCategory) &&
+                Array.IndexOf(validCategories, subCategory) == -1)
+            {
+                subCategory = null;
+            }
+
+            var products = GetProductsByCategory(3, subCategory);
+
+            ViewBag.SelectedSubCategory = subCategory;
+
             return View("~/Views/Home/GiayDaBong.cshtml", products);
         }
     }

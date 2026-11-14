@@ -249,31 +249,43 @@
 </div>
 
 <!-- 2. THANH CHUYỂN NHANH DANH MỤC PHỤ -->
+
+@{
+    string selectedSubCategory = ViewBag.SelectedSubCategory as string;
+}
+
 <div class="sub-categories-bar">
-    <a href="#" class="sub-cat-card active">
+
+    <a href="@Url.Action("AOTHETHAO", "Product")"
+       class="sub-cat-card @(string.IsNullOrEmpty(selectedSubCategory) ? "active" : "")">
         <img src="https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400"
              alt="Tất cả áo" />
         <span>Tất cả áo</span>
     </a>
 
-    <a href="#" class="sub-cat-card">
+    <a href="@Url.Action("AOTHETHAO", "Product", new { subCategory = "Áo Thun Thể Thao" })"
+       class="sub-cat-card @(selectedSubCategory == "Áo Thun Thể Thao" ? "active" : "")">
         <img src="https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=400"
-             alt="Áo thun" />
+             alt="Áo thun thể thao" />
         <span>Áo Thun Thể Thao</span>
     </a>
 
-    <a href="#" class="sub-cat-card">
+    <a href="@Url.Action("AOTHETHAO", "Product", new { subCategory = "Áo Khoác Gió" })"
+       class="sub-cat-card @(selectedSubCategory == "Áo Khoác Gió" ? "active" : "")">
         <img src="https://images.unsplash.com/photo-1611308725032-74f0a551d018?w=400"
              alt="Áo khoác gió" />
         <span>Áo Khoác Gió</span>
     </a>
 
-    <a href="#" class="sub-cat-card">
+    <a href="@Url.Action("AOTHETHAO", "Product", new { subCategory = "Áo Polo Thể Thao" })"
+       class="sub-cat-card @(selectedSubCategory == "Áo Polo Thể Thao" ? "active" : "")">
         <img src="https://plus.unsplash.com/premium_photo-1747861981617-1512bc2c06e8?w=400"
-             alt="Áo polo" />
+             alt="Áo polo thể thao" />
         <span>Áo Polo Thể Thao</span>
     </a>
+
 </div>
+
 
 <!-- 3. KHU VỰC HIỂN THỊ SẢN PHẨM -->
 <div class="adidas-catalog-container">
@@ -284,10 +296,10 @@
         </span>
 
         <div class="adidas-sort">
-            <select>
-                <option>Sắp xếp: Mới nhất</option>
-                <option>Giá: Thấp đến cao</option>
-                <option>Giá: Cao xuống thấp</option>
+            <select id="sortSelect">
+                <option value="newest">Sắp xếp: Mới nhất</option>
+                <option value="price-asc">Giá: Thấp đến cao</option>
+                <option value="price-desc">Giá: Cao xuống thấp</option>
             </select>
         </div>
     </div>
@@ -297,7 +309,9 @@
 
             @foreach (var product in Model)
             {
-                <div class="product-item product-card">
+                <div class="product-item product-card"
+                     data-id="@product.ProductID"
+                     data-price="@product.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)">
 
                     <a href="@Url.Action("Details", "Home", new { id = product.ProductID })"
                        class="product-detail-link">
@@ -363,3 +377,55 @@
         </div>
     </section>
 </div>
+<script>document.addEventListener("DOMContentLoaded", function () {
+
+        const sortSelect = document.getElementById("sortSelect");
+
+        const productContainer = document.querySelector(
+            ".adidas-catalog-container .product-grid"
+        );
+
+        if (!sortSelect || !productContainer) {
+            return;
+        }
+
+        function sortProducts() {
+
+            const products = Array.from(
+                productContainer.querySelectorAll(".product-item")
+            );
+
+            const sortType = sortSelect.value;
+
+            products.sort(function (a, b) {
+
+                const priceA = parseFloat(a.dataset.price) || 0;
+                const priceB = parseFloat(b.dataset.price) || 0;
+
+                const idA = parseInt(a.dataset.id) || 0;
+                const idB = parseInt(b.dataset.id) || 0;
+
+                if (sortType === "price-asc") {
+                    return priceA - priceB;
+                }
+
+                if (sortType === "price-desc") {
+                    return priceB - priceA;
+                }
+
+                // Mới nhất: ID lớn hơn hiển thị trước
+                return idB - idA;
+            });
+
+            products.forEach(function (product) {
+                productContainer.appendChild(product);
+            });
+        }
+
+        // Khi người dùng thay đổi lựa chọn
+        sortSelect.addEventListener("change", sortProducts);
+
+        // Áp dụng sắp xếp ngay khi mở trang
+        sortProducts();
+
+    });</script>

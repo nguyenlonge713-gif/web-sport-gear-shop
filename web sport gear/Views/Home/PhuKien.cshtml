@@ -212,6 +212,7 @@
             gap: 18px;
         }
     }
+
     /* Liên kết đến trang chi tiết sản phẩm */
     .product-detail-link {
         color: inherit;
@@ -230,12 +231,14 @@
 
 <!-- 1. HERO CAMPAIGN BANNER -->
 <div class="acc-hero-campaign">
+
     <img src="https://images.unsplash.com/photo-1637666544359-0e88de7b3206?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
          alt="Sports Accessories Campaign" />
 
     <div class="acc-hero-overlay"></div>
 
     <div class="acc-hero-content">
+
         <div class="acc-breadcrumb">
             Trang chủ / Phụ Kiện & Dụng Cụ
         </div>
@@ -247,74 +250,108 @@
         <p class="acc-hero-desc">
             Trang bị hoàn hảo từ bình nước, bóng thi đấu, túi xách đến dụng cụ tập luyện chuyên nghiệp chính hãng.
         </p>
+
     </div>
 </div>
 
 <!-- 2. THANH CHUYỂN NHANH DANH MỤC PHỤ -->
+
+@{
+    string selectedSubCategory = ViewBag.SelectedSubCategory as string;
+}
+
 <div class="sub-categories-bar">
-    <a href="#" class="sub-cat-card active">
+
+    <!-- TẤT CẢ PHỤ KIỆN -->
+    <a href="@Url.Action("PHUKIEN", "Product")"
+       class="sub-cat-card @(string.IsNullOrEmpty(selectedSubCategory) ? "active" : "")">
+
         <img src="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?w=400"
              alt="Tất cả phụ kiện" />
+
         <span>Tất cả phụ kiện</span>
     </a>
 
-    <a href="#" class="sub-cat-card">
-        <img src="https://images.unsplash.com/photo-1623285512357-ff3b9a7579ea?w=400"
-             alt="Trang Phục Thể Thao" />
-        <span>Trang Phục</span>
-    </a>
+    <!-- VỢT CẦU LÔNG -->
+    <a href="@Url.Action("PHUKIEN", "Product", new { subCategory = "Vợt Cầu Lông" })"
+       class="sub-cat-card @(selectedSubCategory == "Vợt Cầu Lông" ? "active" : "")">
 
-    <a href="#" class="sub-cat-card">
-        <img src="https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400"
-             alt="Bình Nước & Balo" />
-        <span>Bình Nước & Balo</span>
-    </a>
-
-    <a href="#" class="sub-cat-card">
         <img src="https://images.unsplash.com/photo-1687597778602-624a9438fe0b?w=400"
-             alt="Dụng Cụ Thi Đấu" />
-        <span>Dụng Cụ Thi Đấu</span>
+             alt="Vợt cầu lông" />
+
+        <span>Vợt Cầu Lông</span>
     </a>
+
+    <!-- BÓNG THỂ THAO -->
+    <a href="@Url.Action("PHUKIEN", "Product", new { subCategory = "Bóng Thể Thao" })"
+       class="sub-cat-card @(selectedSubCategory == "Bóng Thể Thao" ? "active" : "")">
+
+        <img src="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?w=400"
+             alt="Bóng thể thao" />
+
+        <span>Bóng Thể Thao</span>
+    </a>
+
+    <!-- GĂNG TAY -->
+    <a href="@Url.Action("PHUKIEN", "Product", new { subCategory = "Găng Tay" })"
+       class="sub-cat-card @(selectedSubCategory == "Găng Tay" ? "active" : "")">
+
+        <img src="https://images.unsplash.com/photo-1687597778602-624a9438fe0b?w=400"
+             alt="Găng tay" />
+
+        <span>Găng Tay</span>
+    </a>
+
 </div>
 
 <!-- 3. KHU VỰC HIỂN THỊ SẢN PHẨM -->
+
 <div class="acc-catalog-container">
 
     <div class="acc-toolbar">
+
         <span class="acc-count">
             Hiển thị <strong>@Model.Count()</strong> sản phẩm chính hãng
         </span>
 
         <div class="acc-sort">
             <select id="sortSelect">
-                <option>Sắp xếp: Mới nhất</option>
-                <option>Giá: Thấp đến cao</option>
-                <option>Giá: Cao xuống thấp</option>
+                <option value="newest">Sắp xếp: Mới nhất</option>
+                <option value="price-asc">Giá: Thấp đến cao</option>
+                <option value="price-desc">Giá: Cao xuống thấp</option>
             </select>
         </div>
+
     </div>
 
     <section class="featured-products">
+
         <div class="product-container product-grid">
 
             @foreach (var product in Model)
             {
-                <div class="product-item product-card">
+                <div class="product-item product-card"
+                     data-id="@product.ProductID"
+                     data-price="@product.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)">
 
                     <a href="@Url.Action("Details", "Home", new { id = product.ProductID })"
                        class="product-detail-link">
+
                         <img src="@product.ImageUrl"
                              alt="@product.ProductName"
                              class="product-img" />
+
                     </a>
 
                     <div class="product-info">
 
                         <h3 class="product-title">
+
                             <a href="@Url.Action("Details", "Home", new { id = product.ProductID })"
                                class="product-detail-link">
                                 @product.ProductName
                             </a>
+
                         </h3>
 
                         <p class="product-price">
@@ -363,5 +400,63 @@
             }
 
         </div>
+
     </section>
 </div>
+
+<!-- 4. JAVASCRIPT SẮP XẾP SẢN PHẨM -->
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const sortSelect = document.getElementById("sortSelect");
+
+        const productContainer = document.querySelector(
+            ".acc-catalog-container .product-grid"
+        );
+
+        if (!sortSelect || !productContainer) {
+            return;
+        }
+
+        function sortProducts() {
+
+            const products = Array.from(
+                productContainer.querySelectorAll(".product-item")
+            );
+
+            const sortType = sortSelect.value;
+
+            products.sort(function (a, b) {
+
+                const priceA = parseFloat(a.dataset.price) || 0;
+                const priceB = parseFloat(b.dataset.price) || 0;
+
+                const idA = parseInt(a.dataset.id) || 0;
+                const idB = parseInt(b.dataset.id) || 0;
+
+                if (sortType === "price-asc") {
+                    return priceA - priceB;
+                }
+
+                if (sortType === "price-desc") {
+                    return priceB - priceA;
+                }
+
+                // Mới nhất: ProductID lớn hơn hiển thị trước
+                return idB - idA;
+            });
+
+            products.forEach(function (product) {
+                productContainer.appendChild(product);
+            });
+        }
+
+        // Khi người dùng thay đổi lựa chọn
+        sortSelect.addEventListener("change", sortProducts);
+
+        // Sắp xếp ngay khi tải trang
+        sortProducts();
+
+    });
+</script>
