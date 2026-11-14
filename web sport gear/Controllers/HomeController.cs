@@ -5,7 +5,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Mvc;
-
+using web_sport_gear.Models;
 namespace web_sport_gear.Controllers
 {
     // Thông tin sản phẩm dùng cho chức năng tìm kiếm
@@ -24,25 +24,32 @@ namespace web_sport_gear.Controllers
         private readonly string connectionString =
             ConfigurationManager.ConnectionStrings["GearSportDB"].ConnectionString;
 
+
+
+
         // Trang chủ
         public ActionResult Index()
         {
             try
             {
-                ViewBag.ProductStocks = GetProductStocks();
+                // Lấy đầy đủ thông tin sản phẩm từ SQL Server
+                // Bao gồm tên, giá, hình ảnh và số lượng tồn kho
+                ViewBag.HomeProducts = GetHomeProducts();
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine(
-                    "Lỗi lấy tồn kho: " + ex.Message
+                    "Lỗi lấy dữ liệu trang chủ: " + ex.Message
                 );
 
-                // Không cho phép thêm hàng nếu không lấy được tồn kho
-                ViewBag.ProductStocks = new Dictionary<int, int>();
+                // Tránh lỗi khi không lấy được dữ liệu sản phẩm
+                ViewBag.HomeProducts = new List<Product>();
             }
 
             return View();
         }
+
+
 
         public ActionResult About()
         {
@@ -70,6 +77,59 @@ namespace web_sport_gear.Controllers
         {
             return View();
         }
+
+        // Lấy danh sách danh mục từ SQL Server để hiển thị trên menu
+        [ChildActionOnly]
+        public ActionResult MenuCategories()
+        {
+            List<web_sport_gear.Models.Category> categories =
+                new List<web_sport_gear.Models.Category>();
+
+            try
+            {
+                string query = @"
+            SELECT CategoryID, CategoryName
+            FROM dbo.Categories
+            ORDER BY CategoryID";
+
+                using (SqlConnection connection =
+                    new SqlConnection(connectionString))
+                using (SqlCommand command =
+                    new SqlCommand(query, connection))
+                {
+                    connection.Open();
+
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            categories.Add(
+                                new web_sport_gear.Models.Category
+                                {
+                                    CategoryID = Convert.ToInt32(
+                                        reader["CategoryID"]
+                                    ),
+
+                                    CategoryName = reader["CategoryName"].ToString()
+                                }
+                            );
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    "Lỗi lấy danh mục menu: " + ex.Message
+                );
+            }
+
+            return PartialView(
+                "~/Views/Shared/_MenuCategories.cshtml",
+                categories
+            );
+        }
+
 
         // Chuyển đến trang áo thể thao
         public ActionResult AoTheThao()
@@ -263,46 +323,85 @@ namespace web_sport_gear.Controllers
         }
 
         // Lấy số lượng tồn kho của các sản phẩm hiển thị trên trang chủ
-        private Dictionary<int, int> GetProductStocks()
-        {
-            var stocks = new Dictionary<int, int>();
 
-            int[] productIds = {
-                1, 18, 17, 15, 2, 9, 4, 5, 6, 16
-            };
+        // Lấy đầy đủ thông tin sản phẩm hiển thị trên trang chủ
+        private List<Product> GetHomeProducts()
+        {
+            List<Product> products = new List<Product>();
+
+            string sql = @"
+        SELECT
+            ProductID,
+            ProductName,
+            Price,
+            ImageUrl,
+            CategoryID,
+            Description,
+            IsActive,
+            StockQuantity,
+            SubCategory
+        FROM dbo.Products
+        WHERE ProductID IN (1, 18, 17, 15, 2, 9, 4, 5, 6, 16)
+            AND IsActive = 1
+        ORDER BY ProductID";
 
             using (SqlConnection connection =
                 new SqlConnection(connectionString))
+            using (SqlCommand command =
+                new SqlCommand(sql, connection))
             {
                 connection.Open();
 
-                string sql = @"
-                    SELECT ProductID, StockQuantity
-                    FROM dbo.Products
-                    WHERE ProductID IN (1, 18, 17, 15, 2, 9, 4, 5, 6, 16)
-                        AND IsActive = 1";
-
-                using (SqlCommand command =
-                    new SqlCommand(sql, connection))
                 using (SqlDataReader reader =
                     command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        int id = Convert.ToInt32(
-                            reader["ProductID"]
-                        );
+                        Product product = new Product
+                        {
+                            ProductID = Convert.ToInt32(
+                                reader["ProductID"]
+                            ),
 
-                        int stock = Convert.ToInt32(
-                            reader["StockQuantity"]
-                        );
+                            ProductName = reader["ProductName"].ToString(),
 
-                        stocks[id] = stock;
+                            Price = Convert.ToDecimal(
+                                reader["Price"]
+                            ),
+
+                            ImageUrl = reader["ImageUrl"] == DBNull.Value
+                                ? ""
+                                : reader["ImageUrl"].ToString(),
+
+                            CategoryID = Convert.ToInt32(
+                                reader["CategoryID"]
+                            ),
+
+                            Description = reader["Description"] == DBNull.Value
+                                ? ""
+                                : reader["Description"].ToString(),
+
+                            IsActive = Convert.ToBoolean(
+                                reader["IsActive"]
+                            ),
+
+                            StockQuantity = Convert.ToInt32(
+                                reader["StockQuantity"]
+                            ),
+
+                            SubCategory = reader["SubCategory"] == DBNull.Value
+                                ? ""
+                                : reader["SubCategory"].ToString()
+                        };
+
+                        products.Add(product);
                     }
                 }
             }
 
-            return stocks;
+            return products;
         }
+
+      
     }
 }

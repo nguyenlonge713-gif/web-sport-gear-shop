@@ -34,21 +34,76 @@ namespace web_sport_gear.Controllers
 
         // ================= HIỂN THỊ TRANG THANH TOÁN =================
 
+
         [HttpGet]
         public ActionResult Index()
         {
+            // Kiểm tra đăng nhập
             if (Session["UserID"] == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            var model = new CheckoutViewModel
+            // Lấy UserID từ Session
+            int userId;
+
+            if (!int.TryParse(Session["UserID"].ToString(), out userId) ||
+                userId <= 0)
             {
-                ReceiverName = Session["FullName"]?.ToString()
-            };
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Khởi tạo ViewModel
+            var model = new CheckoutViewModel();
+
+            // Lấy thông tin khách hàng từ database
+            string sql = @"
+        SELECT
+            FullName,
+            Phone,
+            Address
+        FROM dbo.Users
+        WHERE UserID = @UserID";
+
+            using (SqlConnection connection =
+                new SqlConnection(ConnectionString))
+            using (SqlCommand command =
+                new SqlCommand(sql, connection))
+            {
+                command.Parameters.Add(
+                    "@UserID",
+                    SqlDbType.Int
+                ).Value = userId;
+
+                connection.Open();
+
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    if (!reader.Read())
+                    {
+                        return RedirectToAction("Login", "Account");
+                    }
+
+                    model.ReceiverName =
+                        reader["FullName"] == DBNull.Value
+                            ? ""
+                            : reader["FullName"].ToString().Trim();
+
+                    model.ReceiverPhone =
+                        reader["Phone"] == DBNull.Value
+                            ? ""
+                            : reader["Phone"].ToString().Trim();
+
+                    model.ShippingAddress =
+                        reader["Address"] == DBNull.Value
+                            ? ""
+                            : reader["Address"].ToString().Trim();
+                }
+            }
 
             return View(model);
         }
+
 
         // ================= KIỂM TRA SỐ ĐIỆN THOẠI =================
 

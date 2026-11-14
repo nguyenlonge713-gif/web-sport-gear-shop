@@ -500,7 +500,7 @@
             </button>
         </form>
 
-        <!-- MENU DANH MỤC -->
+        <!-- MENU DANH MỤC LẤY TỪ SQL SERVER -->
         <nav class="main-menu">
             <ul>
                 <li>
@@ -509,23 +509,11 @@
                     </a>
                 </li>
 
-                <li>
-                    <a href="@Url.Action("AoTheThao", "Home", new { area = "" })">
-                        Áo Thể Thao
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("GiayDaBong", "Home", new { area = "" })">
-                        Giày Đá Bóng
-                    </a>
-                </li>
-
-                <li>
-                    <a href="@Url.Action("PhuKien", "Home", new { area = "" })">
-                        Phụ Kiện
-                    </a>
-                </li>
+                @Html.Action(
+                         "MenuCategories",
+                         "Home",
+                         new { area = "" }
+                     )
             </ul>
         </nav>
 

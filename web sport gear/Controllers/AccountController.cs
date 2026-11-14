@@ -1092,6 +1092,7 @@ namespace web_sport_gear.Controllers
             }
         }
 
+
         // POST: Account/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1102,23 +1103,34 @@ namespace web_sport_gear.Controllers
             string Password,
             string ConfirmPassword)
         {
+            // 1. Chuan hoa du lieu
             FullName = (FullName ?? "").Trim();
-            Email = (Email ?? "").Trim();
+            Email = (Email ?? "").Trim().ToLowerInvariant();
             Phone = (Phone ?? "").Trim();
 
+            // 2. Kiem tra ho va ten
             if (string.IsNullOrWhiteSpace(FullName))
             {
                 ModelState.AddModelError(
                     "FullName",
                     "Vui long nhap ho va ten.");
             }
-            else if (FullName.Length > 100)
+            else if (FullName.Length < 2 || FullName.Length > 100)
             {
                 ModelState.AddModelError(
                     "FullName",
-                    "Ho va ten khong duoc vuot qua 100 ky tu.");
+                    "Ho va ten phai co tu 2 den 100 ky tu.");
+            }
+            else if (!Regex.IsMatch(
+                FullName,
+                @"^[\p{L}]+(?:[ '-][\p{L}]+)*$"))
+            {
+                ModelState.AddModelError(
+                    "FullName",
+                    "Ho va ten chi duoc chua chu cai, dau cach hoac dau gach noi.");
             }
 
+            // 3. Kiem tra Email
             if (string.IsNullOrWhiteSpace(Email))
             {
                 ModelState.AddModelError(
@@ -1135,6 +1147,7 @@ namespace web_sport_gear.Controllers
                     "Email khong hop le.");
             }
 
+            // 4. Kiem tra so dien thoai
             string phoneError = GetPhoneValidationError(Phone);
 
             if (phoneError != null)
@@ -1142,20 +1155,59 @@ namespace web_sport_gear.Controllers
                 ModelState.AddModelError("Phone", phoneError);
             }
 
-            if (string.IsNullOrEmpty(Password) || Password.Length < 8)
+            // 5. Kiem tra mat khau
+            if (string.IsNullOrEmpty(Password))
             {
                 ModelState.AddModelError(
                     "Password",
-                    "Mat khau phai co it nhat 8 ky tu.");
+                    "Vui long nhap mat khau.");
+            }
+            else
+            {
+                if (Password.Length < 8 || Password.Length > 128)
+                {
+                    ModelState.AddModelError(
+                        "Password",
+                        "Mat khau phai co tu 8 den 128 ky tu.");
+                }
+
+                if (!Regex.IsMatch(Password, @"[A-Z]"))
+                {
+                    ModelState.AddModelError(
+                        "Password",
+                        "Mat khau phai co it nhat mot chu cai viet hoa.");
+                }
+
+                if (!Regex.IsMatch(Password, @"[0-9]"))
+                {
+                    ModelState.AddModelError(
+                        "Password",
+                        "Mat khau phai co it nhat mot chu so.");
+                }
+
+                if (!Regex.IsMatch(Password, @"[^A-Za-z0-9\s]"))
+                {
+                    ModelState.AddModelError(
+                        "Password",
+                        "Mat khau phai co it nhat mot ky tu dac biet.");
+                }
             }
 
-            if (Password != ConfirmPassword)
+            // 6. Kiem tra xac nhan mat khau
+            if (string.IsNullOrEmpty(ConfirmPassword))
+            {
+                ModelState.AddModelError(
+                    "ConfirmPassword",
+                    "Vui long nhap lai mat khau.");
+            }
+            else if (Password != ConfirmPassword)
             {
                 ModelState.AddModelError(
                     "ConfirmPassword",
                     "Mat khau xac nhan khong khop.");
             }
 
+            // 7. Neu du lieu khong hop le thi quay lai form
             if (!ModelState.IsValid)
             {
                 return View();
@@ -1168,11 +1220,11 @@ namespace web_sport_gear.Controllers
                 {
                     connection.Open();
 
-                    // Kiem tra email da ton tai
+                    // 8. Kiem tra email da ton tai
                     string checkEmailSql = @"
-                        SELECT COUNT(1)
-                        FROM dbo.Users
-                        WHERE Email = @Email;";
+                SELECT COUNT(1)
+                FROM dbo.Users
+                WHERE Email = @Email;";
 
                     using (SqlCommand command =
                         new SqlCommand(checkEmailSql, connection))
@@ -1180,7 +1232,7 @@ namespace web_sport_gear.Controllers
                         command.Parameters.AddWithValue("@Email", Email);
 
                         int emailExists =
-                            (int)command.ExecuteScalar();
+                            Convert.ToInt32(command.ExecuteScalar());
 
                         if (emailExists > 0)
                         {
@@ -1192,11 +1244,11 @@ namespace web_sport_gear.Controllers
                         }
                     }
 
-                    // Kiem tra so dien thoai da ton tai
+                    // 9. Kiem tra so dien thoai da ton tai
                     string checkPhoneSql = @"
-                        SELECT COUNT(1)
-                        FROM dbo.Users
-                        WHERE Phone = @Phone;";
+                SELECT COUNT(1)
+                FROM dbo.Users
+                WHERE Phone = @Phone;";
 
                     using (SqlCommand command =
                         new SqlCommand(checkPhoneSql, connection))
@@ -1204,27 +1256,27 @@ namespace web_sport_gear.Controllers
                         command.Parameters.AddWithValue("@Phone", Phone);
 
                         int phoneExists =
-                            (int)command.ExecuteScalar();
+                            Convert.ToInt32(command.ExecuteScalar());
 
                         if (phoneExists > 0)
                         {
                             ModelState.AddModelError(
                                 "Phone",
-                                "Số điện thoại này đã được đăng ký.");
+                                "So dien thoai nay da duoc dang ky.");
 
                             return View();
                         }
                     }
 
-                    string passwordHash =
-                        Crypto.HashPassword(Password);
+                    // 10. Ma hoa mat khau
+                    string passwordHash = Crypto.HashPassword(Password);
 
-                    // Tai khoan dang ky moi luon co quyen Customer
+                    // 11. Them tai khoan moi voi quyen Customer
                     string insertSql = @"
-                        INSERT INTO dbo.Users
-                            (FullName, Email, Phone, PasswordHash, Role)
-                        VALUES
-                            (@FullName, @Email, @Phone, @PasswordHash, N'Customer');";
+                INSERT INTO dbo.Users
+                    (FullName, Email, Phone, PasswordHash, Role)
+                VALUES
+                    (@FullName, @Email, @Phone, @PasswordHash, N'Customer');";
 
                     using (SqlCommand command =
                         new SqlCommand(insertSql, connection))
@@ -1232,7 +1284,9 @@ namespace web_sport_gear.Controllers
                         command.Parameters.AddWithValue("@FullName", FullName);
                         command.Parameters.AddWithValue("@Email", Email);
                         command.Parameters.AddWithValue("@Phone", Phone);
-                        command.Parameters.AddWithValue("@PasswordHash", passwordHash);
+                        command.Parameters.AddWithValue(
+                            "@PasswordHash",
+                            passwordHash);
 
                         command.ExecuteNonQuery();
                     }
@@ -1277,6 +1331,7 @@ namespace web_sport_gear.Controllers
                 return View();
             }
         }
+
 
         // POST: Account/Logout
         [HttpPost]

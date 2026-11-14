@@ -22,17 +22,27 @@
     </table>
 
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; border-top:2px solid #ddd; padding-top:20px;">
+
         <h3 style="font-size:20px; margin:0;">
             Tổng thanh toán:
             <span id="cart-total" style="color:#ff4500;">0 đ</span>
         </h3>
 
-        <a href="@Url.Action("Index", "Checkout")"
-           id="checkout-btn"
-           class="btn"
-           style="text-decoration:none; padding:12px 25px; font-size:16px; background-color:#ff9800; color:white; border-radius:6px; font-weight:bold; display:inline-block; cursor:pointer;">
-            Tiến Hành Thanh Toán
-        </a>
+        <div style="display:flex; align-items:center; flex-wrap:wrap; gap:12px;">
+
+            <a href="@Url.Action("Index", "Home")"
+               style="text-decoration: none; padding: 12px 20px; font-size: 16px; background-color: #ff4500; color: white; border-radius: 6px; font-weight: bold; display: inline-block;">
+                ← Tiếp Tục Mua Hàng
+            </a>
+
+            <a href="@Url.Action("Index", "Checkout")"
+               id="checkout-btn"
+               class="btn"
+               style="text-decoration:none; padding:12px 25px; font-size:16px; background-color:#ff9800; color:white; border-radius:6px; font-weight:bold; display:inline-block; cursor:pointer;">
+                Tiến Hành Thanh Toán
+            </a>
+
+        </div>
     </div>
 </div>
 
@@ -121,9 +131,7 @@
             checkoutBtn.style.cursor = "pointer";
             checkoutBtn.setAttribute("aria-disabled", "false");
         } else {
-            checkoutBtn.style.display = "inline-block";
-            checkoutBtn.style.backgroundColor = "#999";
-            checkoutBtn.style.cursor = "not-allowed";
+            checkoutBtn.style.display = "none";
             checkoutBtn.setAttribute("aria-disabled", "true");
         }
     }
@@ -303,4 +311,4 @@
         localStorage.setItem("cart", JSON.stringify(cart));
         renderCart();
     }
-</script>
+</script> 

@@ -1,0 +1,36 @@
+﻿@model IEnumerable<web_sport_gear.Models.Category>
+
+@foreach (var category in Model)
+{
+    string actionName = "";
+
+    switch (category.CategoryID)
+    {
+        case 1:
+            actionName = "AOTHETHAO";
+            break;
+
+        case 2:
+            actionName = "PHUKIEN";
+            break;
+
+        case 3:
+            actionName = "GiayDaBong";
+            break;
+    }
+
+    <li>
+        @if (!string.IsNullOrEmpty(actionName))
+        {
+            <a href="@Url.Action(actionName, "Product", new { area = "" })">
+                @category.CategoryName
+            </a>
+        }
+        else
+        {
+            <span style="color: #334155; font-weight: 700; font-size: 13px;">
+                @category.CategoryName
+            </span>
+        }
+    </li>
+}

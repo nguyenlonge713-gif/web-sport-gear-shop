@@ -1,4 +1,5 @@
-﻿@{
+﻿
+@{
     ViewBag.Title = "Đăng ký - Gear Sport";
     Layout = null;
 }
@@ -17,13 +18,6 @@
           rel="stylesheet" />
 
     <style>
-        .register-card .phone-validation {
-            display: block;
-            color: #d93025;
-            font-size: 13px;
-            margin-top: 6px;
-            line-height: 1.5;
-        }
         .register-card {
             width: 100%;
             max-width: 480px;
@@ -88,6 +82,56 @@
 
                 .register-card .validation-summary-errors ul {
                     padding-left: 20px;
+                }
+
+            .register-card .phone-validation {
+                display: block;
+                color: #d93025;
+                font-size: 13px;
+                margin-top: 6px;
+                line-height: 1.5;
+            }
+
+            .register-card .field-validation-error {
+                display: block;
+                color: #d93025;
+                font-size: 13px;
+                margin-top: 6px;
+            }
+
+            .register-card .input-hint {
+                display: block;
+                color: #777;
+                font-size: 12px;
+                margin-top: 7px;
+                line-height: 1.6;
+            }
+
+            .register-card .password-rules {
+                list-style: none;
+                padding: 0;
+                margin: 8px 0 0;
+                font-size: 12px;
+                line-height: 1.8;
+                color: #777;
+            }
+
+                .register-card .password-rules li {
+                    display: flex;
+                    align-items: center;
+                    gap: 7px;
+                }
+
+                    .register-card .password-rules li.valid {
+                        color: #188038;
+                    }
+
+                    .register-card .password-rules li.invalid {
+                        color: #d93025;
+                    }
+
+                .register-card .password-rules i {
+                    width: 13px;
                 }
 
             .register-card .login-text {
@@ -197,10 +241,11 @@
                     @Html.AntiForgeryToken()
 
                     @Html.ValidationSummary(
-                        false,
-                        "",
-                        new { @class = "validation-summary-errors" })
+                             false,
+                             "",
+                             new { @class = "validation-summary-errors" })
 
+                    <!-- HỌ VÀ TÊN -->
                     <div class="form-group">
                         <label for="FullName">Họ và tên</label>
 
@@ -210,13 +255,18 @@
                             <input type="text"
                                    id="FullName"
                                    name="FullName"
+                                   value="@Request.Form["FullName"]"
                                    placeholder="Nhập họ và tên"
+                                   minlength="2"
                                    maxlength="100"
+                                   pattern="[A-Za-zÀ-ỹĐđ]+([ '-][A-Za-zÀ-ỹĐđ]+)*"
+                                   title="Họ và tên chỉ được chứa chữ cái, tối thiểu 2 ký tự , tối đa 100 ký tự , dấu cách hoặc dấu gạch nối."
                                    autocomplete="name"
                                    required />
                         </div>
                     </div>
 
+                    <!-- EMAIL -->
                     <div class="form-group">
                         <label for="Email">Email</label>
 
@@ -226,6 +276,7 @@
                             <input type="email"
                                    id="Email"
                                    name="Email"
+                                   value="@Request.Form["Email"]"
                                    placeholder="example@email.com"
                                    maxlength="255"
                                    autocomplete="email"
@@ -233,6 +284,7 @@
                         </div>
                     </div>
 
+                    <!-- SỐ ĐIỆN THOẠI -->
                     <div class="form-group">
                         <label for="Phone">Số điện thoại</label>
 
@@ -244,18 +296,25 @@
                                    name="Phone"
                                    value="@Request.Form["Phone"]"
                                    placeholder="Nhập số điện thoại"
+                                   minlength="10"
                                    maxlength="10"
+                                   pattern="[0-9]{10}"
                                    inputmode="numeric"
                                    autocomplete="tel"
                                    required />
                         </div>
 
+                        <small class="input-hint">
+                            Số điện thoại phải gồm chính xác 10 chữ số.
+                        </small>
+
                         @Html.ValidationMessage(
-                            "Phone",
-                            "",
-                            new { @class = "text-danger phone-validation" })
+                                 "Phone",
+                                 "",
+                                 new { @class = "phone-validation" })
                     </div>
 
+                    <!-- MẬT KHẨU -->
                     <div class="form-group">
                         <label for="Password">Mật khẩu</label>
 
@@ -265,7 +324,7 @@
                             <input type="password"
                                    id="Password"
                                    name="Password"
-                                   placeholder="Tối thiểu 8 ký tự"
+                                   placeholder="Nhập mật khẩu"
                                    minlength="8"
                                    maxlength="128"
                                    autocomplete="new-password"
@@ -278,8 +337,35 @@
                                 <i class="fa-regular fa-eye-slash"></i>
                             </button>
                         </div>
+
+                        <small class="input-hint">
+                            Mật khẩu phải có từ 8 đến 128 ký tự và đáp ứng đủ các điều kiện:
+                        </small>
+
+                        <ul class="password-rules">
+                            <li id="rule-length" class="invalid">
+                                <i class="fa-solid fa-circle-xmark"></i>
+                                Từ 8 đến 128 ký tự
+                            </li>
+
+                            <li id="rule-uppercase" class="invalid">
+                                <i class="fa-solid fa-circle-xmark"></i>
+                                Ít nhất một chữ cái viết hoa (A-Z)
+                            </li>
+
+                            <li id="rule-number" class="invalid">
+                                <i class="fa-solid fa-circle-xmark"></i>
+                                Ít nhất một chữ số (0-9)
+                            </li>
+
+                            <li id="rule-special" class="invalid">
+                                <i class="fa-solid fa-circle-xmark"></i>
+                                Ít nhất một ký tự đặc biệt
+                            </li>
+                        </ul>
                     </div>
 
+                    <!-- XÁC NHẬN MẬT KHẨU -->
                     <div class="form-group">
                         <label for="ConfirmPassword">
                             Xác nhận mật khẩu
@@ -337,7 +423,7 @@
     </main>
 
     <script>
-        // Hiện hoặc ẩn mật khẩu
+        // Hiện hoặc ẩn mật khẩu.
         document.querySelectorAll(".toggle-password")
             .forEach(function (button) {
                 button.addEventListener("click", function () {
@@ -346,6 +432,7 @@
                     );
 
                     const showPassword = input.type === "password";
+
                     input.type = showPassword ? "text" : "password";
 
                     this.innerHTML = showPassword
@@ -359,12 +446,68 @@
                 });
             });
 
-        // Kiểm tra hai mật khẩu ở phía trình duyệt
+        // Lấy các phần tử của biểu mẫu.
         const registerForm = document.getElementById("registerForm");
+
+        const fullNameInput = document.getElementById("FullName");
+        const emailInput = document.getElementById("Email");
+        const phoneInput = document.getElementById("Phone");
         const passwordInput = document.getElementById("Password");
         const confirmInput = document.getElementById("ConfirmPassword");
-        const registerMessage = document.getElementById("registerMessage");
 
+        // Cập nhật trạng thái từng điều kiện mật khẩu.
+        function updatePasswordRule(elementId, valid) {
+            const element = document.getElementById(elementId);
+
+            element.classList.toggle("valid", valid);
+            element.classList.toggle("invalid", !valid);
+
+            element.querySelector("i").className = valid
+                ? "fa-solid fa-circle-check"
+                : "fa-solid fa-circle-xmark";
+        }
+
+        // Kiểm tra mật khẩu.
+        function checkPassword() {
+            const password = passwordInput.value;
+
+            const validLength =
+                password.length >= 8 && password.length <= 128;
+
+            const hasUppercase = /[A-Z]/.test(password);
+
+            const hasNumber = /[0-9]/.test(password);
+
+            const hasSpecialChar =
+                /[^A-Za-z0-9\s]/.test(password);
+
+            updatePasswordRule("rule-length", validLength);
+            updatePasswordRule("rule-uppercase", hasUppercase);
+            updatePasswordRule("rule-number", hasNumber);
+            updatePasswordRule("rule-special", hasSpecialChar);
+
+            if (!validLength) {
+                passwordInput.setCustomValidity(
+                    "Mật khẩu phải có từ 8 đến 128 ký tự."
+                );
+            } else if (!hasUppercase) {
+                passwordInput.setCustomValidity(
+                    "Mật khẩu phải có ít nhất một chữ cái viết hoa."
+                );
+            } else if (!hasNumber) {
+                passwordInput.setCustomValidity(
+                    "Mật khẩu phải có ít nhất một chữ số."
+                );
+            } else if (!hasSpecialChar) {
+                passwordInput.setCustomValidity(
+                    "Mật khẩu phải có ít nhất một ký tự đặc biệt."
+                );
+            } else {
+                passwordInput.setCustomValidity("");
+            }
+        }
+
+        // Kiểm tra hai mật khẩu có trùng nhau không.
         function checkPasswordMatch() {
             if (confirmInput.value === "") {
                 confirmInput.setCustomValidity("");
@@ -380,12 +523,20 @@
             }
         }
 
-        passwordInput.addEventListener("input", checkPasswordMatch);
+        // Kiểm tra lại khi người dùng nhập mật khẩu.
+        passwordInput.addEventListener("input", function () {
+            checkPassword();
+            checkPasswordMatch();
+        });
+
         confirmInput.addEventListener("input", checkPasswordMatch);
 
-        // Form sẽ gửi POST đến AccountController.
-        // Server chịu trách nhiệm kiểm tra và tạo tài khoản.
+        // Khi sửa mật khẩu chính, kiểm tra lại mật khẩu xác nhận.
+        passwordInput.addEventListener("change", checkPasswordMatch);
+
+        // Kiểm tra dữ liệu trước khi gửi biểu mẫu.
         registerForm.addEventListener("submit", function (event) {
+            checkPassword();
             checkPasswordMatch();
 
             if (!registerForm.checkValidity()) {
@@ -393,8 +544,6 @@
                 registerForm.reportValidity();
                 return;
             }
-
-            registerMessage.hidden = true;
         });
     </script>
 </body>

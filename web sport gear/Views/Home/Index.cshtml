@@ -1,12 +1,67 @@
-﻿@{
+﻿
+@using System
+@using System.Collections.Generic
+@using System.Linq
+@using System.Globalization
+@using web_sport_gear.Models
+
+@{
     ViewBag.Title = "Trang Chủ - Gear Sport";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    var productStocks = ViewBag.ProductStocks as Dictionary<int, int>
-                        ?? new Dictionary<int, int>();
-    var activeProductIds = new HashSet<int>(productStocks.Keys);
-    Func<int, int> GetStock = id =>
-productStocks.ContainsKey(id) ? productStocks[id] : 0;
+    // Danh sách sản phẩm lấy từ HomeController
+    var homeProducts = ViewBag.HomeProducts as List<Product>
+                       ?? new List<Product>();
+
+    // Thứ tự sản phẩm tại từng khu vực
+    int[] winterProductIds = { 1, 18, 17, 15, 2 };
+    int[] trendingProductIds = { 9, 4, 5, 6, 16 };
+
+    // Thương hiệu hiện tại của từng sản phẩm
+    var productBrands = new Dictionary<int, string>
+{
+        { 1, "NIKE" },
+        { 18, "ADIDAS" },
+        { 17, "PUMA" },
+        { 15, "ASICS" },
+        { 2, "GEAR SPORT" },
+        { 9, "ADIDAS" },
+        { 4, "GEAR SPORT" },
+        { 5, "MOLTEN" },
+        { 6, "PRO GOAL" },
+        { 16, "NIKE" }
+    };
+
+    // Nhãn khuyến mãi hiện tại
+    var productBadges = new Dictionary<int, string>
+{
+        { 1, "-20%" },
+        { 18, "-15%" },
+        { 17, "-25%" },
+        { 2, "-10%" }
+    };
+
+    var newProductIds = new HashSet<int> { 1, 15 };
+
+    // Lấy sản phẩm theo ID
+    Func<int, Product> FindProduct = id =>
+        homeProducts.FirstOrDefault(p => p.ProductID == id);
+
+    // Lấy thương hiệu
+    Func<int, string> GetBrand = id =>
+        productBrands.ContainsKey(id)
+            ? productBrands[id]
+            : "GEAR SPORT";
+
+    // Lấy nhãn giảm giá
+    Func<int, string> GetBadge = id =>
+        productBadges.ContainsKey(id)
+            ? productBadges[id]
+            : "";
+
+    // Định dạng giá tiền
+    Func<decimal, string> FormatPrice = price =>
+        price.ToString("N0", CultureInfo.GetCultureInfo("vi-VN"));
 }
 
 <style>
@@ -284,7 +339,6 @@ productStocks.ContainsKey(id) ? productStocks[id] : 0;
         margin-bottom: 10px;
     }
 
-    /* Hiển thị tồn kho */
     .mini-stock {
         display: block;
         font-size: 12px;
@@ -434,13 +488,18 @@ productStocks.ContainsKey(id) ? productStocks[id] : 0;
     }
 
     @@media (max-width: 1024px) {
-        .product-grid-5, .sports-categories-grid, .sub-banners-grid {
+        .product-grid-5,
+        .sports-categories-grid,
+        .sub-banners-grid {
             grid-template-columns: repeat(3, 1fr);
         }
     }
 
     @@media (max-width: 640px) {
-        .product-grid-5, .sports-categories-grid, .sub-banners-grid, .news-promo-container {
+        .product-grid-5,
+        .sports-categories-grid,
+        .sub-banners-grid,
+        .news-promo-container {
             grid-template-columns: 1fr;
         }
     }
@@ -464,14 +523,16 @@ productStocks.ContainsKey(id) ? productStocks[id] : 0;
 <!-- 2. MAIN HERO BANNER -->
 <div class="hero-banner-wrapper">
     <div class="main-hero-banner">
-        <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=1600&auto=format&fit=crop" alt="NEW OUTFIT - NEW SEASON" />
+        <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=1600&auto=format&fit=crop"
+             alt="NEW OUTFIT - NEW SEASON" />
     </div>
 </div>
 
 <!-- 3. BỘ 3 BANNER PHỤ -->
 <div class="sub-banners-grid">
     <a href="@Url.Action("AoTheThao", "Home")" class="sub-banner-card">
-        <img src="https://images.unsplash.com/photo-1633655442432-620aa55d7ac1?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" alt="Thời trang Nam" />
+        <img src="https://images.unsplash.com/photo-1633655442432-620aa55d7ac1?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+             alt="Thời trang Nam" />
         <div class="sub-banner-content">
             <div>
                 <h3 class="sub-banner-title">Thời trang Nam</h3>
@@ -482,7 +543,8 @@ productStocks.ContainsKey(id) ? productStocks[id] : 0;
     </a>
 
     <a href="@Url.Action("GiayDaBong", "Home")" class="sub-banner-card">
-        <img src="https://plus.unsplash.com/premium_photo-1682435561654-20d84cef00eb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" alt="BST Giày thể thao" />
+        <img src="https://plus.unsplash.com/premium_photo-1682435561654-20d84cef00eb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+             alt="BST Giày thể thao" />
         <div class="sub-banner-content">
             <div>
                 <h3 class="sub-banner-title">BST Giày thể thao</h3>
@@ -493,7 +555,8 @@ productStocks.ContainsKey(id) ? productStocks[id] : 0;
     </a>
 
     <a href="@Url.Action("PhuKien", "Home")" class="sub-banner-card">
-        <img src="https://plus.unsplash.com/premium_photo-1664536967999-f75d4f4b95fb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D" alt="Giá mới mùa mới" />
+        <img src="https://plus.unsplash.com/premium_photo-1664536967999-f75d4f4b95fb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+             alt="Giá mới mùa mới" />
         <div class="sub-banner-content">
             <div>
                 <h3 class="sub-banner-title">Giá mới mùa mới</h3>
@@ -504,7 +567,7 @@ productStocks.ContainsKey(id) ? productStocks[id] : 0;
     </a>
 </div>
 
-<!-- KHỐI 4: HELLO WINTER -->
+<!-- 4. HELLO WINTER -->
 <section class="home-section" id="helloWinterSection">
     <h2 class="section-header-title">HELLO WINTER ❄️</h2>
 
@@ -516,187 +579,109 @@ productStocks.ContainsKey(id) ? productStocks[id] : 0;
 
     <div class="product-grid-5" id="winterProductGrid">
 
-        <!-- Sản phẩm ID 1 -->
-        @if (activeProductIds.Contains(1))
+        @foreach (var id in winterProductIds)
         {
-            <div class="product-card-mini" data-product-id="1">
-                <span class="badge-tag">-20%</span>
-                <span class="badge-tag new">NEW</span>
-                <a href="@Url.Action("Details", "Home", new { id = 1 })">
-                    <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff" alt="Nike" />
-                </a>
-                <div>
-                    <span class="mini-brand">NIKE</span>
-                    <a href="@Url.Action("Details", "Home", new { id = 1 })">
-                        <h3 class="mini-title">Giày Tennis/Pickleball Nike Zoom Vapor 12</h3>
+            var product = FindProduct(id);
+
+            if (product != null)
+            {
+                <div class="product-card-mini" data-product-id="@product.ProductID">
+
+                    @if (!string.IsNullOrEmpty(GetBadge(id)))
+                    {
+                        <span class="badge-tag">@GetBadge(id)</span>
+                    }
+
+                    @if (newProductIds.Contains(id))
+                    {
+                        <span class="badge-tag new">NEW</span>
+                    }
+
+                    <a href="@Url.Action("Details", "Home", new { id = product.ProductID })">
+                        <img src="@product.ImageUrl"
+                             alt="@product.ProductName" />
                     </a>
-                    <span class="mini-price">1.500.000 đ</span>
-                    <span class="mini-stock @(GetStock(1) <= 0 ? "out-of-stock" : "")">
-                        @(GetStock(1) > 0 ? "Còn " + GetStock(1) + " sản phẩm" : "Hết hàng")
-                    </span>
+
+                    <div>
+                        <span class="mini-brand">@GetBrand(id)</span>
+
+                        <a href="@Url.Action("Details", "Home", new { id = product.ProductID })">
+                            <h3 class="mini-title">@product.ProductName</h3>
+                        </a>
+
+                        <span class="mini-price">
+                            @FormatPrice(product.Price) đ
+                        </span>
+
+                        <span class="mini-stock @(product.StockQuantity <= 0 ? "out-of-stock" : "")">
+                            @(product.StockQuantity > 0
+                                ? "Còn " + product.StockQuantity + " sản phẩm"
+                                : "Hết hàng")
+                        </span>
+                    </div>
+
+                    <button class="btn add-to-cart-btn"
+                            data-id="@product.ProductID"
+                            data-name="@product.ProductName"
+                            data-image="@product.ImageUrl"
+                            data-price="@product.Price.ToString("0.##", CultureInfo.InvariantCulture)"
+                            data-stock="@product.StockQuantity"
+                            @(product.StockQuantity <= 0 ? "disabled" : "")>
+                        @(product.StockQuantity > 0 ? "Thêm vào giỏ" : "Hết hàng")
+                    </button>
                 </div>
-                <button class="btn add-to-cart-btn"
-                        data-id="1"
-                        data-name="Giày Tennis/Pickleball Nike Zoom Vapor 12"
-                        data-image="https://images.unsplash.com/photo-1542291026-7eec264c27ff"
-                        data-price="1500000"
-                        data-stock="@GetStock(1)"
-                        @(GetStock(1) <= 0 ? "disabled" : "")>
-                    @(GetStock(1) > 0 ? "Thêm vào giỏ" : "Hết hàng")
-                </button>
-            </div>
+            }
         }
 
-        <!-- Sản phẩm ID 18 -->
-        @if (activeProductIds.Contains(18))
+        @if (!winterProductIds.Any(id => homeProducts.Any(p => p.ProductID == id)))
         {
-            <div class="product-card-mini" data-product-id="18">
-                <span class="badge-tag">-15%</span>
-                <a href="@Url.Action("Details", "Home", new { id = 18 })">
-                    <img src="https://images.unsplash.com/photo-1562183241-b937e95585b6?w=500" alt="Adidas" />
-                </a>
-                <div>
-                    <span class="mini-brand">ADIDAS</span>
-                    <a href="@Url.Action("Details", "Home", new { id = 18 })">
-                        <h3 class="mini-title">Giày Chạy Bộ Nam Adidas Supernova</h3>
-                    </a>
-                    <span class="mini-price">1.350.000 đ</span>
-                    <span class="mini-stock @(GetStock(18) <= 0 ? "out-of-stock" : "")">
-                        @(GetStock(18) > 0 ? "Còn " + GetStock(18) + " sản phẩm" : "Hết hàng")
-                    </span>
-                </div>
-                <button class="btn add-to-cart-btn"
-                        data-id="18"
-                        data-name="Giày Chạy Bộ Nam Adidas Supernova"
-                        data-image="https://images.unsplash.com/photo-1562183241-b937e95585b6?w=500"
-                        data-price="1350000"
-                        data-stock="@GetStock(18)"
-                        @(GetStock(18) <= 0 ? "disabled" : "")>
-                    @(GetStock(18) > 0 ? "Thêm vào giỏ" : "Hết hàng")
-                </button>
-            </div>
-        }
-
-        <!-- Sản phẩm ID 17 -->
-        @if (activeProductIds.Contains(17))
-        {
-            <div class="product-card-mini" data-product-id="17">
-                <span class="badge-tag">-25%</span>
-                <a href="@Url.Action("Details", "Home", new { id = 17 })">
-                    <img src="https://images.unsplash.com/photo-1511886929837-354d827aae26?q=80&w=764" alt="Puma" />
-                </a>
-                <div>
-                    <span class="mini-brand">PUMA</span>
-                    <a href="@Url.Action("Details", "Home", new { id = 17 })">
-                        <h3 class="mini-title">Giày Đá Banh Sân Cỏ Nhân Tạo Pro</h3>
-                    </a>
-                    <span class="mini-price">890.000 đ</span>
-                    <span class="mini-stock @(GetStock(17) <= 0 ? "out-of-stock" : "")">
-                        @(GetStock(17) > 0 ? "Còn " + GetStock(17) + " sản phẩm" : "Hết hàng")
-                    </span>
-                </div>
-                <button class="btn add-to-cart-btn"
-                        data-id="17"
-                        data-name="Giày Đá Banh Sân Cỏ Nhân Tạo Pro"
-                        data-image="https://images.unsplash.com/photo-1511886929837-354d827aae26?q=80&w=764"
-                        data-price="890000"
-                        data-stock="@GetStock(17)"
-                        @(GetStock(17) <= 0 ? "disabled" : "")>
-                    @(GetStock(17) > 0 ? "Thêm vào giỏ" : "Hết hàng")
-                </button>
-            </div>
-        }
-        <!-- Sản phẩm ID 15 -->
-        @if (activeProductIds.Contains(15))
-        {
-            <div class="product-card-mini" data-product-id="15">
-                <span class="badge-tag new">NEW</span>
-                <a href="@Url.Action("Details", "Home", new { id = 15 })">
-                    <img src="https://images.unsplash.com/photo-1579338559194-a162d19bf842" alt="Asics" />
-                </a>
-                <div>
-                    <span class="mini-brand">ASICS</span>
-                    <a href="@Url.Action("Details", "Home", new { id = 15 })">
-                        <h3 class="mini-title">Giày Thể Thao Nam Asics Court FF 3</h3>
-                    </a>
-                    <span class="mini-price">1.650.000 đ</span>
-                    <span class="mini-stock @(GetStock(15) <= 0 ? "out-of-stock" : "")">
-                        @(GetStock(15) > 0 ? "Còn " + GetStock(15) + " sản phẩm" : "Hết hàng")
-                    </span>
-                </div>
-                <button class="btn add-to-cart-btn"
-                        data-id="15"
-                        data-name="Giày Thể Thao Nam Asics Court FF 3"
-                        data-image="https://images.unsplash.com/photo-1579338559194-a162d19bf842"
-                        data-price="1650000"
-                        data-stock="@GetStock(15)"
-                        @(GetStock(15) <= 0 ? "disabled" : "")>
-                    @(GetStock(15) > 0 ? "Thêm vào giỏ" : "Hết hàng")
-                </button>
-            </div>
-        }
-
-        <!-- Sản phẩm ID 2 -->
-        @if (activeProductIds.Contains(2))
-        {
-            <div class="product-card-mini" data-product-id="2">
-                <span class="badge-tag">-10%</span>
-                <a href="@Url.Action("Details", "Home", new { id = 2 })">
-                    <img src="https://images.unsplash.com/photo-1581655353564-df123a1eb820" alt="Nike" />
-                </a>
-                <div>
-                    <span class="mini-brand">GEAR SPORT</span>
-                    <a href="@Url.Action("Details", "Home", new { id = 2 })">
-                        <h3 class="mini-title">Áo Thun Thể Thao Nam Dry-Fit</h3>
-                    </a>
-                    <span class="mini-price">350.000 đ</span>
-                    <span class="mini-stock @(GetStock(2) <= 0 ? "out-of-stock" : "")">
-                        @(GetStock(2) > 0 ? "Còn " + GetStock(2) + " sản phẩm" : "Hết hàng")
-                    </span>
-                </div>
-                <button class="btn add-to-cart-btn"
-                        data-id="2"
-                        data-name="Áo Thun Thể Thao Nam Dry-Fit"
-                        data-image="https://images.unsplash.com/photo-1581655353564-df123a1eb820"
-                        data-price="350000"
-                        data-stock="@GetStock(2)"
-                        @(GetStock(2) <= 0 ? "disabled" : "")>
-                    @(GetStock(2) > 0 ? "Thêm vào giỏ" : "Hết hàng")
-                </button>
-            </div>
+            <p style="grid-column:1/-1;text-align:center;padding:20px;">
+                Hiện chưa có sản phẩm trong danh mục này.
+            </p>
         }
     </div>
 
-    <a href="@Url.Action("AoTheThao", "Home")" class="btn-view-more">Xem tất cả</a>
+    <a href="@Url.Action("AoTheThao", "Home")" class="btn-view-more">
+        Xem tất cả
+    </a>
 </section>
 
-<!-- KHỐI 5: THẺ BỘ MÔN THỂ THAO -->
+<!-- 5. THẺ BỘ MÔN THỂ THAO -->
 <section class="home-section">
     <div class="sports-categories-grid">
         <a href="#" class="sport-card">
-            <img src="https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=500" alt="Pickleball" />
+            <img src="https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=500"
+                 alt="Pickleball" />
             <span>PICKLEBALL ►</span>
         </a>
+
         <a href="@Url.Action("GiayDaBong", "Home")" class="sport-card">
-            <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500" alt="Chạy bộ" />
+            <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500"
+                 alt="Chạy bộ" />
             <span>CHẠY BỘ ►</span>
         </a>
+
         <a href="@Url.Action("PhuKien", "Home")" class="sport-card">
-            <img src="https://images.unsplash.com/photo-1687597778602-624a9438fe0b?w=500" alt="Cầu lông" />
+            <img src="https://images.unsplash.com/photo-1687597778602-624a9438fe0b?w=500"
+                 alt="Cầu lông" />
             <span>CẦU LÔNG ►</span>
         </a>
+
         <a href="#" class="sport-card">
-            <img src="https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=500" alt="Tennis" />
+            <img src="https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=500"
+                 alt="Tennis" />
             <span>TENNIS ►</span>
         </a>
+
         <a href="#" class="sport-card">
-            <img src="https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=500" alt="Golf" />
+            <img src="https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=500"
+                 alt="Golf" />
             <span>GOLF ►</span>
         </a>
     </div>
 </section>
 
-<!-- KHỐI 6: TRENDING -->
+<!-- 6. TRENDING -->
 <section class="home-section">
     <h2 class="section-header-title">🔥 TRENDING 🔥</h2>
 
@@ -707,166 +692,62 @@ productStocks.ContainsKey(id) ? productStocks[id] : 0;
 
     <div class="product-grid-5" id="trendingProductGrid">
 
-        <!-- Sản phẩm ID 9 -->
-        @if (activeProductIds.Contains(9))
+        @foreach (var id in trendingProductIds)
         {
-            <div class="product-card-mini" data-product-id="9">
-                <a href="@Url.Action("Details", "Home", new { id = 9 })">
-                    <img src="https://images.unsplash.com/photo-1611308725032-74f0a551d018?w=500" alt="Áo khoác" />
-                </a>
+            var product = FindProduct(id);
 
-                <div>
-                    <span class="mini-brand">ADIDAS</span>
+            if (product != null)
+            {
+                <div class="product-card-mini" data-product-id="@product.ProductID">
 
-                    <a href="@Url.Action("Details", "Home", new { id = 9 })">
-                        <h3 class="mini-title">Áo Khoác Gió Thể Thao Nam</h3>
+                    <a href="@Url.Action("Details", "Home", new { id = product.ProductID })">
+                        <img src="@product.ImageUrl"
+                             alt="@product.ProductName" />
                     </a>
 
-                    <span class="mini-price">550.000 đ</span>
+                    <div>
+                        <span class="mini-brand">@GetBrand(id)</span>
 
-                    <span class="mini-stock @(GetStock(9) <= 0 ? "out-of-stock" : "")">
-                        @(GetStock(9) > 0 ? "Còn " + GetStock(9) + " sản phẩm" : "Hết hàng")
-                    </span>
+                        <a href="@Url.Action("Details", "Home", new { id = product.ProductID })">
+                            <h3 class="mini-title">@product.ProductName</h3>
+                        </a>
+
+                        <span class="mini-price">
+                            @FormatPrice(product.Price) đ
+                        </span>
+
+                        <span class="mini-stock @(product.StockQuantity <= 0 ? "out-of-stock" : "")">
+                            @(product.StockQuantity > 0
+                                ? "Còn " + product.StockQuantity + " sản phẩm"
+                                : "Hết hàng")
+                        </span>
+                    </div>
+
+                    <button class="btn add-to-cart-btn"
+                            data-id="@product.ProductID"
+                            data-name="@product.ProductName"
+                            data-image="@product.ImageUrl"
+                            data-price="@product.Price.ToString("0.##", CultureInfo.InvariantCulture)"
+                            data-stock="@product.StockQuantity"
+                            @(product.StockQuantity <= 0 ? "disabled" : "")>
+                        @(product.StockQuantity > 0 ? "Thêm vào giỏ" : "Hết hàng")
+                    </button>
                 </div>
-
-                <button class="btn add-to-cart-btn"
-                        data-id="9"
-                        data-name="Áo Khoác Gió Thể Thao Nam"
-                        data-image="https://images.unsplash.com/photo-1611308725032-74f0a551d018?w=500"
-                        data-price="550000"
-                        data-stock="@GetStock(9)"
-                        @(GetStock(9) <= 0 ? "disabled" : "")>
-                    @(GetStock(9) > 0 ? "Thêm vào giỏ" : "Hết hàng")
-                </button>
-            </div>
+            }
         }
 
-        <!-- Sản phẩm ID 4 -->
-        @if (activeProductIds.Contains(4))
+        @if (!trendingProductIds.Any(id => homeProducts.Any(p => p.ProductID == id)))
         {
-            <div class="product-card-mini" data-product-id="4">
-                <a href="@Url.Action("Details", "Home", new { id = 4 })">
-                    <img src="https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500" alt="Bình nước" />
-                </a>
-                <div>
-                    <span class="mini-brand">GEAR SPORT</span>
-                    <a href="@Url.Action("Details", "Home", new { id = 4 })">
-                        <h3 class="mini-title">Bình Nước Thể Thao Cao Cấp 1L</h3>
-                    </a>
-                    <span class="mini-price">180.000 đ</span>
-                    <span class="mini-stock @(GetStock(4) <= 0 ? "out-of-stock" : "")">
-                        @(GetStock(4) > 0 ? "Còn " + GetStock(4) + " sản phẩm" : "Hết hàng")
-                    </span>
-                </div>
-                <button class="btn add-to-cart-btn"
-                        data-id="4"
-                        data-name="Bình Nước Thể Thao Cao Cấp 1L"
-                        data-image="https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500"
-                        data-price="180000"
-                        data-stock="@GetStock(4)"
-                        @(GetStock(4) <= 0 ? "disabled" : "")>
-                    @(GetStock(4) > 0 ? "Thêm vào giỏ" : "Hết hàng")
-                </button>
-            </div>
-        }
-
-        <!-- Sản phẩm ID 5 -->
-        @if (activeProductIds.Contains(5))
-        {
-            <div class="product-card-mini" data-product-id="5">
-                <a href="@Url.Action("Details", "Home", new { id = 5 })">
-                    <img src="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?w=500" alt="Bóng đá" />
-                </a>
-                <div>
-                    <span class="mini-brand">MOLTEN</span>
-                    <a href="@Url.Action("Details", "Home", new { id = 5 })">
-                        <h3 class="mini-title">Bóng Đá Tiêu Chuẩn FIFA Pro</h3>
-                    </a>
-                    <span class="mini-price">650.000 đ</span>
-                    <span class="mini-stock @(GetStock(5) <= 0 ? "out-of-stock" : "")">
-                        @(GetStock(5) > 0 ? "Còn " + GetStock(5) + " sản phẩm" : "Hết hàng")
-                    </span>
-                </div>
-                <button class="btn add-to-cart-btn"
-                        data-id="5"
-                        data-name="Bóng Đá Tiêu Chuẩn FIFA Pro"
-                        data-image="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?w=500"
-                        data-price="650000"
-                        data-stock="@GetStock(5)"
-                        @(GetStock(5) <= 0 ? "disabled" : "")>
-                    @(GetStock(5) > 0 ? "Thêm vào giỏ" : "Hết hàng")
-                </button>
-            </div>
-        }
-
-        <!-- Sản phẩm ID 6 -->
-        @if (activeProductIds.Contains(6))
-        {
-            <div class="product-card-mini" data-product-id="6">
-                <a href="@Url.Action("Details", "Home", new { id = 6 })">
-                    <img src="https://plus.unsplash.com/premium_photo-1781205755096-6caab3faf2a1?w=500" alt="Găng tay" />
-                </a>
-                <div>
-                    <span class="mini-brand">PRO GOAL</span>
-                    <a href="@Url.Action("Details", "Home", new { id = 6 })">
-                        <h3 class="mini-title">Găng Tay Thủ Môn Dính Xương</h3>
-                    </a>
-                    <span class="mini-price">450.000 đ</span>
-                    <span class="mini-stock @(GetStock(6) <= 0 ? "out-of-stock" : "")">
-                        @(GetStock(6) > 0 ? "Còn " + GetStock(6) + " sản phẩm" : "Hết hàng")
-                    </span>
-                </div>
-                <button class="btn add-to-cart-btn"
-                        data-id="6"
-                        data-name="Găng Tay Thủ Môn Dính Xương"
-                        data-image="https://plus.unsplash.com/premium_photo-1781205755096-6caab3faf2a1?w=500"
-                        data-price="450000"
-                        data-stock="@GetStock(6)"
-                        @(GetStock(6) <= 0 ? "disabled" : "")>
-                    @(GetStock(6) > 0 ? "Thêm vào giỏ" : "Hết hàng")
-                </button>
-            </div>
-        }
-
-        <!-- Sản phẩm ID 16 -->
-        @if (activeProductIds.Contains(16))
-        {
-            <div class="product-card-mini" data-product-id="16">
-                <a href="@Url.Action("Details", "Home", new { id = 16 })">
-                    <img src="https://plus.unsplash.com/premium_photo-1747861981617-1512bc2c06e8?w=500" alt="Áo polo" />
-                </a>
-
-                <div>
-                    <span class="mini-brand">NIKE</span>
-
-                    <a href="@Url.Action("Details", "Home", new { id = 16 })">
-                        <h3 class="mini-title">Áo Polo Thể Thao Nam</h3>
-                    </a>
-
-                    <span class="mini-price">290.000 đ</span>
-
-                    <span class="mini-stock @(GetStock(16) <= 0 ? "out-of-stock" : "")">
-                        @(GetStock(16) > 0 ? "Còn " + GetStock(16) + " sản phẩm" : "Hết hàng")
-                    </span>
-                </div>
-
-                <button class="btn add-to-cart-btn"
-                        data-id="16"
-                        data-name="Áo Polo Thể Thao Nam"
-                        data-image="https://plus.unsplash.com/premium_photo-1747861981617-1512bc2c06e8?w=500"
-                        data-price="290000"
-                        data-stock="@GetStock(16)"
-                        @(GetStock(16) <= 0 ? "disabled" : "")>
-                    @(GetStock(16) > 0 ? "Thêm vào giỏ" : "Hết hàng")
-                </button>
-            </div>
+            <p style="grid-column:1/-1;text-align:center;padding:20px;">
+                Hiện chưa có sản phẩm trong mục Trending.
+            </p>
         }
     </div>
 
     <a href="#" class="btn-view-more">Xem tất cả</a>
 </section>
 
-<!-- KHỐI 7: TIN TỨC & KHUYẾN MẠI -->
+<!-- 7. TIN TỨC & KHUYẾN MẠI -->
 <section class="home-section">
     <div class="news-promo-container">
 
@@ -874,7 +755,8 @@ productStocks.ContainsKey(id) ? productStocks[id] : 0;
             <div class="news-block-title">TIN TỨC</div>
 
             <div class="news-item">
-                <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=300" alt="Tin 1" />
+                <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=300"
+                     alt="Tin 1" />
                 <div class="news-info">
                     <h4>BỘ ĐỒ THỂ THAO GEAR SPORT - SẴN SÀNG CHINH PHỤC MỌI THỬ THÁCH</h4>
                     <p>Trải nghiệm dòng sản phẩm thể thao mới giúp tối ưu hóa hiệu suất vận động của bạn.</p>
@@ -882,21 +764,25 @@ productStocks.ContainsKey(id) ? productStocks[id] : 0;
             </div>
 
             <div class="news-item">
-                <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300" alt="Tin 2" />
+                <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300"
+                     alt="Tin 2" />
                 <div class="news-info">
                     <h4>BST GIÀY TENNIS/PICKLEBALL MỚI NHẤT ĐÃ CÓ MẶT</h4>
                     <p>Khám phá các thiết kế đế đệm êm ái chống trơn trượt hiệu quả nhất mùa này.</p>
                 </div>
             </div>
 
-            <a href="#" class="btn-view-more" style="margin-top: 15px;">Xem tất cả</a>
+            <a href="#" class="btn-view-more" style="margin-top: 15px;">
+                Xem tất cả
+            </a>
         </div>
 
         <div>
             <div class="news-block-title">TIN KHUYẾN MẠI</div>
 
             <div class="news-item">
-                <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=300" alt="KM 1" />
+                <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=300"
+                     alt="KM 1" />
                 <div class="news-info">
                     <h4>ĐÓN DIỆN MẠO MỚI CÙNG GEAR SPORT - VOUCHER UP TO 100K</h4>
                     <p>Giảm ngay cho hóa đơn từ 500k khi đăng ký thành viên mới tại cửa hàng.</p>
@@ -904,31 +790,44 @@ productStocks.ContainsKey(id) ? productStocks[id] : 0;
             </div>
 
             <div class="news-item">
-                <img src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=300" alt="KM 2" />
+                <img src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=300"
+                     alt="KM 2" />
                 <div class="news-info">
                     <h4>TƯNG BỪNG KHAI TRƯƠNG CHI NHÁNH MỚI - GIẢM GIÁ 50%</h4>
                     <p>Ưu đãi cực sốc dành riêng cho bộ sưu tập giày bóng đá và quần áo tập gym.</p>
                 </div>
             </div>
 
-            <a href="#" class="btn-view-more" style="margin-top: 15px;">Xem tất cả</a>
+            <a href="#" class="btn-view-more" style="margin-top: 15px;">
+                Xem tất cả
+            </a>
         </div>
+
     </div>
 </section>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Lưu vị trí ban đầu của các thẻ để chuyển tab rồi khôi phục đúng khu vực.
-    const allCards = Array.from(document.querySelectorAll('.product-card-mini'));
+
+    // Lưu vị trí ban đầu của các thẻ sản phẩm
+    const allCards = Array.from(
+        document.querySelectorAll('.product-card-mini')
+    );
 
     const originalPositions = allCards.map(function (card) {
         const marker = document.createComment('product-card-position');
+
         card.parentNode.insertBefore(marker, card);
-        return { card: card, marker: marker };
+
+        return {
+            card: card,
+            marker: marker
+        };
     });
 
     const winterGrid = document.getElementById('winterProductGrid');
     const trendingGrid = document.getElementById('trendingProductGrid');
+
     const winterTabs = document.getElementById('winterTabs');
     const trendingTabs = document.getElementById('trendingTabs');
 
@@ -937,7 +836,10 @@ document.addEventListener('DOMContentLoaded', function () {
             item.card.style.display = '';
 
             if (item.marker.parentNode) {
-                item.marker.parentNode.insertBefore(item.card, item.marker);
+                item.marker.parentNode.insertBefore(
+                    item.card,
+                    item.marker
+                );
             }
         });
     }
@@ -951,13 +853,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function titleOf(card) {
-        return (card.querySelector('.mini-title')?.textContent || '')
-            .trim()
-            .toLowerCase();
+        return (
+            card.querySelector('.mini-title')?.textContent || ''
+        ).trim().toLowerCase();
     }
 
     function discountOf(card) {
-        const badges = Array.from(card.querySelectorAll('.badge-tag'));
+        const badges = Array.from(
+            card.querySelectorAll('.badge-tag')
+        );
 
         for (const badge of badges) {
             const match = badge.textContent.match(/-\s*(\d+)\s*%/);
@@ -979,6 +883,7 @@ document.addEventListener('DOMContentLoaded', function () {
             notice.style.gridColumn = '1 / -1';
             notice.style.textAlign = 'center';
             notice.style.padding = '20px';
+
             grid.appendChild(notice);
         }
 
@@ -993,10 +898,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // TAB HELLO WINTER
     if (winterTabs && winterGrid) {
+
         winterTabs.querySelectorAll('.tab-btn').forEach(function (tab) {
+
             tab.addEventListener('click', function () {
+
                 setActiveTab(winterTabs, tab);
+
                 restoreCards();
                 clearEmptyMessage(winterGrid);
 
@@ -1004,6 +914,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 let selected = [];
 
                 if (filter === 'limited') {
+
                     selected = originalPositions
                         .filter(function (item) {
                             return item.marker.parentNode === winterGrid;
@@ -1011,21 +922,30 @@ document.addEventListener('DOMContentLoaded', function () {
                         .map(function (item) {
                             return item.card;
                         });
+
                 } else if (filter === 'extra') {
+
                     selected = allCards.filter(function (card) {
-                        return /áo|polo|t-shirt|shirt|jacket|hoodie/.test(titleOf(card));
+                        return /áo|polo|t-shirt|shirt|jacket|hoodie/.test(
+                            titleOf(card)
+                        );
                     });
+
                 } else if (filter === 'sale') {
+
                     selected = allCards.filter(function (card) {
                         const discount = discountOf(card);
+
                         return discount >= 20 && discount <= 30;
                     });
                 }
 
                 originalPositions.forEach(function (item) {
+
                     if (item.marker.parentNode === winterGrid) {
                         item.card.style.display = 'none';
                     }
+
                 });
 
                 selected.forEach(function (card) {
@@ -1039,36 +959,55 @@ document.addEventListener('DOMContentLoaded', function () {
                         'Chưa có sản phẩm phù hợp với mục này.'
                     );
                 }
+
             });
+
         });
     }
 
+    // TAB TRENDING
     if (trendingTabs && trendingGrid) {
+
         trendingTabs.querySelectorAll('.tab-btn').forEach(function (tab) {
+
             tab.addEventListener('click', function () {
+
                 setActiveTab(trendingTabs, tab);
 
                 if (tab.dataset.filter === 'voucher') {
+
                     restoreCards();
                     clearEmptyMessage(trendingGrid);
+
                     return;
                 }
 
                 if (tab.dataset.filter === 'racket') {
-                    window.location.href = '@Url.Action("PhuKien", "Home")';
+
+                    window.location.href =
+                        '@Url.Action("PhuKien", "Home")';
+
                 }
+
             });
+
         });
     }
 
-    // Đảm bảo nút thêm giỏ có ảnh từ đúng thẻ sản phẩm.
+    // Đồng bộ ảnh trên nút thêm giỏ hàng nếu ảnh bị bỏ trống
     document.querySelectorAll('.add-to-cart-btn').forEach(function (button) {
+
         const card = button.closest('.product-card-mini');
         const img = card ? card.querySelector('img') : null;
 
-        if ((!button.dataset.image || !button.dataset.image.trim()) && img) {
+        if (
+            (!button.dataset.image || !button.dataset.image.trim())
+            && img
+        ) {
             button.dataset.image = img.getAttribute('src') || '';
         }
+
     });
+
 });
 </script>

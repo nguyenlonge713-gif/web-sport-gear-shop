@@ -290,6 +290,7 @@
     <Content Include="Views\Home\Search.cshtml" />
     <Content Include="Views\OrderHistory\Index.cshtml" />
     <Content Include="Views\OrderHistory\Details.cshtml" />
+    <Content Include="Views\Shared\_MenuCategories.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
