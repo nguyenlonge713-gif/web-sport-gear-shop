@@ -18,6 +18,7 @@
         margin-bottom: 25px;
         border-left: 5px solid #ff5722;
         padding-left: 12px;
+        color: #0f172a;
     }
 
     .search-grid {
@@ -51,11 +52,23 @@
         padding: 15px;
     }
 
+    .search-category {
+        display: inline-block;
+        margin-bottom: 9px;
+        padding: 5px 9px;
+        border-radius: 20px;
+        background: #fff1eb;
+        color: #e64a19;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
     .search-card h3 {
         font-size: 15px;
         line-height: 1.5;
         min-height: 45px;
         margin: 0 0 10px;
+        color: #0f172a;
     }
 
     .search-price {
@@ -74,7 +87,13 @@
         text-decoration: none;
         font-size: 13px;
         font-weight: 700;
+        transition: background .2s;
     }
+
+        .search-detail:hover {
+            background: #e64a19;
+            color: white;
+        }
 
     .search-empty {
         padding: 35px 15px;
@@ -83,6 +102,11 @@
         border-radius: 8px;
         color: #64748b;
     }
+
+        .search-empty h3 {
+            color: #0f172a;
+            margin-top: 15px;
+        }
 
     @@media (max-width: 900px) {
         .search-grid {
@@ -98,6 +122,7 @@
 </style>
 
 <div class="search-page">
+
     <h2 class="search-heading">Kết quả tìm kiếm</h2>
 
     @if (!string.IsNullOrWhiteSpace(keyword))
@@ -105,25 +130,32 @@
         <p>
             Từ khóa:
             <strong>@keyword</strong>
-            — Tìm thấy @Model.Count() sản phẩm.
+            — Tìm thấy <strong>@Model.Count()</strong> sản phẩm.
         </p>
     }
     else
     {
-        <p>Nhập tên sản phẩm hoặc thương hiệu vào thanh tìm kiếm.</p>
+        <p>Nhập tên sản phẩm hoặc danh mục vào thanh tìm kiếm.</p>
     }
 
     @if (Model.Any())
     {
         <div class="search-grid">
+
             @foreach (var product in Model)
             {
                 <div class="search-card">
-                    <img src="@product.Image"
+
+                    <img src="@Url.Content(product.Image ?? "")"
                          alt="@product.Name"
-                         onerror="this.style.visibility='hidden';" />
+                         onerror="this.onerror=null; this.src='https://placehold.co/500x400?text=Gear+Sport';" />
 
                     <div class="search-card-content">
+
+                        <span class="search-category">
+                            @product.Category
+                        </span>
+
                         <h3>@product.Name</h3>
 
                         <div class="search-price">
@@ -135,17 +167,25 @@
                                 new { id = product.Id })">
                             Xem chi tiết
                         </a>
+
                     </div>
                 </div>
             }
+
         </div>
     }
     else if (!string.IsNullOrWhiteSpace(keyword))
     {
         <div class="search-empty">
             <i class="fas fa-search" style="font-size:30px;"></i>
+
             <h3>Không tìm thấy sản phẩm phù hợp</h3>
-            <p>Hãy thử từ khóa khác, ví dụ Adidas, Nike hoặc Giày.</p>
+
+            <p>
+                Hãy thử từ khóa khác, ví dụ:
+                Adidas, Nike, Vợt hoặc Giày.
+            </p>
         </div>
     }
+
 </div>
