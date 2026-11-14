@@ -124,6 +124,9 @@ namespace web_sport_gear.Areas.Admin.Controllers
             if (check != null)
                 return check;
 
+            if (category == null)
+                return HttpNotFound();
+
             if (string.IsNullOrWhiteSpace(category.CategoryName))
             {
                 ModelState.AddModelError(
@@ -134,9 +137,23 @@ namespace web_sport_gear.Areas.Admin.Controllers
                 return View("CreateCategory", category);
             }
 
+            // Loại bỏ khoảng trắng đầu và cuối
+            category.CategoryName = category.CategoryName.Trim();
+
+            // Kiểm tra độ dài tên danh mục
+            if (category.CategoryName.Length > 100)
+            {
+                ModelState.AddModelError(
+                    "CategoryName",
+                    "Tên danh mục không được vượt quá 100 ký tự."
+                );
+
+                return View("CreateCategory", category);
+            }
+
             string sql = @"
-                INSERT INTO dbo.Categories (CategoryName)
-                VALUES (@CategoryName)";
+        INSERT INTO dbo.Categories (CategoryName)
+        VALUES (@CategoryName)";
 
             using (SqlConnection connection =
                 new SqlConnection(ConnectionString))
@@ -147,7 +164,7 @@ namespace web_sport_gear.Areas.Admin.Controllers
                     "@CategoryName",
                     SqlDbType.NVarChar,
                     100
-                ).Value = category.CategoryName.Trim();
+                ).Value = category.CategoryName;
 
                 connection.Open();
                 command.ExecuteNonQuery();
@@ -215,6 +232,9 @@ namespace web_sport_gear.Areas.Admin.Controllers
             if (check != null)
                 return check;
 
+            if (category == null)
+                return HttpNotFound();
+
             if (string.IsNullOrWhiteSpace(category.CategoryName))
             {
                 ModelState.AddModelError(
@@ -225,10 +245,24 @@ namespace web_sport_gear.Areas.Admin.Controllers
                 return View("EditCategory", category);
             }
 
+            // Loại bỏ khoảng trắng đầu và cuối
+            category.CategoryName = category.CategoryName.Trim();
+
+            // Kiểm tra độ dài tên danh mục
+            if (category.CategoryName.Length > 100)
+            {
+                ModelState.AddModelError(
+                    "CategoryName",
+                    "Tên danh mục không được vượt quá 100 ký tự."
+                );
+
+                return View("EditCategory", category);
+            }
+
             string sql = @"
-                UPDATE dbo.Categories
-                SET CategoryName = @CategoryName
-                WHERE CategoryID = @CategoryID";
+        UPDATE dbo.Categories
+        SET CategoryName = @CategoryName
+        WHERE CategoryID = @CategoryID";
 
             int rowsAffected;
 
@@ -241,7 +275,7 @@ namespace web_sport_gear.Areas.Admin.Controllers
                     "@CategoryName",
                     SqlDbType.NVarChar,
                     100
-                ).Value = category.CategoryName.Trim();
+                ).Value = category.CategoryName;
 
                 command.Parameters.Add(
                     "@CategoryID",

@@ -6,40 +6,281 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container">
-    <h2>THÊM DANH MỤC</h2>
+<style>
+    /* ===== CREATE CATEGORY - GEAR SPORT ===== */
 
-    <hr />
+    .category-create-page {
+        background: #f4f6f9;
+        min-height: 75vh;
+        padding: 40px 15px;
+    }
 
-    @using (Html.BeginForm("CreateCategory", "Categories",
-        new { area = "Admin" }, FormMethod.Post))
-    {
-        @Html.AntiForgeryToken()
+    .category-create-wrapper {
+        max-width: 760px;
+        margin: 0 auto;
+    }
 
-        <div class="form-group">
-            @Html.LabelFor(m => m.CategoryName, "Tên danh mục")
+    .category-breadcrumb {
+        font-size: 13px;
+        color: #7b8492;
+        margin-bottom: 20px;
+    }
 
-            @Html.TextBoxFor(m => m.CategoryName, new
-            {
-                @class = "form-control",
-                placeholder = "Nhập tên danh mục..."
-            })
+        .category-breadcrumb a {
+            color: #198754;
+            text-decoration: none;
+            font-weight: 600;
+        }
 
-            @Html.ValidationMessageFor(
-                m => m.CategoryName,
-                "",
-                new { @class = "text-danger" }
-            )
+    .category-create-card {
+        background: #fff;
+        border-radius: 14px;
+        border: 1px solid #e9edf2;
+        box-shadow: 0 5px 24px rgba(20, 35, 55, 0.06);
+        overflow: hidden;
+    }
+
+    .category-create-header {
+        padding: 27px 32px;
+        border-bottom: 1px solid #edf0f3;
+        background: linear-gradient(135deg, #ffffff, #f8fafc);
+    }
+
+    .category-header-content {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .category-header-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        background: #e7f5ed;
+        color: #198754;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 25px;
+        flex-shrink: 0;
+    }
+
+    .category-create-header h2 {
+        font-size: 23px;
+        font-weight: 700;
+        color: #202b3c;
+        margin: 0 0 7px;
+    }
+
+    .category-create-header p {
+        color: #7b8492;
+        font-size: 13px;
+        margin: 0;
+    }
+
+    .category-create-body {
+        padding: 32px;
+    }
+
+    .category-form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 700;
+        color: #344054;
+        margin-bottom: 10px;
+    }
+
+    .required-mark {
+        color: #dc3545;
+    }
+
+    .category-input {
+        width: 100%;
+        height: 48px;
+        border: 1px solid #dce2e9;
+        border-radius: 8px;
+        padding: 0 15px;
+        font-size: 14px;
+        color: #263445;
+        outline: none;
+        transition: all 0.2s ease;
+        box-shadow: none;
+    }
+
+        .category-input:focus {
+            border-color: #198754;
+            box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.12);
+        }
+
+        .category-input::placeholder {
+            color: #a0a8b4;
+        }
+
+    .category-form-hint {
+        color: #8a94a3;
+        font-size: 12px;
+        margin-top: 9px;
+    }
+
+    .category-validation {
+        display: block;
+        font-size: 13px;
+        margin-top: 7px;
+    }
+
+    .category-form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 30px;
+        padding-top: 22px;
+        border-top: 1px solid #edf0f3;
+    }
+
+    .category-btn {
+        min-width: 145px;
+        height: 43px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none !important;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .category-btn-submit {
+        color: #fff;
+        background: #198754;
+        border: 1px solid #198754;
+    }
+
+        .category-btn-submit:hover {
+            background: #146c43;
+            border-color: #146c43;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+    .category-btn-back {
+        color: #475467;
+        background: #fff;
+        border: 1px solid #dce2e9;
+    }
+
+        .category-btn-back:hover {
+            background: #f5f7fa;
+            color: #263445;
+        }
+
+    @@media (max-width: 576px) {
+        .category-create-page {
+            padding: 25px 10px;
+        }
+
+        .category-create-header,
+        .category-create-body {
+            padding: 22px 18px;
+        }
+
+            .category-create-header h2 {
+                font-size: 19px;
+            }
+
+        .category-form-actions {
+            flex-direction: column-reverse;
+        }
+
+        .category-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="category-create-page">
+    <div class="category-create-wrapper">
+
+        <div class="category-breadcrumb">
+            <a href="@Url.Action("CategoryList", "Categories", new { area = "Admin" })">
+                Quản lý danh mục
+            </a>
+            <span> / </span>
+            <span>Thêm danh mục</span>
         </div>
 
-        <button type="submit" class="btn btn-success">
-            Thêm danh mục
-        </button>
+        <div class="category-create-card">
 
-        <a href="@Url.Action("CategoryList", "Categories",
-            new { area = "Admin" })"
-           class="btn btn-default">
-            Quay lại
-        </a>
-    }
+            <div class="category-create-header">
+                <div class="category-header-content">
+                    <div class="category-header-icon">
+                        <i class="glyphicon glyphicon-plus"></i>
+                    </div>
+
+                    <div>
+                        <h2>Thêm danh mục mới</h2>
+                        <p>Tạo danh mục để phân loại sản phẩm trong cửa hàng Gear Sport.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-create-body">
+
+                @using (Html.BeginForm("CreateCategory", "Categories",
+                    new { area = "Admin" }, FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    @Html.LabelFor(
+                            m => m.CategoryName,
+                            "Tên danh mục",
+                            new { @class = "category-form-label" }
+                        )
+
+                    <span class="required-mark">*</span>
+
+                    @Html.TextBoxFor(m => m.CategoryName, new
+                    {
+                        @class = "category-input",
+                        placeholder = "Ví dụ: Giày thể thao, Quần áo, Phụ kiện...",
+                        autocomplete = "off",
+                        maxlength = "30"
+                    })
+
+                    @Html.ValidationMessageFor(
+                            m => m.CategoryName,
+                            "",
+                            new { @class = "text-danger category-validation" }
+                        )
+
+                    <div class="category-form-hint">
+                        <i class="glyphicon glyphicon-info-sign"></i>
+                        Tên danh mục không được để trống và tối đa 30 ký tự.
+                    </div>
+                </div>
+
+                    <div class="category-form-actions">
+
+                        <a href="@Url.Action("CategoryList", "Categories",
+                            new { area = "Admin" })"
+                           class="category-btn category-btn-back">
+                            <i class="glyphicon glyphicon-arrow-left"></i>
+                            Quay lại
+                        </a>
+
+                        <button type="submit"
+                                class="category-btn category-btn-submit">
+                            <i class="glyphicon glyphicon-plus"></i>
+                            Thêm danh mục
+                        </button>
+
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
 </div>
