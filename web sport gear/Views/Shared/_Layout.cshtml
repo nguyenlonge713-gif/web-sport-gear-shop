@@ -624,14 +624,10 @@
 
     <!-- ==================== JAVASCRIPT ==================== -->
     <script>
-        // Kiểm tra trạng thái đăng nhập
-        window.isUserLoggedIn = @(isLoggedIn ? "true" : "false");
-
-        // Lấy UserID từ Session ASP.NET MVC
-        window.currentUserId = '@(isLoggedIn ? Session["UserID"].ToString() : "")';
-
-        // URL đăng nhập
-        window.loginUrl = '@Url.Action("Login", "Account", new { area = "" })';
+       window.isUserLoggedIn = @(isLoggedIn ? "true" : "false");
+window.currentUserId = '@(isLoggedIn ? Session["UserID"].ToString() : "")';
+window.currentUserRole = '@(Session["Role"] ?? "")';
+window.loginUrl = '@Url.Action("Login", "Account", new { area = "" })';
 
         // XỬ LÝ MENU TÀI KHOẢN
         document.addEventListener("DOMContentLoaded", function () {

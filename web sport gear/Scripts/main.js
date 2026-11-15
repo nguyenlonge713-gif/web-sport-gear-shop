@@ -13,6 +13,7 @@
 // XÁC ĐỊNH GIỎ HÀNG RIÊNG CHO TỪNG TÀI KHOẢN
 // =========================================================
 
+
 function getCartKey() {
 
     // Chưa đăng nhập hoặc không có UserID
@@ -24,9 +25,17 @@ function getCartKey() {
         return null;
     }
 
-    // Mỗi tài khoản có một khóa riêng
+    // Admin không được sử dụng giỏ hàng
+    if (
+        String(window.currentUserRole || "").trim().toLowerCase() === "admin"
+    ) {
+        return null;
+    }
+
+    // Mỗi tài khoản Customer có một giỏ hàng riêng
     return "cart_" + String(window.currentUserId).trim();
 }
+
 
 
 // =========================================================
@@ -396,6 +405,19 @@ function removeItem(index) {
    ========================================================= */
 
 document.addEventListener("DOMContentLoaded", function () {
+
+    const isAdmin =
+        String(window.currentUserRole || "").trim().toLowerCase() === "admin";
+
+    // Admin không được sử dụng chức năng mua hàng
+    if (isAdmin) {
+
+        document.querySelectorAll(
+            ".add-to-cart-btn, .btn-buy-now, #modalAddToCart"
+        ).forEach(function (button) {
+            button.style.display = "none";
+        });
+    }
 
     // Cập nhật giỏ hàng khi tải trang
     updateCartCount();
@@ -859,6 +881,16 @@ document.addEventListener("DOMContentLoaded", function () {
         if (button.disabled) {
 
             alert("Sản phẩm hiện đã hết hàng.");
+
+            return;
+        }
+
+        // Chặn Admin thêm sản phẩm vào giỏ hàng
+        if (
+            String(window.currentUserRole || "").trim().toLowerCase() === "admin"
+        ) {
+
+            alert("Tài khoản Admin không có quyền mua hàng!");
 
             return;
         }

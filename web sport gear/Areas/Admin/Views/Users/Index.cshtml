@@ -141,6 +141,33 @@
         background: #edf0f5;
         color: #536176;
     }
+    /* NUT THEM TAI KHOAN */
+    .users-btn-add {
+        background: #198754;
+        color: #fff;
+        white-space: nowrap;
+    }
+
+        .users-btn-add:hover {
+            background: #146c43;
+            color: #fff;
+            text-decoration: none;
+        }
+
+    /* NUT SUA THONG TIN */
+    .users-btn-edit {
+        background: #e8f2ff;
+        color: #2862a5;
+        margin-bottom: 10px;
+        padding: 7px 11px;
+        font-size: 12px;
+    }
+
+        .users-btn-edit:hover {
+            background: #d5e7ff;
+            color: #194f8c;
+            text-decoration: none;
+        }
 
         .users-btn-reset:hover {
             background: #dfe5ee;
@@ -420,9 +447,21 @@
             </div>
         </div>
 
-        <div class="users-total">
-            <i class="fa fa-user-circle"></i>
-            Tổng số: @(Model == null ? 0 : Model.Count) tài khoản
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+
+            @Html.ActionLink(
+                    "Thêm tài khoản",
+                    "Create",
+                    "Users",
+                    new { area = "Admin" },
+                    new { @class = "users-btn users-btn-add" }
+                )
+
+            <div class="users-total">
+                <i class="fa fa-user-circle"></i>
+                Tổng số: @(Model == null ? 0 : Model.Count) tài khoản
+            </div>
+
         </div>
     </div>
 
@@ -570,6 +609,23 @@
                                 </td>
 
                                 <td class="user-actions">
+
+                                    <!-- SUA THONG TIN TAI KHOAN -->
+                                    @Html.ActionLink(
+                                            "Sửa thông tin",
+                                            "Edit",
+                                            "Users",
+                                            new
+                                            {
+                                                area = "Admin",
+                                                id = user.UserID
+                                            },
+                                            new
+                                            {
+                                                @class = "users-btn users-btn-edit"
+                                            }
+                                        )
+
                                     @if (user.UserID == currentUserId)
                                     {
                                         <span class="current-user-label">

@@ -469,8 +469,11 @@
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
 
-    <script>(function () {
+    <script>
+    (function () {
             var sidebar = document.getElementById("adminSidebar");
             var toggle = document.getElementById("adminMenuToggle");
             var overlay = document.getElementById("adminOverlay");

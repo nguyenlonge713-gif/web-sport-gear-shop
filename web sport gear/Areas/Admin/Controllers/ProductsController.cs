@@ -54,16 +54,61 @@ namespace web_sport_gear.Areas.Admin.Controllers
             return null;
         }
 
-        // Kiểm tra giới hạn mô tả sản phẩm
-        private void ValidateDescription(Product product)
+        // Kiểm tra danh mục có tồn tại trong database
+        private bool CategoryExists(int categoryID)
         {
-            if (product.Description != null &&
-                product.Description.Length > 1000)
+            if (categoryID <= 0)
+                return false;
+
+            string sql = @"
+                SELECT COUNT(*)
+                FROM dbo.Categories
+                WHERE CategoryID = @CategoryID";
+
+            using (SqlConnection connection =
+                new SqlConnection(ConnectionString))
+            using (SqlCommand command =
+                new SqlCommand(sql, connection))
             {
-                ModelState.AddModelError(
-                    "Description",
-                    "Mô tả sản phẩm không được vượt quá 1000 ký tự."
-                );
+                command.Parameters.Add(
+                    "@CategoryID",
+                    SqlDbType.Int
+                ).Value = categoryID;
+
+                connection.Open();
+
+                return Convert.ToInt32(
+                    command.ExecuteScalar()
+                ) > 0;
+            }
+        }
+
+        // Kiểm tra sản phẩm có tồn tại trong database
+        private bool ProductExists(int productID)
+        {
+            if (productID <= 0)
+                return false;
+
+            string sql = @"
+                SELECT COUNT(*)
+                FROM dbo.Products
+                WHERE ProductID = @ProductID";
+
+            using (SqlConnection connection =
+                new SqlConnection(ConnectionString))
+            using (SqlCommand command =
+                new SqlCommand(sql, connection))
+            {
+                command.Parameters.Add(
+                    "@ProductID",
+                    SqlDbType.Int
+                ).Value = productID;
+
+                connection.Open();
+
+                return Convert.ToInt32(
+                    command.ExecuteScalar()
+                ) > 0;
             }
         }
 
@@ -111,35 +156,53 @@ namespace web_sport_gear.Areas.Admin.Controllers
             {
                 connection.Open();
 
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (SqlDataReader reader =
+                    command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
                         products.Add(new Product
                         {
-                            ProductID = Convert.ToInt32(reader["ProductID"]),
+                            ProductID = Convert.ToInt32(
+                                reader["ProductID"]
+                            ),
+
                             ProductName = reader["ProductName"].ToString(),
-                            Price = Convert.ToDecimal(reader["Price"]),
+
+                            Price = Convert.ToDecimal(
+                                reader["Price"]
+                            ),
 
                             ImageUrl = reader["ImageUrl"] == DBNull.Value
                                 ? null
                                 : reader["ImageUrl"].ToString(),
 
-                            CategoryID = Convert.ToInt32(reader["CategoryID"]),
+                            CategoryID = Convert.ToInt32(
+                                reader["CategoryID"]
+                            ),
 
                             Description = reader["Description"] == DBNull.Value
                                 ? null
                                 : reader["Description"].ToString(),
 
-                            IsActive = Convert.ToBoolean(reader["IsActive"]),
-                            StockQuantity = Convert.ToInt32(reader["StockQuantity"]),
+                            IsActive = Convert.ToBoolean(
+                                reader["IsActive"]
+                            ),
+
+                            StockQuantity = Convert.ToInt32(
+                                reader["StockQuantity"]
+                            ),
+
                             CategoryName = reader["CategoryName"].ToString()
                         });
                     }
                 }
             }
 
-            return View("~/Areas/Admin/Views/Products/ProductList.cshtml", products);
+            return View(
+                "~/Areas/Admin/Views/Products/ProductList.cshtml",
+                products
+            );
         }
 
         // Lấy danh sách danh mục cho dropdown
@@ -160,7 +223,8 @@ namespace web_sport_gear.Areas.Admin.Controllers
             {
                 connection.Open();
 
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (SqlDataReader reader =
+                    command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -204,66 +268,12 @@ namespace web_sport_gear.Areas.Admin.Controllers
             if (check != null)
                 return check;
 
-            // Kiểm tra tên sản phẩm
-            if (string.IsNullOrWhiteSpace(product.ProductName))
-            {
-                ModelState.AddModelError(
-                    "ProductName",
-                    "Vui lòng nhập tên sản phẩm."
-                );
-            }
+            if (product == null)
+                return new HttpStatusCodeResult(400);
 
-            // Kiểm tra giá
-            if (product.Price <= 0)
-            {
-                ModelState.AddModelError(
-                    "Price",
-                    "Giá sản phẩm phải lớn hơn 0."
-                );
-            }
-
-            // Kiểm tra số lượng tồn kho
-            if (product.StockQuantity < 0)
-            {
-                ModelState.AddModelError(
-                    "StockQuantity",
-                    "Số lượng tồn kho không được âm."
-                );
-            }
-
-            // Kiểm tra mô tả tối đa 1000 ký tự
-            ValidateDescription(product);
-
-            // Kiểm tra danh mục
-            if (product.CategoryID <= 0)
-            {
-                ModelState.AddModelError(
-                    "CategoryID",
-                    "Vui lòng chọn danh mục."
-                );
-            }
-
-            // Kiểm tra danh mục có tồn tại trong database
-            bool categoryExists = false;
-
-            using (SqlConnection connection =
-                new SqlConnection(ConnectionString))
-            using (SqlCommand command = new SqlCommand(
-                @"SELECT COUNT(*)
-                  FROM dbo.Categories
-                  WHERE CategoryID = @CategoryID",
-                connection))
-            {
-                command.Parameters.Add("@CategoryID", SqlDbType.Int)
-                    .Value = product.CategoryID;
-
-                connection.Open();
-
-                categoryExists =
-                    Convert.ToInt32(command.ExecuteScalar()) > 0;
-            }
-
-            if (!categoryExists)
+            // Kiểm tra danh mục tồn tại trong database
+            if (product.CategoryID > 0 &&
+                !CategoryExists(product.CategoryID))
             {
                 ModelState.AddModelError(
                     "CategoryID",
@@ -271,10 +281,11 @@ namespace web_sport_gear.Areas.Admin.Controllers
                 );
             }
 
-            // Nếu dữ liệu không hợp lệ
+            // Kiểm tra dữ liệu theo DataAnnotations trong Product.cs
             if (!ModelState.IsValid)
             {
                 LoadCategories();
+
                 return View("CreateProduct", product);
             }
 
@@ -353,6 +364,7 @@ namespace web_sport_gear.Areas.Admin.Controllers
                 ).Value = product.StockQuantity;
 
                 connection.Open();
+
                 command.ExecuteNonQuery();
             }
 
@@ -397,28 +409,42 @@ namespace web_sport_gear.Areas.Admin.Controllers
 
                 connection.Open();
 
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (SqlDataReader reader =
+                    command.ExecuteReader())
                 {
                     if (reader.Read())
                     {
                         product = new Product
                         {
-                            ProductID = Convert.ToInt32(reader["ProductID"]),
+                            ProductID = Convert.ToInt32(
+                                reader["ProductID"]
+                            ),
+
                             ProductName = reader["ProductName"].ToString(),
-                            Price = Convert.ToDecimal(reader["Price"]),
+
+                            Price = Convert.ToDecimal(
+                                reader["Price"]
+                            ),
 
                             ImageUrl = reader["ImageUrl"] == DBNull.Value
                                 ? null
                                 : reader["ImageUrl"].ToString(),
 
-                            CategoryID = Convert.ToInt32(reader["CategoryID"]),
+                            CategoryID = Convert.ToInt32(
+                                reader["CategoryID"]
+                            ),
 
                             Description = reader["Description"] == DBNull.Value
                                 ? null
                                 : reader["Description"].ToString(),
 
-                            IsActive = Convert.ToBoolean(reader["IsActive"]),
-                            StockQuantity = Convert.ToInt32(reader["StockQuantity"])
+                            IsActive = Convert.ToBoolean(
+                                reader["IsActive"]
+                            ),
+
+                            StockQuantity = Convert.ToInt32(
+                                reader["StockQuantity"]
+                            )
                         };
                     }
                 }
@@ -435,75 +461,34 @@ namespace web_sport_gear.Areas.Admin.Controllers
         // POST: Admin/Products/EditProduct
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditProduct(Product product)
+        public ActionResult EditProduct(int id, Product product)
         {
             ActionResult check = CheckAdmin();
 
             if (check != null)
                 return check;
 
-            // Kiểm tra tên sản phẩm
-            if (string.IsNullOrWhiteSpace(product.ProductName))
+            if (product == null)
+                return new HttpStatusCodeResult(400);
+
+            // Kiểm tra ID trên URL và ID trong form có khớp không
+            if (id <= 0 || product.ProductID != id)
             {
-                ModelState.AddModelError(
-                    "ProductName",
-                    "Vui lòng nhập tên sản phẩm."
+                return new HttpStatusCodeResult(
+                    400,
+                    "Mã sản phẩm không hợp lệ."
                 );
             }
 
-            // Kiểm tra giá
-            if (product.Price <= 0)
+            // Kiểm tra sản phẩm có tồn tại trong database không
+            if (!ProductExists(id))
             {
-                ModelState.AddModelError(
-                    "Price",
-                    "Giá sản phẩm phải lớn hơn 0."
-                );
+                return HttpNotFound();
             }
 
-            // Kiểm tra số lượng tồn kho
-            if (product.StockQuantity < 0)
-            {
-                ModelState.AddModelError(
-                    "StockQuantity",
-                    "Số lượng tồn kho không được âm."
-                );
-            }
-
-            // Kiểm tra mô tả tối đa 1000 ký tự
-            ValidateDescription(product);
-
-            // Kiểm tra danh mục
-            if (product.CategoryID <= 0)
-            {
-                ModelState.AddModelError(
-                    "CategoryID",
-                    "Vui lòng chọn danh mục."
-                );
-            }
-
-            // Kiểm tra danh mục tồn tại
-            bool categoryExists = false;
-
-            using (SqlConnection connection =
-                new SqlConnection(ConnectionString))
-            using (SqlCommand command = new SqlCommand(
-                @"SELECT COUNT(*)
-                  FROM dbo.Categories
-                  WHERE CategoryID = @CategoryID",
-                connection))
-            {
-                command.Parameters.Add(
-                    "@CategoryID",
-                    SqlDbType.Int
-                ).Value = product.CategoryID;
-
-                connection.Open();
-
-                categoryExists =
-                    Convert.ToInt32(command.ExecuteScalar()) > 0;
-            }
-
-            if (!categoryExists)
+            // Kiểm tra danh mục tồn tại trong database
+            if (product.CategoryID > 0 &&
+                !CategoryExists(product.CategoryID))
             {
                 ModelState.AddModelError(
                     "CategoryID",
@@ -511,10 +496,11 @@ namespace web_sport_gear.Areas.Admin.Controllers
                 );
             }
 
-            // Nếu dữ liệu không hợp lệ
+            // Kiểm tra dữ liệu theo DataAnnotations trong Product.cs
             if (!ModelState.IsValid)
             {
                 LoadCategories();
+
                 return View("EditProduct", product);
             }
 
@@ -540,7 +526,7 @@ namespace web_sport_gear.Areas.Admin.Controllers
                 command.Parameters.Add(
                     "@ProductID",
                     SqlDbType.Int
-                ).Value = product.ProductID;
+                ).Value = id;
 
                 command.Parameters.Add(
                     "@ProductName",
@@ -590,6 +576,7 @@ namespace web_sport_gear.Areas.Admin.Controllers
                 ).Value = product.StockQuantity;
 
                 connection.Open();
+
                 rowsAffected = command.ExecuteNonQuery();
             }
 
@@ -634,6 +621,7 @@ namespace web_sport_gear.Areas.Admin.Controllers
                 ).Value = id;
 
                 connection.Open();
+
                 rowsAffected = command.ExecuteNonQuery();
             }
 
@@ -664,7 +652,8 @@ namespace web_sport_gear.Areas.Admin.Controllers
                   (
                       SELECT 1
                       FROM dbo.OrderDetails
-                      WHERE OrderDetails.ProductID = dbo.Products.ProductID
+                      WHERE OrderDetails.ProductID =
+                            dbo.Products.ProductID
                   )";
 
             int rowsAffected;
@@ -680,6 +669,7 @@ namespace web_sport_gear.Areas.Admin.Controllers
                 ).Value = id;
 
                 connection.Open();
+
                 rowsAffected = command.ExecuteNonQuery();
             }
 
@@ -695,11 +685,13 @@ namespace web_sport_gear.Areas.Admin.Controllers
 
                 using (SqlConnection connection =
                     new SqlConnection(ConnectionString))
-                using (SqlCommand command = new SqlCommand(
-                    @"SELECT COUNT(*)
-                      FROM dbo.Products
-                      WHERE ProductID = @ProductID",
-                    connection))
+                using (SqlCommand command =
+                    new SqlCommand(
+                        @"SELECT COUNT(*)
+                          FROM dbo.Products
+                          WHERE ProductID = @ProductID",
+                        connection
+                    ))
                 {
                     command.Parameters.Add(
                         "@ProductID",
@@ -708,14 +700,13 @@ namespace web_sport_gear.Areas.Admin.Controllers
 
                     connection.Open();
 
-                    productExists =
-                        Convert.ToInt32(command.ExecuteScalar()) > 0;
+                    productExists = Convert.ToInt32(
+                        command.ExecuteScalar()
+                    ) > 0;
                 }
 
                 if (!productExists)
-                {
                     return HttpNotFound();
-                }
 
                 TempData["ErrorMessage"] =
                     "Không thể xóa sản phẩm vì sản phẩm đã xuất hiện trong lịch sử đơn hàng. Bạn hãy sử dụng chức năng Ẩn.";

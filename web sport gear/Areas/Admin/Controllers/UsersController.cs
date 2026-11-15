@@ -7,7 +7,7 @@ using System.Data.SqlClient;
 using System.Web.Helpers;
 using System.Web.Mvc;
 using web_sport_gear.Models;
-
+using System.Text;
 namespace web_sport_gear.Areas.Admin.Controllers
 {
     public class UsersController : AdminBaseController
@@ -136,7 +136,522 @@ namespace web_sport_gear.Areas.Admin.Controllers
 
             return View(users);
         }
+        // =========================================
+        // THEM TAI KHOAN MOI
+        // =========================================
 
+        // GET: Admin/Users/Create
+        public ActionResult Create()
+        {
+            SetRoleList();
+
+            AdminUserCreateViewModel model =
+                new AdminUserCreateViewModel();
+
+            model.Role = "Customer";
+
+            return View(model);
+        }
+
+        // POST: Admin/Users/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(AdminUserCreateViewModel model)
+        {
+            if (model == null)
+            {
+                model = new AdminUserCreateViewModel();
+            }
+
+            // CHUAN HOA DU LIEU
+            model.FullName = (model.FullName ?? "")
+                .Trim()
+                .Normalize(NormalizationForm.FormC);
+
+            model.Email = (model.Email ?? "").Trim().ToLowerInvariant();
+            model.Phone = (model.Phone ?? "").Trim();
+            model.Role = (model.Role ?? "").Trim();
+
+            // KIEM TRA LAI DATA ANNOTATION SAU KHI CHUAN HOA
+            ModelState.Clear();
+            TryValidateModel(model);
+
+            SetRoleList(model.Role);
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                bool emailExists;
+                bool phoneExists;
+
+                CheckDuplicateContact(
+                    model.Email,
+                    model.Phone,
+                    0,
+                    out emailExists,
+                    out phoneExists
+                );
+
+                if (emailExists)
+                {
+                    ModelState.AddModelError(
+                        "Email",
+                        "Email này đã được sử dụng."
+                    );
+                }
+
+                if (phoneExists)
+                {
+                    ModelState.AddModelError(
+                        "Phone",
+                        "Số điện thoại này đã được sử dụng."
+                    );
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return View(model);
+                }
+
+                // MA HOA MAT KHAU
+                string passwordHash =
+                    Crypto.HashPassword(model.Password);
+
+                // THEM TAI KHOAN
+                string sql = @"
+            INSERT INTO dbo.Users
+            (
+                FullName,
+                Email,
+                Phone,
+                PasswordHash,
+                Role
+            )
+            VALUES
+            (
+                @FullName,
+                @Email,
+                @Phone,
+                @PasswordHash,
+                @Role
+            )";
+
+                using (SqlConnection conn =
+                    new SqlConnection(ConnectionString))
+                {
+                    using (SqlCommand cmd =
+                        new SqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.Add(
+                            "@FullName",
+                            SqlDbType.NVarChar,
+                            100
+                        ).Value = model.FullName;
+
+                        cmd.Parameters.Add(
+                            "@Email",
+                            SqlDbType.NVarChar,
+                            255
+                        ).Value = model.Email;
+
+                        cmd.Parameters.Add(
+                            "@Phone",
+                            SqlDbType.NVarChar,
+                            20
+                        ).Value = model.Phone;
+
+                        cmd.Parameters.Add(
+                            "@PasswordHash",
+                            SqlDbType.NVarChar,
+                            -1
+                        ).Value = passwordHash;
+
+                        cmd.Parameters.Add(
+                            "@Role",
+                            SqlDbType.NVarChar,
+                            50
+                        ).Value = model.Role;
+
+                        conn.Open();
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                TempData["Success"] =
+                    "Thêm tài khoản mới thành công.";
+
+                return RedirectToAction("Index");
+            }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 2601 || ex.Number == 2627)
+                {
+                    ModelState.AddModelError(
+                        "",
+                        "Email hoặc số điện thoại đã tồn tại."
+                    );
+                }
+                else
+                {
+                    ModelState.AddModelError(
+                        "",
+                        "Đã xảy ra lỗi khi thêm tài khoản."
+                    );
+                }
+
+                SetRoleList(model.Role);
+                return View(model);
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "Đã xảy ra lỗi khi thêm tài khoản."
+                );
+
+                SetRoleList(model.Role);
+                return View(model);
+            }
+        }
+
+
+        // =========================================
+        // SUA THONG TIN TAI KHOAN
+        // =========================================
+
+        // GET: Admin/Users/Edit/5
+        public ActionResult Edit(int id)
+        {
+            if (id <= 0)
+            {
+                TempData["Error"] =
+                    "ID tài khoản không hợp lệ.";
+
+                return RedirectToAction("Index");
+            }
+
+            string sql = @"
+        SELECT UserID, FullName, Email, Phone
+        FROM dbo.Users
+        WHERE UserID = @UserID";
+
+            using (SqlConnection conn =
+                new SqlConnection(ConnectionString))
+            {
+                using (SqlCommand cmd =
+                    new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.Add(
+                        "@UserID",
+                        SqlDbType.Int
+                    ).Value = id;
+
+                    conn.Open();
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            AdminUserEditViewModel model =
+                                new AdminUserEditViewModel();
+
+                            model.UserID =
+                                Convert.ToInt32(reader["UserID"]);
+
+                            model.FullName =
+                                reader["FullName"] == DBNull.Value
+                                ? ""
+                                : reader["FullName"].ToString();
+
+                            model.Email =
+                                reader["Email"] == DBNull.Value
+                                ? ""
+                                : reader["Email"].ToString();
+
+                            model.Phone =
+                                reader["Phone"] == DBNull.Value
+                                ? ""
+                                : reader["Phone"].ToString();
+
+                            return View(model);
+                        }
+                    }
+                }
+            }
+
+            TempData["Error"] =
+                "Không tìm thấy tài khoản cần sửa.";
+
+            return RedirectToAction("Index");
+        }
+
+
+        // POST: Admin/Users/Edit
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(AdminUserEditViewModel model)
+        {
+            if (model == null)
+            {
+                TempData["Error"] =
+                    "Dữ liệu tài khoản không hợp lệ.";
+
+                return RedirectToAction("Index");
+            }
+
+            if (model.UserID <= 0)
+            {
+                TempData["Error"] =
+                    "ID tài khoản không hợp lệ.";
+
+                return RedirectToAction("Index");
+            }
+
+            // CHUAN HOA DU LIEU
+            model.FullName = (model.FullName ?? "")
+    .Trim()
+    .Normalize(NormalizationForm.FormC);
+            model.Email = (model.Email ?? "").Trim().ToLowerInvariant();
+            model.Phone = (model.Phone ?? "").Trim();
+
+            // KIEM TRA LAI DATA ANNOTATION SAU KHI CHUAN HOA
+            ModelState.Clear();
+            TryValidateModel(model);
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                // KIEM TRA EMAIL VA SDT CO BI TRUNG KHONG
+                bool emailExists;
+                bool phoneExists;
+
+                CheckDuplicateContact(
+                    model.Email,
+                    model.Phone,
+                    model.UserID,
+                    out emailExists,
+                    out phoneExists
+                );
+
+                if (emailExists)
+                {
+                    ModelState.AddModelError(
+                        "Email",
+                        "Email này đã được sử dụng bởi tài khoản khác."
+                    );
+                }
+
+                if (phoneExists)
+                {
+                    ModelState.AddModelError(
+                        "Phone",
+                        "Số điện thoại này đã được sử dụng bởi tài khoản khác."
+                    );
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return View(model);
+                }
+
+                // CHI CAP NHAT HO TEN, EMAIL VA SDT
+                // KHONG THAY DOI ROLE HOAC PASSWORDHASH
+                string sql = @"
+            UPDATE dbo.Users
+            SET
+                FullName = @FullName,
+                Email = @Email,
+                Phone = @Phone
+            WHERE UserID = @UserID";
+
+                using (SqlConnection conn =
+                    new SqlConnection(ConnectionString))
+                {
+                    using (SqlCommand cmd =
+                        new SqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.Add(
+                            "@FullName",
+                            SqlDbType.NVarChar,
+                            100
+                        ).Value = model.FullName;
+
+                        cmd.Parameters.Add(
+                            "@Email",
+                            SqlDbType.NVarChar,
+                            255
+                        ).Value = model.Email;
+
+                        cmd.Parameters.Add(
+                            "@Phone",
+                            SqlDbType.NVarChar,
+                            20
+                        ).Value = model.Phone;
+
+                        cmd.Parameters.Add(
+                            "@UserID",
+                            SqlDbType.Int
+                        ).Value = model.UserID;
+
+                        conn.Open();
+
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        if (rowsAffected == 0)
+                        {
+                            TempData["Error"] =
+                                "Không tìm thấy tài khoản cần sửa.";
+
+                            return RedirectToAction("Index");
+                        }
+                    }
+                }
+
+                TempData["Success"] =
+                    "Cập nhật thông tin tài khoản thành công.";
+
+                return RedirectToAction("Index");
+            }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 2601 || ex.Number == 2627)
+                {
+                    ModelState.AddModelError(
+                        "",
+                        "Email hoặc số điện thoại đã tồn tại."
+                    );
+                }
+                else
+                {
+                    ModelState.AddModelError(
+                        "",
+                        "Đã xảy ra lỗi khi cập nhật tài khoản."
+                    );
+                }
+
+                return View(model);
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "Đã xảy ra lỗi khi cập nhật tài khoản."
+                );
+
+                return View(model);
+            }
+        }
+
+
+        // =========================================
+        // HAM HO TRO
+        // =========================================
+
+        // DANH SACH VAI TRO CHO FORM CREATE
+        private void SetRoleList(string selectedRole = "Customer")
+        {
+            ViewBag.RoleList = new List<SelectListItem>
+    {
+        new SelectListItem
+        {
+            Text = "Customer",
+            Value = "Customer",
+            Selected = selectedRole == "Customer"
+        },
+        new SelectListItem
+        {
+            Text = "Admin",
+            Value = "Admin",
+            Selected = selectedRole == "Admin"
+        }
+    };
+        }
+
+
+        // KIEM TRA EMAIL VA SDT DA DUOC TAI KHOAN KHAC SU DUNG CHUA
+        private void CheckDuplicateContact(
+            string email,
+            string phone,
+            int excludeUserId,
+            out bool emailExists,
+            out bool phoneExists)
+        {
+            emailExists = false;
+            phoneExists = false;
+
+            string sql = @"
+        SELECT Email, Phone
+        FROM dbo.Users
+        WHERE (Email = @Email OR Phone = @Phone)
+        AND UserID <> @UserID";
+
+            using (SqlConnection conn =
+                new SqlConnection(ConnectionString))
+            {
+                using (SqlCommand cmd =
+                    new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.Add(
+                        "@Email",
+                        SqlDbType.NVarChar,
+                        255
+                    ).Value = email;
+
+                    cmd.Parameters.Add(
+                        "@Phone",
+                        SqlDbType.NVarChar,
+                        20
+                    ).Value = phone;
+
+                    cmd.Parameters.Add(
+                        "@UserID",
+                        SqlDbType.Int
+                    ).Value = excludeUserId;
+
+                    conn.Open();
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            string existingEmail =
+                                reader["Email"] == DBNull.Value
+                                ? ""
+                                : reader["Email"].ToString();
+
+                            string existingPhone =
+                                reader["Phone"] == DBNull.Value
+                                ? ""
+                                : reader["Phone"].ToString();
+
+                            if (string.Equals(
+                                existingEmail,
+                                email,
+                                StringComparison.OrdinalIgnoreCase))
+                            {
+                                emailExists = true;
+                            }
+
+                            if (string.Equals(
+                                existingPhone,
+                                phone,
+                                StringComparison.Ordinal))
+                            {
+                                phoneExists = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         // THAY DOI QUYEN TAI KHOAN
         [HttpPost]
         [ValidateAntiForgeryToken]

@@ -226,6 +226,25 @@
         font-size: 12px;
     }
 
+    .validation-summary-errors {
+        margin-bottom: 20px;
+        padding: 12px 15px;
+        border: 1px solid #f1caca;
+        border-radius: 8px;
+        background: #fff5f5;
+        color: #d93636;
+        font-size: 13px;
+    }
+
+        .validation-summary-errors ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+    .input-validation-error {
+        border-color: #d93636 !important;
+    }
+
     .edit-two-columns {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -490,12 +509,17 @@
         <div class="edit-card-body">
 
             @using (Html.BeginForm(
-                "EditProduct",
-                "Products",
-                new { area = "Admin" },
-                FormMethod.Post))
+      "EditProduct",
+      "Products",
+      new { area = "Admin", id = Model.ProductID },
+      FormMethod.Post))
             {
                 @Html.AntiForgeryToken()
+
+                @Html.ValidationSummary(false, "", new
+           {
+               @class = "validation-summary-errors"
+           })
 
                 @Html.HiddenFor(m => m.ProductID)
 
@@ -517,7 +541,8 @@
                         @Html.TextBoxFor(m => m.ProductName, new
                         {
                             @class = "edit-form-control",
-                            placeholder = "Nhập tên sản phẩm..."
+                            placeholder = "Nhập tên sản phẩm...",
+                            maxlength = "255"
                         })
 
                         @Html.ValidationMessageFor(m => m.ProductName, "", new
@@ -542,7 +567,8 @@
                                 {
                                     @class = "edit-form-control",
                                     type = "number",
-                                    min = "1",
+                                    min = "0.01",
+                                    max = "9999999999999999.99",
                                     step = "0.01",
                                     placeholder = "Nhập giá sản phẩm"
                                 })
@@ -639,7 +665,10 @@
                             @class = "edit-form-control",
                             placeholder = "Nhập URL hình ảnh sản phẩm..."
                         })
-
+                        @Html.ValidationMessageFor(m => m.ImageUrl, "", new
+{
+    @class = "edit-validation"
+})
                         <small class="edit-form-help">
                             Nhập đường dẫn hình ảnh sản phẩm đang sử dụng.
                         </small>
@@ -656,7 +685,13 @@
                         {
                             @class = "edit-form-control",
                             rows = "5",
-                            placeholder = "Nhập mô tả chi tiết sản phẩm..."
+                            placeholder = "Nhập mô tả chi tiết sản phẩm...",
+                            maxlength = "1000"
+                        })
+
+                        @Html.ValidationMessageFor(m => m.Description, "", new
+                        {
+                            @class = "edit-validation"
                         })
 
                     </div>

@@ -3,7 +3,7 @@
 
 @{
     ViewBag.Title = "Thêm sản phẩm mới";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
 <style>
@@ -724,7 +724,8 @@
                             @Html.TextBoxFor(m => m.ProductName, new
                             {
                                 @class = "form-control",
-                                placeholder = "Ví dụ: Nike Zoom Vapor 12..."
+                                placeholder = "Ví dụ: Nike Zoom Vapor 12...",
+                                maxlength = "255"
                             })
 
                         </div>
@@ -757,7 +758,8 @@
                                     {
                                         @class = "form-control",
                                         type = "number",
-                                        min = "1",
+                                        min = "0.01",
+                                        max = "9999999999999999.99",
                                         step = "0.01",
                                         placeholder = "Ví dụ: 250000"
                                     })
@@ -975,6 +977,10 @@
                                 @class = "form-control",
                                 placeholder = "https://example.com/image.jpg"
                             })
+                            @Html.ValidationMessageFor(m => m.ImageUrl, "", new
+                            {
+                                @class = "text-danger"
+                            })
 
                         </div>
 
@@ -1125,9 +1131,6 @@
 <script>
     (function () {
 
-        // Khởi tạo ngay nếu DOM đã tải xong.
-        // Nếu DOM chưa tải xong thì chờ DOMContentLoaded.
-
         function initializeProductPage() {
 
             var imageInput = document.getElementById("ImageUrl");
@@ -1196,7 +1199,6 @@
                     updateDescriptionCounter
                 );
 
-                // Cập nhật ngay khi trang được mở.
                 updateDescriptionCounter();
             }
 
@@ -1398,8 +1400,6 @@
             updateStatusPreview();
 
         }
-
-        // Kiểm tra trạng thái tải DOM.
 
         if (document.readyState === "loading") {
 

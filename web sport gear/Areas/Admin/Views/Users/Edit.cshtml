@@ -1,0 +1,221 @@
+﻿
+@model web_sport_gear.Models.AdminUserEditViewModel
+
+@{
+    ViewBag.Title = "Sửa thông tin tài khoản";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .user-form-page {
+        max-width: 850px;
+        margin: 30px auto;
+        padding: 30px;
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 5px 22px rgba(0, 0, 0, 0.06);
+    }
+
+    .user-form-title {
+        margin-bottom: 8px;
+        color: #243247;
+        font-size: 25px;
+        font-weight: 700;
+    }
+
+    .user-form-description {
+        color: #7b8798;
+        margin-bottom: 28px;
+    }
+
+    .user-form-group {
+        margin-bottom: 20px;
+    }
+
+        .user-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #344054;
+            font-weight: 600;
+        }
+
+    .user-form-control {
+        width: 100%;
+        padding: 11px 13px;
+        border: 1px solid #d8dee8;
+        border-radius: 8px;
+        outline: none;
+        transition: border-color .2s, box-shadow .2s;
+    }
+
+        .user-form-control:focus {
+            border-color: #3978d5;
+            box-shadow: 0 0 0 3px rgba(57, 120, 213, .12);
+        }
+
+    .user-validation {
+        display: block;
+        margin-top: 6px;
+        color: #dc3545;
+        font-size: 13px;
+    }
+
+    .user-validation-summary {
+        color: #dc3545;
+        margin-bottom: 18px;
+    }
+
+    .user-form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 28px;
+    }
+
+    .user-btn {
+        display: inline-block;
+        padding: 11px 20px;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .user-btn-save {
+        background: #2463c7;
+        color: white;
+    }
+
+        .user-btn-save:hover {
+            background: #194fa5;
+            color: white;
+        }
+
+    .user-btn-back {
+        background: #edf0f5;
+        color: #344054;
+    }
+
+        .user-btn-back:hover {
+            background: #dfe4ec;
+            color: #344054;
+            text-decoration: none;
+        }
+
+    .user-form-note {
+        padding: 12px 15px;
+        margin-bottom: 22px;
+        background: #f0f6ff;
+        border-radius: 8px;
+        color: #345b91;
+        font-size: 13px;
+    }
+</style>
+
+<div class="user-form-page">
+
+    <h2 class="user-form-title">Sửa thông tin tài khoản</h2>
+
+    <p class="user-form-description">
+        Cập nhật họ tên, email và số điện thoại của tài khoản.
+    </p>
+
+    <div class="user-form-note">
+        <strong>Lưu ý:</strong>
+        Vai trò và mật khẩu được quản lý bằng các chức năng riêng,
+        không thay đổi tại biểu mẫu này.
+    </div>
+
+    @using (Html.BeginForm(
+        "Edit",
+        "Users",
+        new { area = "Admin" },
+        FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        @Html.HiddenFor(m => m.UserID)
+
+        @Html.ValidationSummary(
+                 false,
+                 "",
+                 new { @class = "user-validation-summary" }
+             )
+
+        <div class="user-form-group">
+            @Html.LabelFor(m => m.FullName, "Họ và tên")
+
+            @Html.TextBoxFor(
+                     m => m.FullName,
+                     new
+                     {
+                         @class = "user-form-control",
+                         placeholder = "Nhập họ và tên",
+                         maxlength = "100"
+                     }
+                 )
+
+            @Html.ValidationMessageFor(
+                     m => m.FullName,
+                     "",
+                     new { @class = "user-validation" }
+                 )
+        </div>
+
+        <div class="user-form-group">
+            @Html.LabelFor(m => m.Email, "Email")
+
+            @Html.TextBoxFor(
+                     m => m.Email,
+                     new
+                     {
+                         @class = "user-form-control",
+                         type = "email",
+                         placeholder = "example@email.com",
+                         maxlength = "255"
+                     }
+                 )
+
+            @Html.ValidationMessageFor(
+                     m => m.Email,
+                     "",
+                     new { @class = "user-validation" }
+                 )
+        </div>
+
+        <div class="user-form-group">
+            @Html.LabelFor(m => m.Phone, "Số điện thoại")
+
+            @Html.TextBoxFor(
+                     m => m.Phone,
+                     new
+                     {
+                         @class = "user-form-control",
+                         placeholder = "Nhập số điện thoại",
+                         maxlength = "10"
+                     }
+                 )
+
+            @Html.ValidationMessageFor(
+                     m => m.Phone,
+                     "",
+                     new { @class = "user-validation" }
+                 )
+        </div>
+
+        <div class="user-form-actions">
+            <button type="submit" class="user-btn user-btn-save">
+                <i class="fa fa-save"></i> Lưu thay đổi
+            </button>
+
+            @Html.ActionLink(
+                     "Quay lại",
+                     "Index",
+                     "Users",
+                     new { area = "Admin" },
+                     new { @class = "user-btn user-btn-back" }
+                 )
+        </div>
+    }
+
+</div>
