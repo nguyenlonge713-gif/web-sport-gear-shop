@@ -1,8 +1,14 @@
-﻿@model web_sport_gear.Models.Order
+﻿
+@model web_sport_gear.Models.Order
 
 @{
     ViewBag.Title = "Chi tiết đơn hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Kiểm tra đơn hàng đã ở trạng thái kết thúc hay chưa
+    bool isFinalStatus =
+        Model.OrderStatus == "Đã giao" ||
+        Model.OrderStatus == "Đã hủy";
 
     string statusClass = "status-pending";
 
@@ -473,6 +479,29 @@
             }
 
         /* ==============================
+       FINAL ORDER STATUS
+    ============================== */
+
+        .order-detail-page .final-status-box {
+            padding: 15px;
+            border-radius: 9px;
+            line-height: 1.7;
+            font-weight: 600;
+        }
+
+        .order-detail-page .final-status-delivered {
+            background: #dcfce7;
+            border: 1px solid #86efac;
+            color: #166534;
+        }
+
+        .order-detail-page .final-status-cancelled {
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+        }
+
+        /* ==============================
        NOTE
     ============================== */
 
@@ -779,60 +808,73 @@
 
             <div class="update-section">
 
-                <h5>&#128221; Cập nhật trạng thái đơn hàng</h5>
-
-                @using (Html.BeginForm(
-                    "UpdateOrderStatus",
-                    "Orders",
-                    new { area = "Admin" },
-                    FormMethod.Post))
+                @if (isFinalStatus)
                 {
-                    @Html.AntiForgeryToken()
+                    <h5>&#128274; Đơn hàng đã kết thúc</h5>
 
-                    <input type="hidden"
-                           name="orderId"
-                           value="@Model.OrderID" />
+                    if (Model.OrderStatus == "Đã giao")
+                    {
+                        <div class="final-status-box final-status-delivered">
+                            &#10004; Đơn hàng đã được giao thành công.
+                            Không thể thay đổi trạng thái đơn hàng này nữa.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="final-status-box final-status-cancelled">
+                            &#9888; Đơn hàng đã bị hủy.
+                            Không thể thay đổi trạng thái đơn hàng này nữa.
+                        </div>
+                    }
+                }
+                else
+                {
+                    <h5>&#128221; Cập nhật trạng thái đơn hàng</h5>
 
-                    <div class="form-group mb-3">
+                    using (Html.BeginForm("UpdateOrderStatus", "Orders",
+                        new { area = "Admin" }, FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
 
-                        <label style="font-weight:700; color:#475569; margin-bottom:9px;">
-                            Chọn trạng thái mới
-                        </label>
+                        <input type="hidden"
+                               name="orderId"
+                               value="@Model.OrderID" />
 
-                        <select name="orderStatus" class="status-select">
+                        <div class="form-group mb-3">
 
-                            <option value="Chờ xác nhận"
-                                    @(Model.OrderStatus == "Chờ xác nhận" ? "selected" : "")>
-                                Chờ xác nhận
-                            </option>
+                            <label style="font-weight:700; color:#475569; margin-bottom:9px;">
+                                Chọn trạng thái mới
+                            </label>
 
-                            <option value="Đang xử lý"
-                                    @(Model.OrderStatus == "Đang xử lý" ? "selected" : "")>
-                                Đang xử lý
-                            </option>
+                            <select name="orderStatus" class="status-select">
 
-                            <option value="Đang giao"
-                                    @(Model.OrderStatus == "Đang giao" ? "selected" : "")>
-                                Đang giao
-                            </option>
+                                <option value="Chờ xác nhận"
+                                        @(Model.OrderStatus == "Chờ xác nhận" ? "selected" : "")>
+                                    Chờ xác nhận
+                                </option>
 
-                            <option value="Đã giao"
-                                    @(Model.OrderStatus == "Đã giao" ? "selected" : "")>
-                                Đã giao
-                            </option>
+                                <option value="Đang xử lý"
+                                        @(Model.OrderStatus == "Đang xử lý" ? "selected" : "")>
+                                    Đang xử lý
+                                </option>
 
-                            <option value="Đã hủy"
-                                    @(Model.OrderStatus == "Đã hủy" ? "selected" : "")>
-                                Đã hủy
-                            </option>
+                                <option value="Đang giao"
+                                        @(Model.OrderStatus == "Đang giao" ? "selected" : "")>
+                                    Đang giao
+                                </option>
 
-                        </select>
+                                <option value="Đã giao">Đã giao</option>
 
-                    </div>
+                                <option value="Đã hủy">Đã hủy</option>
 
-                    <button type="submit" class="update-button">
-                        &#10004; Cập nhật trạng thái
-                    </button>
+                            </select>
+
+                        </div>
+
+                        <button type="submit" class="update-button">
+                            &#10004; Cập nhật trạng thái
+                        </button>
+                    }
                 }
 
             </div>

@@ -306,6 +306,13 @@ namespace web_sport_gear.Areas.Admin.Controllers
                                 "Đơn hàng đã hủy, không thể thay đổi trạng thái.");
                         }
 
+                        // 2.1. Không cho phép thay đổi đơn đã giao
+                        if (currentStatus == "Đã giao")
+                        {
+                            throw new Exception(
+                                "Đơn hàng đã giao, không thể thay đổi trạng thái.");
+                        }
+
                         // 3. Khi chuyển sang ĐÃ GIAO: kiểm tra và trừ kho
                         if (orderStatus == "Đã giao" && !stockDeducted)
                         {
