@@ -446,6 +446,12 @@ button {
     font-size: 13px;
     line-height: 1.6;
 }
+/* Thông báo đăng ký thành công */
+.success-message {
+    border-color: #a7e3b5;
+    color: #15803d;
+    background: #f0fdf4;
+}
 
 /* =========================
    8. ĐĂNG NHẬP MẠNG XÃ HỘI

@@ -97,7 +97,7 @@
 
                 @if (TempData["RegisterSuccess"] != null)
                 {
-                    <div class="demo-message">
+                    <div class="demo-message success-message">
                         @TempData["RegisterSuccess"]
                     </div>
                 }
@@ -167,9 +167,7 @@
                             <span>Ghi nhớ đăng nhập</span>
                         </label>
 
-                        <a href="#" id="forgotPassword">
-                            Quên mật khẩu?
-                        </a>
+
                     </div>
 
                     <button type="submit" class="login-button">
@@ -231,15 +229,7 @@
             loginMessage.hidden = false;
         }
 
-        // Quen mat khau
-        document.getElementById("forgotPassword")
-            .addEventListener("click", function (event) {
-                event.preventDefault();
-
-                showDemoMessage(
-                    "Chức năng quên mật khẩu chưa được triển khai."
-                );
-            });
+       
     </script>
 </body>
 </html>

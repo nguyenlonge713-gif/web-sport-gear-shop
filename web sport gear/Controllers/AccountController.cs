@@ -1327,7 +1327,7 @@ namespace web_sport_gear.Controllers
                 ModelState.AddModelError(
                     "",
                     "Khong the ket noi co so du lieu. Vui long kiem tra cau hinh.");
-
+                    
                 return View();
             }
         }
