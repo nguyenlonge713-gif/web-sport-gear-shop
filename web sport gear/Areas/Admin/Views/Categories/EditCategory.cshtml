@@ -6,59 +6,392 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container">
-    <h2>SỬA DANH MỤC</h2>
+<style>
+    /* ==============================
+       EDIT CATEGORY - GEAR SPORT
+    ============================== */
 
-    <hr />
-
-    @using (Html.BeginForm("EditCategory", "Categories",
-        new { area = "Admin" }, FormMethod.Post))
-    {
-        @Html.AntiForgeryToken()
-
-        @Html.HiddenFor(m => m.CategoryID)
-
-        <div class="form-group">
-            @Html.LabelFor(m => m.CategoryID, "Mã danh mục")
-
-            @Html.TextBoxFor(m => m.CategoryID, new
-            {
-                @class = "form-control",
-                @readonly = "readonly"
-            })
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(m => m.CategoryName, "Tên danh mục")
-
-            @Html.TextBoxFor(m => m.CategoryName, new
- {
-     @class = "form-control",
-     placeholder = "Nhập tên danh mục...",
-     maxlength = "100",
-     autocomplete = "off"
- })
-
-            @Html.ValidationMessageFor(
-                   m => m.CategoryName,
-                   "",
-                   new { @class = "text-danger" }
-               )
-
-            <small class="text-muted">
-                Tên danh mục không được để trống và tối đa 100 ký tự.
-            </small>
-        </div>
-
-        <button type="submit" class="btn btn-primary">
-            <i class="glyphicon glyphicon-save"></i>
-            Lưu thay đổi
-        </button>
-
-        <a href="@Url.Action("CategoryList", "Categories",
-            new { area = "Admin" })"
-           class="btn btn-default">
-            Hủy
-        </a>
+    .category-edit-page {
+        padding-top: 35px;
+        padding-bottom: 60px;
+        color: #263449;
     }
+
+        .category-edit-page * {
+            box-sizing: border-box;
+        }
+
+    /* HEADER */
+
+    .category-edit-header {
+        position: relative;
+        overflow: hidden;
+        padding: 30px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #172554, #1e40af, #2563eb);
+        color: white;
+        margin-bottom: 25px;
+        box-shadow: 0 8px 22px rgba(30, 64, 175, 0.15);
+    }
+
+        .category-edit-header::after {
+            content: "";
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            right: -65px;
+            top: -100px;
+            background: rgba(255,255,255,0.09);
+        }
+
+    .category-edit-header-icon {
+        font-size: 36px;
+        margin-bottom: 12px;
+    }
+
+    .category-edit-header h2 {
+        position: relative;
+        z-index: 1;
+        color: white;
+        font-size: 27px;
+        font-weight: 850;
+        margin: 0 0 10px;
+    }
+
+    .category-edit-header p {
+        position: relative;
+        z-index: 1;
+        color: #dbeafe;
+        font-size: 14px;
+        margin: 0;
+        line-height: 1.7;
+    }
+
+    /* FORM CARD */
+
+    .category-edit-card {
+        max-width: 760px;
+        margin: 0 auto;
+        background: white;
+        border: 1px solid #e8edf5;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 6px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    .category-edit-card-heading {
+        padding: 21px 27px;
+        background: #f8faff;
+        border-bottom: 1px solid #e8edf5;
+    }
+
+        .category-edit-card-heading h3 {
+            color: #172554;
+            font-size: 18px;
+            font-weight: 850;
+            margin: 0;
+        }
+
+        .category-edit-card-heading p {
+            color: #718096;
+            font-size: 13px;
+            margin: 7px 0 0;
+        }
+
+    .category-edit-form {
+        padding: 30px;
+    }
+
+    /* FORM GROUP */
+
+    .category-field {
+        margin-bottom: 25px;
+    }
+
+        .category-field label {
+            display: block;
+            color: #334155;
+            font-size: 13px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+            .category-field label .required {
+                color: #dc2626;
+                margin-left: 3px;
+            }
+
+        .category-field .form-control {
+            height: 46px;
+            padding: 10px 14px;
+            border: 1px solid #dbe3ef;
+            border-radius: 9px;
+            color: #263449;
+            font-size: 14px;
+            box-shadow: none;
+            transition: 0.2s;
+        }
+
+            .category-field .form-control:focus {
+                border-color: #2563eb;
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+            }
+
+            .category-field .form-control[readonly] {
+                background: #f1f5f9;
+                color: #64748b;
+                cursor: not-allowed;
+            }
+
+        .category-field .field-description {
+            display: block;
+            margin-top: 8px;
+            color: #94a3b8;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .category-field .text-danger {
+            display: block;
+            margin-top: 7px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+    /* INFORMATION NOTE */
+
+    .category-edit-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        padding: 14px 16px;
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 10px;
+        color: #1e40af;
+        font-size: 12px;
+        line-height: 1.7;
+        margin-bottom: 27px;
+    }
+
+        .category-edit-note i {
+            font-size: 17px;
+            margin-top: 2px;
+        }
+
+    /* BUTTONS */
+
+    .category-edit-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 11px;
+        padding-top: 22px;
+        border-top: 1px solid #edf1f7;
+    }
+
+    .category-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 43px;
+        padding: 11px 19px;
+        border: none;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 800;
+        text-decoration: none !important;
+        cursor: pointer;
+        transition: 0.25s;
+    }
+
+    .category-btn-save {
+        background: linear-gradient(135deg, #1d4ed8, #2563eb);
+        color: white;
+    }
+
+        .category-btn-save:hover {
+            background: linear-gradient(135deg, #1e40af, #1d4ed8);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 13px rgba(37, 99, 235, 0.2);
+        }
+
+    .category-btn-cancel {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+        .category-btn-cancel:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+            transform: translateY(-2px);
+        }
+
+    /* RESPONSIVE */
+
+    @@media (max-width: 768px) {
+        .category-edit-page {
+            padding-top: 20px;
+        }
+
+        .category-edit-header {
+            padding: 23px;
+        }
+
+            .category-edit-header h2 {
+                font-size: 22px;
+            }
+
+        .category-edit-form {
+            padding: 22px 18px;
+        }
+
+        .category-edit-card-heading {
+            padding: 19px;
+        }
+
+        .category-edit-actions {
+            flex-direction: column;
+        }
+
+        .category-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="container category-edit-page">
+
+    <!-- HEADER -->
+    <div class="category-edit-header">
+
+        <div class="category-edit-header-icon">
+            <i class="glyphicon glyphicon-edit"></i>
+        </div>
+
+        <h2>CHỈNH SỬA DANH MỤC</h2>
+
+        <p>
+            Cập nhật thông tin danh mục sản phẩm trong hệ thống Gear Sport.
+            Hãy kiểm tra thông tin trước khi lưu thay đổi.
+        </p>
+
+    </div>
+
+    <!-- FORM CARD -->
+    <div class="category-edit-card">
+
+        <div class="category-edit-card-heading">
+
+            <h3>
+                <i class="glyphicon glyphicon-list-alt"></i>
+                Thông tin danh mục
+            </h3>
+
+            <p>
+                Chỉnh sửa tên danh mục đang được quản lý trong cửa hàng.
+            </p>
+
+        </div>
+
+        @using (Html.BeginForm(
+            "EditCategory",
+            "Categories",
+            new { area = "Admin" },
+            FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+
+            @Html.HiddenFor(m => m.CategoryID)
+
+            <div class="category-edit-form">
+
+                <!-- CATEGORY ID -->
+                <div class="category-field">
+
+                    @Html.LabelFor(m => m.CategoryID, "Mã danh mục")
+
+                    @Html.TextBoxFor(m => m.CategoryID, new
+                    {
+                        @class = "form-control",
+                        @readonly = "readonly"
+                    })
+
+                    <small class="field-description">
+                        Mã danh mục được hệ thống tạo tự động và không thể chỉnh sửa.
+                    </small>
+
+                </div>
+
+                <!-- CATEGORY NAME -->
+                <div class="category-field">
+
+                    @Html.LabelFor(m => m.CategoryName,
+                             "Tên danh mục",
+                             new { })
+
+                    <span class="required">*</span>
+
+                    @Html.TextBoxFor(m => m.CategoryName, new
+                    {
+                        @class = "form-control",
+                        placeholder = "Nhập tên danh mục...",
+                        maxlength = "100",
+                        autocomplete = "off"
+                    })
+
+                    @Html.ValidationMessageFor(
+                             m => m.CategoryName,
+                             "",
+                             new { @class = "text-danger" }
+                         )
+
+                    <small class="field-description">
+                        Tên danh mục không được để trống và tối đa 100 ký tự.
+                    </small>
+
+                </div>
+
+                <!-- NOTE -->
+                <div class="category-edit-note">
+
+                    <i class="glyphicon glyphicon-info-sign"></i>
+
+                    <div>
+                        <strong>Lưu ý:</strong>
+                        Sau khi lưu, tên danh mục mới sẽ được cập nhật
+                        trong hệ thống. Hãy đảm bảo tên danh mục chính xác
+                        trước khi xác nhận.
+                    </div>
+
+                </div>
+
+                <!-- ACTIONS -->
+                <div class="category-edit-actions">
+
+                    <button type="submit" class="category-btn category-btn-save">
+
+                        <i class="glyphicon glyphicon-floppy-disk"></i>
+                        Lưu thay đổi
+
+                    </button>
+
+                    <a href="@Url.Action("CategoryList", "Categories",
+                        new { area = "Admin" })"
+                       class="category-btn category-btn-cancel">
+
+                        <i class="glyphicon glyphicon-arrow-left"></i>
+                        Quay lại danh sách
+
+                    </a>
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
 </div>
