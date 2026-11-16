@@ -149,6 +149,121 @@ namespace web_sport_gear.Controllers
             return RedirectToAction("PHUKIEN", "Product");
         }
 
+        // Xem sản phẩm theo danh mục động
+        public ActionResult Category(int? id)
+        {
+            if (id == null || id <= 0)
+            {
+                return HttpNotFound();
+            }
+
+            string categoryName = null;
+            List<Product> products = new List<Product>();
+
+            using (SqlConnection connection =
+                new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                // 1. Kiểm tra danh mục có tồn tại không
+                string categorySql = @"
+                    SELECT CategoryName
+                    FROM dbo.Categories
+                    WHERE CategoryID = @CategoryID";
+
+                using (SqlCommand command =
+                    new SqlCommand(categorySql, connection))
+                {
+                    command.Parameters.Add(
+                        "@CategoryID", SqlDbType.Int
+                    ).Value = id.Value;
+
+                    object result = command.ExecuteScalar();
+
+                    if (result == null || result == DBNull.Value)
+                    {
+                        return HttpNotFound();
+                    }
+
+                    categoryName = result.ToString();
+                }
+
+                // 2. Lấy sản phẩm thuộc danh mục
+                string productSql = @"
+                    SELECT
+                        p.ProductID,
+                        p.ProductName,
+                        p.Price,
+                        p.ImageUrl,
+                        p.CategoryID,
+                        p.Description,
+                        p.IsActive,
+                        p.StockQuantity,
+                        p.SubCategory,
+                        c.CategoryName
+                    FROM dbo.Products p
+                    INNER JOIN dbo.Categories c
+                        ON p.CategoryID = c.CategoryID
+                    WHERE p.CategoryID = @CategoryID
+                        AND p.IsActive = 1
+                    ORDER BY p.ProductID DESC";
+
+                using (SqlCommand command =
+                    new SqlCommand(productSql, connection))
+                {
+                    command.Parameters.Add(
+                        "@CategoryID", SqlDbType.Int
+                    ).Value = id.Value;
+
+                    using (SqlDataReader reader =
+                        command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            products.Add(new Product
+                            {
+                                ProductID = Convert.ToInt32(
+                                    reader["ProductID"]),
+
+                                ProductName = reader["ProductName"].ToString(),
+
+                                Price = Convert.ToDecimal(
+                                    reader["Price"]),
+
+                                ImageUrl = reader["ImageUrl"] == DBNull.Value
+                                    ? ""
+                                    : reader["ImageUrl"].ToString(),
+
+                                CategoryID = Convert.ToInt32(
+                                    reader["CategoryID"]),
+
+                                Description = reader["Description"] == DBNull.Value
+                                    ? ""
+                                    : reader["Description"].ToString(),
+
+                                IsActive = Convert.ToBoolean(
+                                    reader["IsActive"]),
+
+                                StockQuantity = Convert.ToInt32(
+                                    reader["StockQuantity"]),
+
+                                SubCategory = reader["SubCategory"] == DBNull.Value
+                                    ? ""
+                                    : reader["SubCategory"].ToString(),
+
+                                CategoryName = reader["CategoryName"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+
+            ViewBag.CategoryName = categoryName;
+            ViewBag.CategoryID = id.Value;
+
+            return View(products);
+        }
+
 
         // Xem chi tiết sản phẩm và lấy danh sách sản phẩm liên quan
         public ActionResult Details(int? id)

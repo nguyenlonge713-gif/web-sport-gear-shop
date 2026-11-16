@@ -271,6 +271,7 @@
     <Content Include="Views\Account\Profile.cshtml" />
     <Content Include="Views\Account\ChangePassword.cshtml" />
     <Content Include="Views\Account\OrderHistory.cshtml" />
+    <Content Include="Views\Home\Category.cshtml" />
     <None Include="Views\Home\Details.cshtml" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">

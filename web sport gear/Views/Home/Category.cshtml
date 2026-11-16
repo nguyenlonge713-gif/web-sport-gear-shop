@@ -1,0 +1,448 @@
+﻿
+@model IEnumerable<web_sport_gear.Models.Product>
+
+@{
+    ViewBag.Title = (ViewBag.CategoryName ?? "Danh mục sản phẩm") + " - Gear Sport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string categoryName = ViewBag.CategoryName as string ?? "Danh mục sản phẩm";
+}
+
+<style>
+    /* ==========================================
+       GEAR SPORT - DYNAMIC CATEGORY
+    ========================================== */
+
+    .category-hero {
+        position: relative;
+        width: 100vw;
+        margin-left: calc(-50vw + 50%);
+        height: 400px;
+        background: #0f172a;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 40px;
+    }
+
+        .category-hero img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.65;
+        }
+
+    .category-hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient( to top, rgba(0,0,0,0.8), rgba(0,0,0,0.15) );
+    }
+
+    .category-hero-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        color: white;
+        padding: 20px;
+        max-width: 900px;
+    }
+
+    .category-breadcrumb {
+        font-size: 12px;
+        letter-spacing: 1px;
+        color: #cbd5e1;
+        text-transform: uppercase;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+
+    .category-title {
+        font-size: clamp(30px, 5vw, 52px);
+        font-weight: 900;
+        text-transform: uppercase;
+        margin: 0 0 15px;
+        letter-spacing: -1px;
+    }
+
+    .category-description {
+        font-size: 15px;
+        color: #e2e8f0;
+        margin: 0;
+    }
+
+    /* KHU VỰC SẢN PHẨM */
+
+    .category-catalog {
+        max-width: 1300px;
+        margin: 0 auto 60px;
+        padding: 0 20px;
+    }
+
+    .category-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 15px;
+        gap: 15px;
+    }
+
+    .category-count {
+        font-size: 14px;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .category-sort select {
+        padding: 9px 15px;
+        border: 1px solid #cbd5e1;
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: 600;
+        background: white;
+        cursor: pointer;
+        outline: none;
+    }
+
+    /* LƯỚI SẢN PHẨM */
+
+    .category-catalog .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 25px;
+    }
+
+    .category-catalog .product-item {
+        min-width: 0;
+    }
+
+    .product-detail-link {
+        color: inherit;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+        .product-detail-link:hover {
+            color: #ff5722;
+        }
+
+    .product-img {
+        cursor: pointer;
+        width: 100%;
+    }
+
+    /* TỒN KHO */
+
+    .product-stock {
+        font-size: 13px;
+        margin: 8px 0;
+        font-weight: 600;
+        color: #16a34a;
+    }
+
+        .product-stock.out-of-stock {
+            color: #dc2626;
+        }
+
+    .add-to-cart-btn:disabled {
+        background: #9ca3af;
+        border-color: #9ca3af;
+        color: white;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    /* KHÔNG CÓ SẢN PHẨM */
+
+    .category-empty {
+        text-align: center;
+        padding: 70px 20px;
+        background: #f8fafc;
+        border-radius: 10px;
+        margin-bottom: 40px;
+    }
+
+        .category-empty h3 {
+            color: #1e293b;
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .category-empty p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+    .category-back {
+        display: inline-block;
+        margin-top: 15px;
+        padding: 10px 22px;
+        background: #ed1c2e;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: 600;
+    }
+
+        .category-back:hover {
+            background: #c91021;
+            color: white;
+            text-decoration: none;
+        }
+
+    /* RESPONSIVE */
+
+    @@media (max-width: 768px) {
+        .category-hero {
+            height: 300px;
+        }
+
+        .category-toolbar {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .category-catalog .product-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
+        }
+    }
+
+    @@media (max-width: 400px) {
+        .category-catalog {
+            padding: 0 12px;
+        }
+
+            .category-catalog .product-grid {
+                gap: 10px;
+            }
+    }
+</style>
+
+<!-- BANNER DANH MỤC -->
+
+<div class="category-hero">
+
+    <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1400&auto=format&fit=crop&q=80"
+         alt="Gear Sport Category" />
+
+    <div class="category-hero-overlay"></div>
+
+    <div class="category-hero-content">
+
+        <div class="category-breadcrumb">
+            Trang chủ / @categoryName
+        </div>
+
+        <h1 class="category-title">
+            @categoryName
+        </h1>
+
+        <p class="category-description">
+            Khám phá các sản phẩm thể thao chất lượng tại Gear Sport.
+            Nâng tầm phong cách và hiệu suất vận động của bạn.
+        </p>
+
+    </div>
+
+</div>
+
+<!-- DANH SÁCH SẢN PHẨM -->
+
+<div class="category-catalog">
+
+    <div class="category-toolbar">
+
+        <span class="category-count">
+            Hiển thị @Model.Count() sản phẩm
+        </span>
+
+        <div class="category-sort">
+
+            <select id="sortSelect">
+                <option value="newest">Sắp xếp: Mới nhất</option>
+                <option value="price-asc">Giá: Thấp đến cao</option>
+                <option value="price-desc">Giá: Cao xuống thấp</option>
+            </select>
+
+        </div>
+
+    </div>
+
+    @if (Model.Any())
+    {
+        <section class="featured-products">
+
+            <div class="product-container product-grid" id="categoryProductGrid">
+
+                @foreach (var product in Model)
+                {
+                    <div class="product-item product-card"
+                         data-id="@product.ProductID"
+                         data-price="@product.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+
+                        <!-- HÌNH ẢNH SẢN PHẨM -->
+
+                        <a href="@Url.Action("Details", "Home", new { id = product.ProductID })"
+                           class="product-detail-link">
+
+                            <img src="@product.ImageUrl"
+                                 alt="@product.ProductName"
+                                 class="product-img" />
+
+                        </a>
+
+                        <div class="product-info">
+
+                            <!-- TÊN SẢN PHẨM -->
+
+                            <h3 class="product-title">
+
+                                <a href="@Url.Action("Details", "Home", new { id = product.ProductID })"
+                                   class="product-detail-link">
+
+                                    @product.ProductName
+
+                                </a>
+
+                            </h3>
+
+                            <!-- GIÁ -->
+
+                            <p class="product-price">
+                                @product.Price.ToString("N0") đ
+                            </p>
+
+                            <!-- TỒN KHO -->
+
+                            @if (product.StockQuantity > 0)
+                            {
+                                <p class="product-stock">
+                                    Còn hàng: @product.StockQuantity sản phẩm
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="product-stock out-of-stock">
+                                    Hết hàng
+                                </p>
+                            }
+
+                            <!-- THÊM VÀO GIỎ HÀNG -->
+
+                            @if (product.StockQuantity > 0)
+                            {
+                                <button class="btn add-to-cart-btn"
+                                        data-id="@product.ProductID"
+                                        data-name="@product.ProductName"
+                                        data-price="@product.Price"
+                                        data-image="@product.ImageUrl"
+                                        data-stock="@product.StockQuantity">
+
+                                    Thêm vào giỏ
+
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn add-to-cart-btn"
+                                        data-id="@product.ProductID"
+                                        data-name="@product.ProductName"
+                                        data-price="@product.Price"
+                                        data-image="@product.ImageUrl"
+                                        data-stock="0"
+                                        disabled>
+
+                                    Hết hàng
+
+                                </button>
+                            }
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+
+        </section>
+    }
+    else
+    {
+        <div class="category-empty">
+
+            <h3>Danh mục chưa có sản phẩm</h3>
+
+            <p>
+                Hiện tại chưa có sản phẩm nào trong danh mục
+                @categoryName.
+            </p>
+
+            <a href="@Url.Action("Index", "Home")"
+               class="category-back">
+
+                Quay lại trang chủ
+
+            </a>
+
+        </div>
+    }
+
+</div>
+
+<!-- SẮP XẾP SẢN PHẨM -->
+
+<script>document.addEventListener("DOMContentLoaded", function () {
+
+        const sortSelect = document.getElementById("sortSelect");
+
+        const productContainer = document.getElementById(
+            "categoryProductGrid"
+        );
+
+        if (!sortSelect || !productContainer) {
+            return;
+        }
+
+        function sortProducts() {
+
+            const products = Array.from(
+                productContainer.querySelectorAll(".product-item")
+            );
+
+            const sortType = sortSelect.value;
+
+            products.sort(function (a, b) {
+
+                const priceA = parseFloat(a.dataset.price) || 0;
+                const priceB = parseFloat(b.dataset.price) || 0;
+
+                const idA = parseInt(a.dataset.id) || 0;
+                const idB = parseInt(b.dataset.id) || 0;
+
+                if (sortType === "price-asc") {
+                    return priceA - priceB;
+                }
+
+                if (sortType === "price-desc") {
+                    return priceB - priceA;
+                }
+
+                return idB - idA;
+            });
+
+            products.forEach(function (product) {
+                productContainer.appendChild(product);
+            });
+        }
+
+        sortSelect.addEventListener("change", sortProducts);
+
+        sortProducts();
+
+    });</script>

@@ -1,36 +1,42 @@
-﻿@model IEnumerable<web_sport_gear.Models.Category>
+﻿
+@model IEnumerable<web_sport_gear.Models.Category>
 
 @foreach (var category in Model)
 {
     string actionName = "";
+    string controllerName = "";
 
+    // Giữ nguyên đường dẫn của 3 danh mục cũ
     switch (category.CategoryID)
     {
         case 1:
             actionName = "AOTHETHAO";
+            controllerName = "Product";
             break;
 
         case 2:
             actionName = "PHUKIEN";
+            controllerName = "Product";
             break;
 
         case 3:
             actionName = "GiayDaBong";
+            controllerName = "Product";
+            break;
+
+        // Các danh mục mới sử dụng trang động
+        default:
+            actionName = "Category";
+            controllerName = "Home";
             break;
     }
 
     <li>
-        @if (!string.IsNullOrEmpty(actionName))
-        {
-            <a href="@Url.Action(actionName, "Product", new { area = "" })">
-                @category.CategoryName
-            </a>
-        }
-        else
-        {
-            <span style="color: #334155; font-weight: 700; font-size: 13px;">
-                @category.CategoryName
-            </span>
-        }
+        <a href="@Url.Action(
+            actionName,
+            controllerName,
+            new { id = category.CategoryID, area = "" })">
+            @category.CategoryName
+        </a>
     </li>
 }

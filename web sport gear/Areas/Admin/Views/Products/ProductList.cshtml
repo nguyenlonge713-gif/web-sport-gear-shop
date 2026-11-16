@@ -490,7 +490,17 @@
             color: white;
             transform: translateY(-2px);
         }
+    /* NÚT XÓA SẢN PHẨM */
+    .product-delete {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
 
+        .product-delete:hover {
+            background: #dc2626;
+            color: white;
+            transform: translateY(-2px);
+        }
     /* EMPTY STATE */
 
     .product-empty {
@@ -907,6 +917,26 @@
 
                                                 </button>
                                             }
+                                        }
+
+                                        <!-- DELETE PRODUCT -->
+                                        @using (Html.BeginForm(
+                                            "DeleteProduct",
+                                            "Products",
+                                            new { area = "Admin", id = item.ProductID },
+                                            FormMethod.Post,
+                                            new { style = "display:inline;" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+
+                                            <button type="submit"
+                                                    class="product-action product-delete"
+                                                    onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này không? Thao tác này không thể hoàn tác.');">
+
+                                                <i class="glyphicon glyphicon-trash"></i>
+                                                Xóa
+
+                                            </button>
                                         }
 
                                     </div>
