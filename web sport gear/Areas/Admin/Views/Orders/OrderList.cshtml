@@ -5,7 +5,7 @@
 
 @{
     ViewBag.Title = "Quản lý đơn hàng";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 
     int totalOrders = Model == null ? 0 : Model.Count;
     int pendingOrders = Model == null ? 0 : Model.Count(x => x.OrderStatus == "Chờ xác nhận");
@@ -84,11 +84,12 @@
         position: relative;
         overflow: hidden;
         background: #fff;
-        border: none;
+        border: 2px solid transparent;
         border-radius: 14px;
         padding: 23px;
         box-shadow: 0 5px 20px rgba(30, 50, 80, .07);
         transition: .25s;
+        cursor: pointer;
     }
 
         .order-stat-card:hover {
@@ -110,6 +111,20 @@
 
         .order-stat-card:nth-child(4) {
             border-top: 4px solid #16a36a;
+        }
+
+        /* Thẻ đang được chọn */
+        .order-stat-card.active {
+            border-left: 2px solid #2878f0;
+            border-right: 2px solid #2878f0;
+            border-bottom: 2px solid #2878f0;
+            background: #f0f6ff;
+            transform: translateY(-3px);
+        }
+
+        .order-stat-card:focus {
+            outline: 3px solid rgba(40, 120, 240, .25);
+            outline-offset: 3px;
         }
 
     .order-stat-label {
@@ -190,9 +205,7 @@
         margin: 0;
     }
 
-        /* =========================
-       TIÊU ĐỀ BẢNG
-    ========================= */
+        /* TIÊU ĐỀ BẢNG */
         .order-table thead {
             background: linear-gradient(120deg, #142d59, #245bb0);
         }
@@ -208,9 +221,7 @@
             white-space: nowrap;
         }
 
-        /* =========================
-       DỮ LIỆU BẢNG
-    ========================= */
+        /* DỮ LIỆU BẢNG */
         .order-table td {
             padding: 17px 16px;
             color: #526176;
@@ -235,9 +246,7 @@
                 border-bottom: none;
             }
 
-    /* =========================
-       MÃ ĐƠN HÀNG
-    ========================= */
+    /* MÃ ĐƠN HÀNG */
     .order-id-link {
         display: inline-block;
         padding: 8px 12px;
@@ -272,9 +281,7 @@
         white-space: nowrap;
     }
 
-    /* =========================
-       PHƯƠNG THỨC THANH TOÁN
-    ========================= */
+    /* PHƯƠNG THỨC THANH TOÁN */
     .order-payment {
         display: inline-block;
         padding: 7px 10px;
@@ -285,9 +292,7 @@
         font-weight: 700;
     }
 
-    /* =========================
-       TRẠNG THÁI ĐƠN HÀNG
-    ========================= */
+    /* TRẠNG THÁI ĐƠN HÀNG */
     .order-status {
         display: inline-block;
         padding: 7px 11px;
@@ -334,7 +339,52 @@
     }
 
     /* =========================
-       TRẠNG THÁI DANH SÁCH RỖNG
+       THANH TÌM KIẾM
+    ========================= */
+    .order-search-box {
+        padding: 20px 25px;
+        border-bottom: 1px solid #e9edf5;
+        background: #fff;
+    }
+
+    .order-search-wrapper {
+        position: relative;
+        max-width: 500px;
+    }
+
+    .order-search-input {
+        width: 100%;
+        height: 45px;
+        padding: 10px 15px 10px 42px;
+        border: 1px solid #dce4ef;
+        border-radius: 9px;
+        outline: none;
+        font-size: 14px;
+        color: #263445;
+        transition: .2s;
+    }
+
+        .order-search-input:focus {
+            border-color: #2878f0;
+            box-shadow: 0 0 0 3px rgba(40, 120, 240, .10);
+        }
+
+    .order-search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #8492a8;
+    }
+
+    .order-search-hint {
+        margin-top: 8px;
+        color: #8492a8;
+        font-size: 12px;
+    }
+
+    /* =========================
+       DANH SÁCH RỖNG
     ========================= */
     .order-empty {
         padding: 55px 20px;
@@ -349,9 +399,15 @@
             margin-bottom: 7px;
         }
 
-    /* =========================
-       THÔNG BÁO
-    ========================= */
+    .order-filter-empty {
+        display: none;
+        padding: 35px 15px;
+        text-align: center;
+        color: #8793a3;
+        font-size: 14px;
+    }
+
+    /* THÔNG BÁO */
     .order-alert {
         border-radius: 9px;
         padding: 13px 17px;
@@ -402,7 +458,20 @@
             &#8592; Quay lại Dashboard
         </a>
     </div>
+    @if (ViewBag.FilterPaidOrders != null &&
+     (bool)ViewBag.FilterPaidOrders)
+    {
+        <div class="alert alert-success order-alert">
+            <i class="fa-solid fa-circle-check"></i>
+            <strong>Đang xem:</strong>
+            Danh sách đơn hàng đã thanh toán và chưa bị hủy.
 
+            <a href="@Url.Action("OrderList", "Orders", new { area = "Admin" })"
+               style="margin-left: 10px; font-weight: 700;">
+                Xem tất cả đơn hàng
+            </a>
+        </div>
+    }
     <!-- THÔNG BÁO -->
     @if (TempData["SuccessMessage"] != null)
     {
@@ -421,25 +490,49 @@
     <!-- THỐNG KÊ -->
     <div class="order-stat-grid">
 
-        <div class="order-stat-card">
+        <!-- TỔNG ĐƠN HÀNG -->
+        <div class="order-stat-card active"
+             data-filter="all"
+             role="button"
+             tabindex="0"
+             aria-pressed="true">
+
             <div class="order-stat-label">TỔNG ĐƠN HÀNG</div>
             <div class="order-stat-number">@totalOrders</div>
             <div class="order-stat-note">Tất cả đơn hàng hiện có</div>
         </div>
 
-        <div class="order-stat-card">
+        <!-- CHỜ XÁC NHẬN -->
+        <div class="order-stat-card"
+             data-filter="Chờ xác nhận"
+             role="button"
+             tabindex="0"
+             aria-pressed="false">
+
             <div class="order-stat-label">CHỜ XÁC NHẬN</div>
             <div class="order-stat-number">@pendingOrders</div>
             <div class="order-stat-note">Đơn hàng cần xử lý</div>
         </div>
 
-        <div class="order-stat-card">
+        <!-- ĐANG GIAO -->
+        <div class="order-stat-card"
+             data-filter="Đang giao"
+             role="button"
+             tabindex="0"
+             aria-pressed="false">
+
             <div class="order-stat-label">ĐANG GIAO</div>
             <div class="order-stat-number">@shippingOrders</div>
             <div class="order-stat-note">Đơn hàng đang vận chuyển</div>
         </div>
 
-        <div class="order-stat-card">
+        <!-- ĐÃ GIAO -->
+        <div class="order-stat-card"
+             data-filter="Đã giao"
+             role="button"
+             tabindex="0"
+             aria-pressed="false">
+
             <div class="order-stat-label">ĐÃ GIAO</div>
             <div class="order-stat-number">@completedOrders</div>
             <div class="order-stat-note">Đơn hàng đã hoàn tất</div>
@@ -450,6 +543,7 @@
     <!-- DANH SÁCH ĐƠN HÀNG -->
     <div class="order-table-card">
 
+        <!-- TIÊU ĐỀ -->
         <div class="order-table-header">
             <h4>Danh sách đơn hàng</h4>
             <p>Thông tin các đơn hàng được đặt trên hệ thống.</p>
@@ -464,6 +558,23 @@
         }
         else
         {
+            <!-- THANH TÌM KIẾM -->
+            <div class="order-search-box">
+                <div class="order-search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass order-search-icon"></i>
+
+                    <input type="text"
+                           id="orderSearch"
+                           class="order-search-input"
+                           placeholder="Tìm mã đơn, tên khách hàng hoặc số điện thoại..." />
+                </div>
+
+                <div class="order-search-hint">
+                    Tìm kiếm theo mã đơn hàng, tên khách hàng, người nhận hoặc số điện thoại.
+                </div>
+            </div>
+
+            <!-- BẢNG ĐƠN HÀNG -->
             <div class="order-table-wrapper">
                 <table class="order-table">
                     <thead>
@@ -505,7 +616,13 @@
                                 statusClass = "status-cancelled";
                             }
 
-                            <tr>
+                            <tr class="order-row"
+                                data-status="@order.OrderStatus"
+                                data-order-id="@order.OrderID"
+                                data-customer="@order.CustomerName"
+                                data-receiver="@order.ReceiverName"
+                                data-phone="@order.ReceiverPhone">
+
                                 <td>
                                     <a href="@Url.Action(
                                         "OrderDetails",
@@ -554,6 +671,13 @@
                                 </td>
                             </tr>
                         }
+
+                        <!-- KHÔNG TÌM THẤY KẾT QUẢ -->
+                        <tr id="orderFilterEmpty" style="display: none;">
+                            <td colspan="8" class="order-filter-empty">
+                                Không tìm thấy đơn hàng phù hợp.
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -561,3 +685,117 @@
 
     </div>
 </div>
+
+<!-- JAVASCRIPT: TÌM KIẾM VÀ LỌC ĐƠN HÀNG -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const searchInput = document.getElementById("orderSearch");
+        const statCards = document.querySelectorAll(".order-stat-card");
+        const orderRows = document.querySelectorAll(".order-row");
+        const emptyMessage = document.getElementById("orderFilterEmpty");
+
+        // Trạng thái đang được chọn
+        let currentFilter = "all";
+
+        // Hàm lọc đơn hàng
+        function filterOrders() {
+
+            const keyword = searchInput
+                ? searchInput.value.trim().toLowerCase()
+                : "";
+
+            let visibleCount = 0;
+
+            orderRows.forEach(function (row) {
+
+                const status = row.dataset.status || "";
+
+                const orderId = row.dataset.orderId || "";
+                const customer = row.dataset.customer || "";
+                const receiver = row.dataset.receiver || "";
+                const phone = row.dataset.phone || "";
+
+                // Kiểm tra trạng thái đơn hàng
+                const matchStatus =
+                    currentFilter === "all" ||
+                    status === currentFilter;
+
+                // Nội dung dùng để tìm kiếm
+                const searchContent = (
+                    orderId + " " +
+                    customer + " " +
+                    receiver + " " +
+                    phone
+                ).toLowerCase();
+
+                // Kiểm tra từ khóa
+                const matchKeyword =
+                    searchContent.includes(keyword);
+
+                // Hiển thị nếu thỏa mãn cả hai điều kiện
+                if (matchStatus && matchKeyword) {
+                    row.style.display = "";
+                    visibleCount++;
+                }
+                else {
+                    row.style.display = "none";
+                }
+            });
+
+            // Hiện thông báo khi không có kết quả
+            if (emptyMessage) {
+                emptyMessage.style.display =
+                    visibleCount === 0 ? "table-row" : "none";
+            }
+        }
+
+        // Chọn trạng thái lọc
+        function selectFilter(card) {
+
+            currentFilter = card.dataset.filter;
+
+            // Cập nhật giao diện thẻ đang chọn
+            statCards.forEach(function (item) {
+
+                const isActive = item === card;
+
+                item.classList.toggle("active", isActive);
+
+                item.setAttribute(
+                    "aria-pressed",
+                    isActive ? "true" : "false"
+                );
+            });
+
+            // Thực hiện lọc
+            filterOrders();
+        }
+
+        // Gắn sự kiện cho 4 thẻ thống kê
+        statCards.forEach(function (card) {
+
+            // Nhấn chuột
+            card.addEventListener("click", function () {
+                selectFilter(card);
+            });
+
+            // Hỗ trợ nhấn Enter hoặc Space
+            card.addEventListener("keydown", function (event) {
+
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    selectFilter(card);
+                }
+            });
+        });
+
+        // Tìm kiếm khi nhập từ khóa
+        if (searchInput) {
+            searchInput.addEventListener("input", filterOrders);
+        }
+
+        // Mặc định hiển thị tất cả đơn hàng
+        filterOrders();
+    });
+</script>

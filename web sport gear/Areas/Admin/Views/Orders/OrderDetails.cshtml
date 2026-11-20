@@ -3,12 +3,12 @@
 
 @{
     ViewBag.Title = "Chi tiết đơn hàng";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 
     // Kiểm tra đơn hàng đã ở trạng thái kết thúc hay chưa
     bool isFinalStatus =
-        Model.OrderStatus == "Đã giao" ||
-        Model.OrderStatus == "Đã hủy";
+Model.OrderStatus == "Đã giao" ||
+Model.OrderStatus == "Đã hủy";
 
     string statusClass = "status-pending";
 
@@ -42,6 +42,49 @@
 }
 
 <style>
+    .payment-management {
+        margin-top: 24px;
+    }
+
+        .payment-management .payment-button {
+            display: inline-block;
+            padding: 12px 22px;
+            border: none;
+            border-radius: 8px;
+            background: #16a34a;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+            .payment-management .payment-button:hover {
+                background: #15803d;
+            }
+
+        .payment-management .payment-note {
+            margin-bottom: 15px;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .payment-management .payment-result {
+            padding: 13px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        .payment-management .payment-success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .payment-management .payment-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
     /* ==============================
        GENERAL
     ============================== */
@@ -705,7 +748,59 @@
 
         </div>
     </div>
+    <!-- QUẢN LÝ THANH TOÁN -->
+    <div class="detail-card payment-management">
+        <div class="detail-card-header">
+            <div class="header-icon">&#128179;</div>
+            <h4>Quản lý thanh toán</h4>
+        </div>
 
+        <div class="detail-card-body">
+
+            @if (Model.PaymentStatus == "Đã thanh toán")
+            {
+                <div class="payment-result payment-success">
+                    &#10004; Đơn hàng đã được xác nhận thanh toán.
+                </div>
+            }
+            else if (Model.OrderStatus == "Đã hủy")
+            {
+                <div class="payment-result payment-warning">
+                    Không thể xác nhận thanh toán cho đơn hàng đã hủy.
+                </div>
+            }
+            else if (Model.PaymentStatus == "Chưa thanh toán")
+            {
+                <p class="payment-note">
+                    Đơn hàng hiện chưa được xác nhận thanh toán.
+                    Chỉ xác nhận sau khi Admin kiểm tra và nhận được tiền.
+                </p>
+                <form action="@Url.Action("ConfirmPayment", "Orders", new { area = "Admin" })"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           name="orderId"
+                           value="@Model.OrderID" />
+
+                    <button type="submit"
+                            class="payment-button"
+                            onclick="return confirm('Bạn xác nhận đơn hàng này đã được thanh toán?');">
+                        &#10004; Xác nhận đã thanh toán
+                    </button>
+
+                </form>
+            }
+            else
+            {
+                <div class="payment-result payment-warning">
+                    Trạng thái thanh toán hiện tại: @Model.PaymentStatus
+                </div>
+            }
+
+        </div>
+    </div>
     <!-- PRODUCT LIST -->
     <div class="detail-card">
 

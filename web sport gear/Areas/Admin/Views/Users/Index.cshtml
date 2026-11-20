@@ -3,15 +3,7 @@
 
 @{
     ViewBag.Title = "Quản lý tài khoản";
-
     string currentKeyword = ViewBag.Keyword as string ?? "";
-    string currentRole = ViewBag.Role as string ?? "";
-
-    int currentUserId = 0;
-    int.TryParse(
-        Convert.ToString(Session["UserID"]),
-        out currentUserId
-    );
 }
 
 <style>
@@ -51,25 +43,6 @@
         font-size: 14px;
     }
 
-    .users-alert {
-        padding: 13px 16px;
-        border-radius: 9px;
-        margin-bottom: 18px;
-        font-size: 14px;
-    }
-
-        .users-alert.success {
-            background: #eaf8ef;
-            color: #247342;
-            border: 1px solid #c9ebd3;
-        }
-
-        .users-alert.error {
-            background: #fff0f0;
-            color: #b83232;
-            border: 1px solid #f2cccc;
-        }
-
     .users-filter-card {
         background: #fff;
         padding: 20px;
@@ -85,8 +58,7 @@
         gap: 12px;
     }
 
-    .users-search-input,
-    .users-role-select {
+    .users-search-input {
         height: 42px;
         border: 1px solid #dce3ed;
         border-radius: 8px;
@@ -95,20 +67,11 @@
         color: #34445a;
         background: #fff;
         font-size: 14px;
-    }
-
-    .users-search-input {
         flex: 1;
         min-width: 220px;
     }
 
-    .users-role-select {
-        min-width: 170px;
-    }
-
-        .users-search-input:focus,
-        .users-role-select:focus,
-        .reset-input:focus {
+        .users-search-input:focus {
             border-color: #477ed0;
             box-shadow: 0 0 0 3px rgba(71, 126, 208, 0.1);
         }
@@ -141,33 +104,6 @@
         background: #edf0f5;
         color: #536176;
     }
-    /* NUT THEM TAI KHOAN */
-    .users-btn-add {
-        background: #198754;
-        color: #fff;
-        white-space: nowrap;
-    }
-
-        .users-btn-add:hover {
-            background: #146c43;
-            color: #fff;
-            text-decoration: none;
-        }
-
-    /* NUT SUA THONG TIN */
-    .users-btn-edit {
-        background: #e8f2ff;
-        color: #2862a5;
-        margin-bottom: 10px;
-        padding: 7px 11px;
-        font-size: 12px;
-    }
-
-        .users-btn-edit:hover {
-            background: #d5e7ff;
-            color: #194f8c;
-            text-decoration: none;
-        }
 
         .users-btn-reset:hover {
             background: #dfe5ee;
@@ -226,9 +162,13 @@
         color: #75849a;
     }
 
-    .user-email {
+    .user-name {
         color: #263e60;
         font-weight: 600;
+    }
+
+    .user-email {
+        color: #46566c;
         word-break: break-word;
     }
 
@@ -243,14 +183,6 @@
         font-size: 11px;
         font-weight: 700;
         white-space: nowrap;
-    }
-
-    .role-admin {
-        background: #fff0dc;
-        color: #b66b16;
-    }
-
-    .role-customer {
         background: #e8f2ff;
         color: #3268a8;
     }
@@ -260,142 +192,23 @@
         color: #7b8797;
     }
 
-    .user-actions {
-        min-width: 280px;
-    }
-
-    .role-form {
-        display: flex;
-        align-items: center;
-        gap: 7px;
-        margin-bottom: 9px;
-    }
-
-    .role-select {
-        height: 34px;
-        min-width: 115px;
-        padding: 0 8px;
-        border: 1px solid #dce3ed;
-        border-radius: 6px;
-        background: #fff;
-        font-size: 12px;
-        color: #46566c;
-    }
-
-    .role-submit {
-        height: 34px;
-        padding: 0 11px;
-        border: none;
-        border-radius: 6px;
-        background: #315f9f;
-        color: #fff;
-        font-size: 12px;
-        font-weight: 600;
-        cursor: pointer;
-    }
-
-        .role-submit:hover {
-            background: #244b80;
-        }
-
-    .reset-password-details {
-        margin-top: 5px;
-    }
-
-        .reset-password-details summary {
-            display: inline-block;
-            cursor: pointer;
-            color: #b66b16;
-            font-weight: 600;
-            font-size: 12px;
-            padding: 5px 0;
-            outline: none;
-        }
-
-    .reset-password-panel {
-        width: 260px;
-        padding: 13px;
-        margin-top: 8px;
-        border: 1px solid #e4e9f1;
-        border-radius: 9px;
-        background: #fafbfd;
-    }
-
-        .reset-password-panel label {
-            display: block;
-            margin: 8px 0 5px;
-            color: #536176;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-    .reset-input {
-        width: 100%;
-        height: 36px;
-        padding: 0 10px;
-        border: 1px solid #dce3ed;
-        border-radius: 6px;
-        background: #fff;
-        outline: none;
-        font-size: 12px;
-        box-sizing: border-box;
-    }
-
-        .reset-input.password-invalid {
-            border-color: #dc3545;
-            background: #fffafa;
-        }
-
-        .reset-input.password-valid {
-            border-color: #28a745;
-            background: #f8fff9;
-        }
-
-    .password-feedback {
-        display: none;
-        margin-top: 6px;
-        font-size: 11px;
-        line-height: 1.5;
-    }
-
-        .password-feedback.error {
-            color: #c0392b;
-        }
-
-        .password-feedback.success {
-            color: #247342;
-        }
-
-    .reset-submit {
-        width: 100%;
-        margin-top: 12px;
-        padding: 9px 10px;
-        border: none;
-        border-radius: 6px;
-        background: #b66b16;
-        color: #fff;
-        font-size: 12px;
-        font-weight: 700;
-        cursor: pointer;
-    }
-
-        .reset-submit:hover {
-            background: #96550e;
-        }
-
-        .reset-submit:disabled {
-            background: #aab3c0;
-            cursor: not-allowed;
-        }
-
-    .current-user-label {
+    .status-badge {
         display: inline-block;
-        padding: 8px 10px;
-        border-radius: 7px;
-        background: #edf0f5;
-        color: #64748b;
-        font-size: 12px;
-        font-weight: 600;
+        padding: 6px 11px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .status-active {
+        background: #e5f7ed;
+        color: #218653;
+    }
+
+    .status-inactive {
+        background: #fff0f0;
+        color: #c34444;
     }
 
     .users-empty {
@@ -411,6 +224,19 @@
             color: #b4bfce;
         }
 
+    .readonly-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 10px;
+        border-radius: 7px;
+        background: #f0f4f8;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
     @@media (max-width: 768px) {
         .users-page {
             padding: 18px 12px;
@@ -425,7 +251,6 @@
         }
 
             .users-search-input,
-            .users-role-select,
             .users-filter-form .users-btn {
                 width: 100%;
             }
@@ -443,46 +268,17 @@
             </h2>
 
             <div class="users-subtitle">
-                Quản lý tài khoản đăng nhập và phân quyền Admin, Customer.
+                Chỉ xem thông tin tài khoản khách hàng. Không có quyền chỉnh sửa.
             </div>
         </div>
 
-        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-
-            @Html.ActionLink(
-                    "Thêm tài khoản",
-                    "Create",
-                    "Users",
-                    new { area = "Admin" },
-                    new { @class = "users-btn users-btn-add" }
-                )
-
-            <div class="users-total">
-                <i class="fa fa-user-circle"></i>
-                Tổng số: @(Model == null ? 0 : Model.Count) tài khoản
-            </div>
-
+        <div class="users-total">
+            <i class="fa fa-user-circle"></i>
+            Tổng số: @(Model == null ? 0 : Model.Count) khách hàng
         </div>
     </div>
 
-    <!-- THONG BAO -->
-    @if (TempData["Success"] != null)
-    {
-        <div class="users-alert success">
-            <i class="fa fa-check-circle"></i>
-            @TempData["Success"]
-        </div>
-    }
-
-    @if (TempData["Error"] != null)
-    {
-        <div class="users-alert error">
-            <i class="fa fa-exclamation-circle"></i>
-            @TempData["Error"]
-        </div>
-    }
-
-    <!-- TIM KIEM VA LOC -->
+    <!-- TIM KIEM -->
     <div class="users-filter-card">
         @using (Html.BeginForm(
             "Index",
@@ -497,34 +293,8 @@
                      new
                      {
                          @class = "users-search-input",
-                         placeholder = "Tìm theo email hoặc số điện thoại..."
+                         placeholder = "Tìm theo họ tên, email hoặc số điện thoại..."
                      }
-                 )
-
-            @Html.DropDownList(
-                     "role",
-                     new List<SelectListItem>
-                     {
-                    new SelectListItem
-                    {
-                        Text = "Tất cả vai trò",
-                        Value = "",
-                        Selected = currentRole == ""
-                    },
-                    new SelectListItem
-                    {
-                        Text = "Admin",
-                        Value = "Admin",
-                        Selected = currentRole == "Admin"
-                    },
-                    new SelectListItem
-                    {
-                        Text = "Customer",
-                        Value = "Customer",
-                        Selected = currentRole == "Customer"
-                    }
-                         },
-                     new { @class = "users-role-select" }
                  )
 
             <button type="submit" class="users-btn users-btn-search">
@@ -540,18 +310,20 @@
         }
     </div>
 
-    <!-- BANG TAI KHOAN -->
+    <!-- DANH SACH CUSTOMER -->
     <div class="users-table-card">
         <div class="users-table-wrapper">
             <table class="users-table">
                 <thead>
                     <tr>
                         <th>Mã tài khoản</th>
+                        <th>Họ và tên</th>
                         <th>Email đăng nhập</th>
                         <th>Số điện thoại</th>
                         <th>Vai trò</th>
+                        <th>Trạng thái</th>
                         <th>Ngày tạo</th>
-                        <th>Thao tác</th>
+                        <th>Quyền thao tác</th>
                     </tr>
                 </thead>
 
@@ -564,6 +336,14 @@
                                 <td>
                                     <span class="user-id">
                                         #@user.UserID
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="user-name">
+                                        @(string.IsNullOrWhiteSpace(user.FullName)
+                                            ? "Chưa cập nhật"
+                                            : user.FullName)
                                     </span>
                                 </td>
 
@@ -584,18 +364,25 @@
                                 </td>
 
                                 <td>
-                                    @if (user.Role == "Admin")
+                                    <span class="role-badge">
+                                        <i class="fa fa-user"></i>
+                                        Customer
+                                    </span>
+                                </td>
+
+                                <td>
+                                    @if (user.IsActive)
                                     {
-                                        <span class="role-badge role-admin">
-                                            <i class="fa fa-shield"></i>
-                                            Admin
+                                        <span class="status-badge status-active">
+                                            <i class="fa fa-check-circle"></i>
+                                            Hoạt động
                                         </span>
                                     }
                                     else
                                     {
-                                        <span class="role-badge role-customer">
-                                            <i class="fa fa-user"></i>
-                                            Customer
+                                        <span class="status-badge status-inactive">
+                                            <i class="fa fa-times-circle"></i>
+                                            Vô hiệu hóa
                                         </span>
                                     }
                                 </td>
@@ -608,147 +395,11 @@
                                     </span>
                                 </td>
 
-                                <td class="user-actions">
-
-                                    <!-- SUA THONG TIN TAI KHOAN -->
-                                    @Html.ActionLink(
-                                            "Sửa thông tin",
-                                            "Edit",
-                                            "Users",
-                                            new
-                                            {
-                                                area = "Admin",
-                                                id = user.UserID
-                                            },
-                                            new
-                                            {
-                                                @class = "users-btn users-btn-edit"
-                                            }
-                                        )
-
-                                    @if (user.UserID == currentUserId)
-                                    {
-                                        <span class="current-user-label">
-                                            <i class="fa fa-user-circle"></i>
-                                            Tài khoản đang đăng nhập
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <!-- DOI QUYEN -->
-                                        using (Html.BeginForm(
-                                            "ChangeRole",
-                                            "Users",
-                                            new { area = "Admin" },
-                                            FormMethod.Post,
-                                            new { @class = "role-form" }))
-                                        {
-                                            @Html.AntiForgeryToken()
-
-                                            <input type="hidden"
-                                                   name="id"
-                                                   value="@user.UserID" />
-
-                                            <input type="hidden"
-                                                   name="keyword"
-                                                   value="@currentKeyword" />
-
-                                            <input type="hidden"
-                                                   name="filterRole"
-                                                   value="@currentRole" />
-
-                                            <select name="role" class="role-select">
-                                                <option value="Customer"
-                                                        @(user.Role == "Customer" ? "selected" : "")>
-                                                    Customer
-                                                </option>
-
-                                                <option value="Admin"
-                                                        @(user.Role == "Admin" ? "selected" : "")>
-                                                    Admin
-                                                </option>
-                                            </select>
-
-                                            <button type="submit"
-                                                    class="role-submit"
-                                                    onclick="return confirm('Bạn có chắc chắn muốn thay đổi quyền tài khoản này?');">
-                                                <i class="fa fa-save"></i>
-                                                Lưu
-                                            </button>
-                                        }
-
-                                        <!-- DAT LAI MAT KHAU -->
-                                        <details class="reset-password-details">
-                                            <summary>
-                                                <i class="fa fa-key"></i>
-                                                Đặt lại mật khẩu
-                                            </summary>
-
-                                            <div class="reset-password-panel">
-                                                @using (Html.BeginForm(
-                                                    "ResetPassword",
-                                                    "Users",
-                                                    new { area = "Admin" },
-                                                    FormMethod.Post,
-                                                    new { @class = "reset-password-form" }))
-                                                {
-                                                    @Html.AntiForgeryToken()
-
-                                                    <input type="hidden"
-                                                           name="id"
-                                                           value="@user.UserID" />
-
-                                                    <input type="hidden"
-                                                           name="keyword"
-                                                           value="@currentKeyword" />
-
-                                                    <input type="hidden"
-                                                           name="filterRole"
-                                                           value="@currentRole" />
-
-                                                    <label>Mật khẩu mới</label>
-
-                                                    <input type="password"
-                                                           name="newPassword"
-                                                           class="reset-input new-password"
-                                                           minlength="8"
-                                                           maxlength="128"
-                                                           pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9\s]).{8,128}"
-                                                           title="Mật khẩu phải có 8-128 ký tự, gồm chữ hoa, chữ thường, chữ số và ký tự đặc biệt."
-                                                           autocomplete="new-password"
-                                                           required
-                                                           placeholder="Chữ hoa, chữ thường, số và ký tự đặc biệt" />
-                                                    <label>Xác nhận mật khẩu</label>
-
-                                                    <input type="password"
-                                                           name="confirmPassword"
-                                                           class="reset-input confirm-password"
-                                                           minlength="8"
-                                                           maxlength="128"
-                                                           autocomplete="new-password"
-                                                           required
-                                                           placeholder="Nhập lại mật khẩu" />
-
-                                                    <div class="password-feedback error">
-                                                        <i class="fa fa-exclamation-circle"></i>
-                                                        Hai mật khẩu không khớp.
-                                                    </div>
-
-                                                    <div class="password-feedback success">
-                                                        <i class="fa fa-check-circle"></i>
-                                                        Hai mật khẩu đã khớp.
-                                                    </div>
-
-                                                    <button type="submit"
-                                                            class="reset-submit"
-                                                            disabled>
-                                                        <i class="fa fa-lock"></i>
-                                                        Xác nhận đặt lại
-                                                    </button>
-                                                }
-                                            </div>
-                                        </details>
-                                    }
+                                <td>
+                                    <span class="readonly-label">
+                                        <i class="fa fa-eye"></i>
+                                        Chỉ xem
+                                    </span>
                                 </td>
                             </tr>
                         }
@@ -756,9 +407,9 @@
                     else
                     {
                         <tr>
-                            <td colspan="6" class="users-empty">
+                            <td colspan="8" class="users-empty">
                                 <i class="fa fa-search"></i>
-                                Không tìm thấy tài khoản phù hợp.
+                                Không tìm thấy tài khoản khách hàng phù hợp.
                             </td>
                         </tr>
                     }
@@ -768,148 +419,3 @@
     </div>
 
 </div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-
-        const resetForms = document.querySelectorAll(
-            ".reset-password-form"
-        );
-
-        resetForms.forEach(function (form) {
-
-            const newPassword = form.querySelector(
-                ".new-password"
-            );
-
-            const confirmPassword = form.querySelector(
-                ".confirm-password"
-            );
-
-            const errorMessage = form.querySelector(
-                ".password-feedback.error"
-            );
-
-            const successMessage = form.querySelector(
-                ".password-feedback.success"
-            );
-
-            const submitButton = form.querySelector(
-                ".reset-submit"
-            );
-
-            if (
-                !newPassword ||
-                !confirmPassword ||
-                !errorMessage ||
-                !successMessage ||
-                !submitButton
-            ) {
-                return;
-            }
-
-            function validatePasswords() {
-
-                const newValue = newPassword.value;
-                const confirmValue = confirmPassword.value;
-
-                const passwordPattern =
-                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9\s]).{8,128}$/;
-
-                newPassword.setCustomValidity("");
-                confirmPassword.setCustomValidity("");
-
-                errorMessage.style.display = "none";
-                successMessage.style.display = "none";
-
-                confirmPassword.classList.remove(
-                    "password-invalid",
-                    "password-valid"
-                );
-
-                submitButton.disabled = true;
-
-                // Chưa nhập đủ hai ô
-                if (newValue.length === 0 || confirmValue.length === 0) {
-                    return false;
-                }
-
-                // Kiểm tra độ dài và độ phức tạp
-                if (!passwordPattern.test(newValue)) {
-
-                    newPassword.setCustomValidity(
-                        "Mật khẩu phải có 8-128 ký tự, gồm chữ hoa, chữ thường, chữ số và ký tự đặc biệt."
-                    );
-
-                    return false;
-                }
-
-                // Kiểm tra mật khẩu xác nhận
-                if (newValue !== confirmValue) {
-
-                    confirmPassword.classList.add(
-                        "password-invalid"
-                    );
-
-                    confirmPassword.setCustomValidity(
-                        "Mật khẩu xác nhận không khớp."
-                    );
-
-                    errorMessage.style.display = "block";
-
-                    return false;
-                }
-
-                confirmPassword.classList.add(
-                    "password-valid"
-                );
-
-                successMessage.style.display = "block";
-
-                submitButton.disabled = false;
-
-                return true;
-            }
-
-            newPassword.addEventListener(
-                "input",
-                validatePasswords
-            );
-
-            confirmPassword.addEventListener(
-                "input",
-                validatePasswords
-            );
-
-            form.addEventListener("submit", function (event) {
-
-                const isValid = validatePasswords();
-
-                if (!isValid || !form.checkValidity()) {
-
-                    event.preventDefault();
-
-                    if (newPassword.value === confirmPassword.value) {
-                        form.reportValidity();
-                    } else {
-                        confirmPassword.reportValidity();
-                    }
-
-                    return false;
-                }
-
-                const confirmed = confirm(
-                    "Bạn có chắc chắn muốn đặt lại mật khẩu tài khoản này?"
-                );
-
-                if (!confirmed) {
-                    event.preventDefault();
-                    return false;
-                }
-
-            });
-
-        });
-
-    });
-</script>

@@ -34,17 +34,14 @@ namespace web_sport_gear.Controllers
 
         // ================= HIỂN THỊ TRANG THANH TOÁN =================
 
-
         [HttpGet]
         public ActionResult Index()
         {
-            // Kiểm tra đăng nhập
             if (Session["UserID"] == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            // Lấy UserID từ Session
             int userId;
 
             if (!int.TryParse(Session["UserID"].ToString(), out userId) ||
@@ -53,17 +50,12 @@ namespace web_sport_gear.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // Khởi tạo ViewModel
             var model = new CheckoutViewModel();
 
-            // Lấy thông tin khách hàng từ database
             string sql = @"
-        SELECT
-            FullName,
-            Phone,
-            Address
-        FROM dbo.Users
-        WHERE UserID = @UserID";
+                SELECT FullName, Phone, Address
+                FROM dbo.Users
+                WHERE UserID = @UserID";
 
             using (SqlConnection connection =
                 new SqlConnection(ConnectionString))
@@ -71,9 +63,7 @@ namespace web_sport_gear.Controllers
                 new SqlCommand(sql, connection))
             {
                 command.Parameters.Add(
-                    "@UserID",
-                    SqlDbType.Int
-                ).Value = userId;
+                    "@UserID", SqlDbType.Int).Value = userId;
 
                 connection.Open();
 
@@ -104,7 +94,6 @@ namespace web_sport_gear.Controllers
             return View(model);
         }
 
-
         // ================= KIỂM TRA SỐ ĐIỆN THOẠI =================
 
         private bool IsValidPhone(string phone, out string error)
@@ -117,8 +106,6 @@ namespace web_sport_gear.Controllers
                 return false;
             }
 
-            // Không tự ý loại bỏ dấu cách hoặc ký tự đặc biệt.
-            // Người dùng phải nhập đúng định dạng.
             if (!Regex.IsMatch(phone, @"^0[0-9]{9}$"))
             {
                 error =
@@ -127,7 +114,6 @@ namespace web_sport_gear.Controllers
                 return false;
             }
 
-            // Không chấp nhận 10 chữ số giống nhau.
             if (phone.All(c => c == phone[0]))
             {
                 error =
@@ -144,7 +130,6 @@ namespace web_sport_gear.Controllers
         private void ValidateShippingInformation(
             CheckoutViewModel model)
         {
-            // Họ tên người nhận
             if (string.IsNullOrWhiteSpace(model.ReceiverName))
             {
                 ModelState.AddModelError(
@@ -158,7 +143,6 @@ namespace web_sport_gear.Controllers
                     "Họ tên người nhận không được vượt quá 100 ký tự.");
             }
 
-            // Số điện thoại
             string phoneError;
 
             if (!IsValidPhone(model.ReceiverPhone, out phoneError))
@@ -168,7 +152,6 @@ namespace web_sport_gear.Controllers
                     phoneError);
             }
 
-            // Địa chỉ giao hàng
             if (string.IsNullOrWhiteSpace(model.ShippingAddress))
             {
                 ModelState.AddModelError(
@@ -188,7 +171,6 @@ namespace web_sport_gear.Controllers
                     "Địa chỉ giao hàng không được vượt quá 300 ký tự.");
             }
 
-            // Ghi chú: không bắt buộc, tối đa 500 ký tự
             if (model.Note != null && model.Note.Length > 500)
             {
                 ModelState.AddModelError(
@@ -202,16 +184,11 @@ namespace web_sport_gear.Controllers
         private void RollbackSafely(SqlTransaction transaction)
         {
             if (transaction == null)
-            {
                 return;
-            }
 
             try
             {
                 transaction.Rollback();
-
-                System.Diagnostics.Debug.WriteLine(
-                    "CHECKOUT: Transaction đã rollback.");
             }
             catch (Exception ex)
             {
@@ -228,47 +205,35 @@ namespace web_sport_gear.Controllers
             CheckoutViewModel model,
             string cartJson)
         {
-            System.Diagnostics.Debug.WriteLine("");
-
-            System.Diagnostics.Debug.WriteLine(
-                "========== CHECKOUT DEBUG START ==========");
-
-            System.Diagnostics.Debug.WriteLine(
-                "cartJson nhận được: " + cartJson);
-
-            // Kiểm tra đăng nhập
             if (Session["UserID"] == null)
             {
-                System.Diagnostics.Debug.WriteLine(
-                    "CHECKOUT: Người dùng chưa đăng nhập.");
-
                 return RedirectToAction("Login", "Account");
             }
 
             if (model == null)
             {
-                System.Diagnostics.Debug.WriteLine(
-                    "CHECKOUT ERROR: Model bị null.");
-
                 return RedirectToAction("Index");
             }
 
-            // Lấy UserID từ Session
             int userId;
 
-            if (!int.TryParse(
-                Session["UserID"].ToString(),
-                out userId) ||
+            if (!int.TryParse(Session["UserID"].ToString(), out userId) ||
                 userId <= 0)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            System.Diagnostics.Debug.WriteLine(
-                "UserID: " + userId);
+            // Chỉ tài khoản khách hàng được đặt hàng
+            if (Session["Role"] == null ||
+                !string.Equals(
+                    Session["Role"].ToString(),
+                    "Customer",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return RedirectToAction("Index", "Home");
+            }
 
-            // ================= CHUẨN HÓA DỮ LIỆU =================
-
+            // Chuẩn hóa dữ liệu
             model.ReceiverName = model.ReceiverName == null
                 ? null
                 : model.ReceiverName.Trim();
@@ -285,24 +250,11 @@ namespace web_sport_gear.Controllers
                 ? null
                 : model.Note.Trim();
 
-            // ================= KIỂM TRA THÔNG TIN GIAO HÀNG =================
-
+            // Kiểm tra thông tin giao hàng
             ValidateShippingInformation(model);
 
             if (!ModelState.IsValid)
             {
-                System.Diagnostics.Debug.WriteLine(
-                    "CHECKOUT ERROR: ModelState không hợp lệ.");
-
-                foreach (var error in ModelState)
-                {
-                    foreach (var item in error.Value.Errors)
-                    {
-                        System.Diagnostics.Debug.WriteLine(
-                            error.Key + ": " + item.ErrorMessage);
-                    }
-                }
-
                 return View(model);
             }
 
@@ -314,7 +266,7 @@ namespace web_sport_gear.Controllers
             {
                 if (string.IsNullOrWhiteSpace(cartJson))
                 {
-                    throw new Exception("cartJson đang rỗng.");
+                    throw new Exception("Dữ liệu giỏ hàng đang rỗng.");
                 }
 
                 JavaScriptSerializer serializer =
@@ -322,27 +274,11 @@ namespace web_sport_gear.Controllers
 
                 cart = serializer.Deserialize<List<CheckoutCartItem>>(
                     cartJson);
-
-                System.Diagnostics.Debug.WriteLine(
-                    "========== DESERIALIZE CART ==========");
-
-                if (cart != null)
-                {
-                    foreach (var item in cart)
-                    {
-                        if (item != null)
-                        {
-                            System.Diagnostics.Debug.WriteLine(
-                                "ProductID: " + item.Id +
-                                " | Quantity: " + item.Quantity);
-                        }
-                    }
-                }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine(
-                    "DESERIALIZE ERROR: " + ex);
+                    "CHECKOUT DESERIALIZE ERROR: " + ex);
 
                 ModelState.AddModelError(
                     "",
@@ -351,7 +287,6 @@ namespace web_sport_gear.Controllers
                 return View(model);
             }
 
-            // Kiểm tra giỏ hàng rỗng
             if (cart == null || cart.Count == 0)
             {
                 ModelState.AddModelError(
@@ -361,7 +296,6 @@ namespace web_sport_gear.Controllers
                 return View(model);
             }
 
-            // Giới hạn số lượng phần tử và kiểm tra phần tử null
             if (cart.Count > 100 || cart.Any(x => x == null))
             {
                 ModelState.AddModelError(
@@ -382,7 +316,6 @@ namespace web_sport_gear.Controllers
                     .Select(g => new CheckoutCartItem
                     {
                         Id = g.Key,
-
                         Quantity = g.Aggregate(
                             0,
                             (total, item) =>
@@ -394,7 +327,7 @@ namespace web_sport_gear.Controllers
             catch (OverflowException ex)
             {
                 System.Diagnostics.Debug.WriteLine(
-                    "GROUP CART ERROR: " + ex);
+                    "CHECKOUT GROUP CART ERROR: " + ex);
 
                 ModelState.AddModelError(
                     "",
@@ -403,17 +336,6 @@ namespace web_sport_gear.Controllers
                 return View(model);
             }
 
-            System.Diagnostics.Debug.WriteLine(
-                "========== GROUPED CART ==========");
-
-            foreach (var item in groupedCart)
-            {
-                System.Diagnostics.Debug.WriteLine(
-                    "ProductID: " + item.Id +
-                    " | Quantity: " + item.Quantity);
-            }
-
-            // Kiểm tra mã sản phẩm và số lượng
             if (groupedCart.Any(
                 x => x.Id <= 0 || x.Quantity <= 0))
             {
@@ -435,9 +357,6 @@ namespace web_sport_gear.Controllers
                 {
                     connection.Open();
 
-                    System.Diagnostics.Debug.WriteLine(
-                        "CHECKOUT: Đã kết nối database.");
-
                     transaction = connection.BeginTransaction();
 
                     try
@@ -447,23 +366,96 @@ namespace web_sport_gear.Controllers
                         List<OrderDetail> orderDetails =
                             new List<OrderDetail>();
 
-                        // ================= KIỂM TRA SẢN PHẨM =================
-                        // Không trừ tồn kho tại bước Checkout.
+                        // =================================================
+                        // BƯỚC 1: LẤY DANH SÁCH SẢN PHẨM ĐANG ĐƯỢC GIỮ
+                        // Không còn kiểm tra thời hạn giữ hàng.
+                        // =================================================
+
+                        Dictionary<int, int> reservedCart =
+                            new Dictionary<int, int>();
+
+                        string reservationSql = @"
+                            SELECT
+                                ProductID,
+                                Quantity
+                            FROM dbo.CartReservations WITH (UPDLOCK, HOLDLOCK)
+                            WHERE UserID = @UserID
+                            ORDER BY ProductID";
+
+                        using (SqlCommand command = new SqlCommand(
+                            reservationSql,
+                            connection,
+                            transaction))
+                        {
+                            command.Parameters.Add(
+                                "@UserID",
+                                SqlDbType.Int).Value = userId;
+
+                            using (SqlDataReader reader =
+                                command.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    int productId =
+                                        Convert.ToInt32(
+                                            reader["ProductID"]);
+
+                                    int reservedQuantity =
+                                        Convert.ToInt32(
+                                            reader["Quantity"]);
+
+                                    reservedCart.Add(
+                                        productId,
+                                        reservedQuantity);
+                                }
+                            }
+                        }
+
+                        // =================================================
+                        // BƯỚC 2: ĐỐI CHIẾU GIỎ HÀNG VỚI DỮ LIỆU SQL
+                        // =================================================
+
+                        if (reservedCart.Count != groupedCart.Count)
+                        {
+                            throw new CheckoutException(
+                                "Giỏ hàng đã thay đổi hoặc không còn hợp lệ. " +
+                                "Vui lòng tải lại giỏ hàng.");
+                        }
 
                         foreach (CheckoutCartItem item in groupedCart)
                         {
-                            System.Diagnostics.Debug.WriteLine(
-                                "========== QUERY PRODUCT ==========");
+                            int reservedQuantity;
 
-                            System.Diagnostics.Debug.WriteLine(
-                                "ProductID gửi vào SQL: " + item.Id);
+                            if (!reservedCart.TryGetValue(
+                                item.Id,
+                                out reservedQuantity))
+                            {
+                                throw new CheckoutException(
+                                    "Sản phẩm ID " + item.Id +
+                                    " chưa được giữ tồn kho. " +
+                                    "Vui lòng quay lại giỏ hàng.");
+                            }
 
+                            if (reservedQuantity != item.Quantity)
+                            {
+                                throw new CheckoutException(
+                                    "Số lượng sản phẩm ID " + item.Id +
+                                    " không khớp với dữ liệu hệ thống. " +
+                                    "Vui lòng tải lại giỏ hàng.");
+                            }
+                        }
+
+                        // =================================================
+                        // BƯỚC 3: KIỂM TRA SẢN PHẨM VÀ LẤY GIÁ TỪ DATABASE
+                        // =================================================
+
+                        foreach (CheckoutCartItem item in groupedCart)
+                        {
                             string productSql = @"
                                 SELECT
                                     ProductID,
                                     ProductName,
-                                    Price,
-                                    StockQuantity
+                                    Price
                                 FROM dbo.Products WITH (UPDLOCK, HOLDLOCK)
                                 WHERE ProductID = @ProductID
                                   AND IsActive = 1";
@@ -489,51 +481,30 @@ namespace web_sport_gear.Controllers
                                             " không tồn tại hoặc đã ngừng kinh doanh.");
                                     }
 
-                                    int stockQuantity =
-                                        Convert.ToInt32(
-                                            reader["StockQuantity"]);
-
-                                    string productName =
-                                        reader["ProductName"].ToString();
-
                                     int databaseProductId =
                                         Convert.ToInt32(
                                             reader["ProductID"]);
 
-                                    System.Diagnostics.Debug.WriteLine(
-                                        "========== PRODUCT FROM DATABASE ==========");
+                                    string productName =
+                                        reader["ProductName"].ToString();
 
-                                    System.Diagnostics.Debug.WriteLine(
-                                        "ProductID: " + databaseProductId);
+                                    decimal unitPrice =
+                                        Convert.ToDecimal(reader["Price"]);
 
-                                    System.Diagnostics.Debug.WriteLine(
-                                        "ProductName: " + productName);
-
-                                    System.Diagnostics.Debug.WriteLine(
-                                        "StockQuantity: " + stockQuantity);
-
-                                    // Kiểm tra tồn kho
-                                    if (stockQuantity < item.Quantity)
+                                    if (unitPrice <= 0)
                                     {
                                         throw new CheckoutException(
-                                            "Sản phẩm " + productName +
-                                            " không đủ số lượng tồn kho. " +
-                                            "Số lượng còn lại: " +
-                                            stockQuantity +
-                                            ". Vui lòng kiểm tra lại giỏ hàng.");
+                                            "Giá sản phẩm " + productName +
+                                            " không hợp lệ.");
                                     }
 
                                     detail = new OrderDetail
                                     {
                                         ProductID = databaseProductId,
-
                                         ProductName = productName,
-
                                         Quantity = item.Quantity,
-
                                         UnitPrice = decimal.Round(
-                                            Convert.ToDecimal(
-                                                reader["Price"]),
+                                            unitPrice,
                                             2,
                                             MidpointRounding.AwayFromZero)
                                     };
@@ -542,21 +513,13 @@ namespace web_sport_gear.Controllers
 
                             orderDetails.Add(detail);
 
-                            System.Diagnostics.Debug.WriteLine(
-                                "========== ORDER DETAIL CREATED ==========");
-
-                            System.Diagnostics.Debug.WriteLine(
-                                "ProductID: " + detail.ProductID +
-                                " | ProductName: " + detail.ProductName +
-                                " | Quantity: " + detail.Quantity +
-                                " | UnitPrice: " + detail.UnitPrice);
-
-                            // Tính tổng tiền theo database
                             totalAmount +=
                                 detail.UnitPrice * detail.Quantity;
                         }
 
-                        // ================= KIỂM TRA TỔNG TIỀN =================
+                        // =================================================
+                        // BƯỚC 4: KIỂM TRA TỔNG TIỀN
+                        // =================================================
 
                         if (totalAmount <= 0)
                         {
@@ -564,13 +527,11 @@ namespace web_sport_gear.Controllers
                                 "Tổng giá trị đơn hàng không hợp lệ.");
                         }
 
-                        System.Diagnostics.Debug.WriteLine(
-                            "========== ORDER TOTAL ==========");
-
-                        System.Diagnostics.Debug.WriteLine(
-                            "TotalAmount: " + totalAmount);
-
-                        // ================= TẠO ĐƠN HÀNG =================
+                        // =================================================
+                        // BƯỚC 5: TẠO ĐƠN HÀNG
+                        // StockDeducted = 1 vì tồn kho đã trừ khi thêm giỏ.
+                        // Không thực hiện UPDATE Products ở bước này.
+                        // =================================================
 
                         string orderSql = @"
                             INSERT INTO dbo.Orders
@@ -583,7 +544,8 @@ namespace web_sport_gear.Controllers
                                 PaymentMethod,
                                 PaymentStatus,
                                 OrderStatus,
-                                Note
+                                Note,
+                                StockDeducted
                             )
                             OUTPUT INSERTED.OrderID
                             VALUES
@@ -596,7 +558,8 @@ namespace web_sport_gear.Controllers
                                 N'COD',
                                 N'Chưa thanh toán',
                                 N'Chờ xác nhận',
-                                @Note
+                                @Note,
+                                1
                             )";
 
                         int orderId;
@@ -646,13 +609,9 @@ namespace web_sport_gear.Controllers
                                 command.ExecuteScalar());
                         }
 
-                        System.Diagnostics.Debug.WriteLine(
-                            "========== ORDER CREATED ==========");
-
-                        System.Diagnostics.Debug.WriteLine(
-                            "New OrderID: " + orderId);
-
-                        // ================= LƯU CHI TIẾT ĐƠN HÀNG =================
+                        // =================================================
+                        // BƯỚC 6: LƯU CHI TIẾT ĐƠN HÀNG
+                        // =================================================
 
                         string detailSql = @"
                             INSERT INTO dbo.OrderDetails
@@ -674,16 +633,6 @@ namespace web_sport_gear.Controllers
 
                         foreach (OrderDetail detail in orderDetails)
                         {
-                            System.Diagnostics.Debug.WriteLine(
-                                "========== INSERT ORDER DETAIL ==========");
-
-                            System.Diagnostics.Debug.WriteLine(
-                                "OrderID: " + orderId +
-                                " | ProductID: " + detail.ProductID +
-                                " | ProductName: " + detail.ProductName +
-                                " | Quantity: " + detail.Quantity +
-                                " | UnitPrice: " + detail.UnitPrice);
-
                             using (SqlCommand command = new SqlCommand(
                                 detailSql,
                                 connection,
@@ -720,26 +669,48 @@ namespace web_sport_gear.Controllers
                                 int affectedRows =
                                     command.ExecuteNonQuery();
 
-                                System.Diagnostics.Debug.WriteLine(
-                                    "Rows inserted: " + affectedRows);
+                                if (affectedRows != 1)
+                                {
+                                    throw new CheckoutException(
+                                        "Không thể lưu chi tiết đơn hàng.");
+                                }
                             }
                         }
 
-                        // ================= HOÀN TẤT TRANSACTION =================
+                        // =================================================
+                        // BƯỚC 7: XÓA DỮ LIỆU GIỮ HÀNG TRONG GIỎ
+                        // Không hoàn kho vì hàng đã chuyển sang đơn hàng.
+                        // =================================================
+
+                        string deleteReservationSql = @"
+                            DELETE FROM dbo.CartReservations
+                            WHERE UserID = @UserID";
+
+                        using (SqlCommand command = new SqlCommand(
+                            deleteReservationSql,
+                            connection,
+                            transaction))
+                        {
+                            command.Parameters.Add(
+                                "@UserID",
+                                SqlDbType.Int).Value = userId;
+
+                            int deletedRows =
+                                command.ExecuteNonQuery();
+
+                            if (deletedRows != groupedCart.Count)
+                            {
+                                throw new CheckoutException(
+                                    "Không thể hoàn tất việc xác nhận giữ hàng. " +
+                                    "Vui lòng thử lại.");
+                            }
+                        }
+
+                        // =================================================
+                        // BƯỚC 8: HOÀN TẤT GIAO DỊCH
+                        // =================================================
 
                         transaction.Commit();
-
-                        System.Diagnostics.Debug.WriteLine(
-                            "========== CHECKOUT COMMIT SUCCESS ==========");
-
-                        System.Diagnostics.Debug.WriteLine(
-                            "OrderID: " + orderId);
-
-                        System.Diagnostics.Debug.WriteLine(
-                            "TotalAmount: " + totalAmount);
-
-                        System.Diagnostics.Debug.WriteLine(
-                            "========== CHECKOUT DEBUG END ==========");
 
                         TempData["OrderSuccess"] =
                             "Đặt hàng thành công! Mã đơn hàng: " + orderId;
@@ -750,9 +721,6 @@ namespace web_sport_gear.Controllers
                     }
                     catch (CheckoutException ex)
                     {
-                        System.Diagnostics.Debug.WriteLine(
-                            "CHECKOUT BUSINESS ERROR: " + ex);
-
                         RollbackSafely(transaction);
 
                         ModelState.AddModelError("", ex.Message);
@@ -762,10 +730,7 @@ namespace web_sport_gear.Controllers
                     catch (Exception ex)
                     {
                         System.Diagnostics.Debug.WriteLine(
-                            "========== CHECKOUT SQL/C# ERROR ==========");
-
-                        System.Diagnostics.Debug.WriteLine(
-                            ex.ToString());
+                            "CHECKOUT ERROR: " + ex);
 
                         RollbackSafely(transaction);
 
@@ -781,10 +746,7 @@ namespace web_sport_gear.Controllers
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine(
-                    "========== CHECKOUT CONNECTION ERROR ==========");
-
-                System.Diagnostics.Debug.WriteLine(
-                    ex.ToString());
+                    "CHECKOUT CONNECTION ERROR: " + ex);
 
                 RollbackSafely(transaction);
 

@@ -25,7 +25,49 @@ namespace web_sport_gear.Controllers
                     .ConnectionString;
             }
         }
+        // Kiem tra tai khoan da dang nhap va lay UserID
+        private bool TryGetCurrentCustomerId(out int userId)
+        {
+            userId = 0;
 
+            if (Session["UserID"] == null)
+                return false;
+
+            if (!int.TryParse(Session["UserID"].ToString(), out userId))
+                return false;
+
+            // Chi cho phep tai khoan Customer
+            return string.Equals(
+                Convert.ToString(Session["Role"]),
+                "Customer",
+                StringComparison.OrdinalIgnoreCase);
+        }
+
+        // Xu ly khi tai khoan khong co quyen truy cap
+        private ActionResult DenyCustomerProfileAccess()
+        {
+            if (Session["UserID"] == null)
+                return RedirectToAction("Login", "Account");
+
+            if (string.Equals(
+                Convert.ToString(Session["Role"]),
+                "Admin",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["ProfileError"] =
+                    "Tài khoản Admin không có quyền chỉnh sửa thông tin khách hàng.";
+
+                return RedirectToAction(
+                    "Index",
+                    "Dashboard",
+                    new { area = "Admin" });
+            }
+
+            Session.Clear();
+            Session.Abandon();
+
+            return RedirectToAction("Login", "Account");
+        }
         // Kiem tra so dien thoai
         private string GetPhoneValidationError(string phone)
         {
@@ -210,20 +252,10 @@ namespace web_sport_gear.Controllers
         // GET: Account/OrderHistory
         public ActionResult OrderHistory()
         {
-            if (Session["UserID"] == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
             int userId;
 
-            if (!int.TryParse(Session["UserID"].ToString(), out userId))
-            {
-                Session.Clear();
-                Session.Abandon();
-
-                return RedirectToAction("Login", "Account");
-            }
+            if (!TryGetCurrentCustomerId(out userId))
+                return DenyCustomerProfileAccess();
 
             List<CustomerOrderHistoryViewModel> orders =
                 new List<CustomerOrderHistoryViewModel>();
@@ -345,16 +377,222 @@ namespace web_sport_gear.Controllers
             return View(orders);
         }
 
+        // POST: Account/BuyAgain
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult BuyAgain(int orderId)
+        {
+            // 1. Kiểm tra đăng nhập và quyền Customer
+            int userId;
+
+            if (!TryGetCurrentCustomerId(out userId))
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = Session["UserID"] == null
+                        ? "Vui lòng đăng nhập để mua lại."
+                        : "Chỉ tài khoản khách hàng mới được phép mua lại."
+                });
+            }
+
+            // 2. Kiểm tra mã đơn hàng
+            if (orderId <= 0)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Mã đơn hàng không hợp lệ."
+                });
+            }
+
+            try
+            {
+                using (SqlConnection connection =
+                    new SqlConnection(ConnectionString))
+                {
+                    connection.Open();
+
+                    // 3. Kiểm tra đơn hàng có thuộc tài khoản hiện tại không
+                    string checkOrderSql = @"
+                SELECT COUNT(1)
+                FROM dbo.Orders o
+                INNER JOIN dbo.Users u
+                    ON o.UserID = u.UserID
+                WHERE o.OrderID = @OrderID
+                  AND o.UserID = @UserID
+                  AND u.IsActive = 1;";
+
+                    using (SqlCommand command =
+                        new SqlCommand(checkOrderSql, connection))
+                    {
+                        command.Parameters.AddWithValue("@OrderID", orderId);
+                        command.Parameters.AddWithValue("@UserID", userId);
+
+                        int orderExists =
+                            Convert.ToInt32(command.ExecuteScalar());
+
+                        if (orderExists == 0)
+                        {
+                            return Json(new
+                            {
+                                success = false,
+                                message = "Không tìm thấy đơn hàng hoặc bạn không có quyền truy cập."
+                            });
+                        }
+                    }
+
+                    // 4. Lấy sản phẩm và thông tin tồn kho hiện tại
+                    string productSql = @"
+                SELECT
+                    d.ProductID,
+                    d.ProductName AS OldProductName,
+                    d.Quantity,
+                    p.ProductName,
+                    p.Price,
+                    p.ImageUrl,
+                    p.StockQuantity,
+                    p.IsActive
+                FROM dbo.Orders o
+                INNER JOIN dbo.OrderDetails d
+                    ON o.OrderID = d.OrderID
+                LEFT JOIN dbo.Products p
+                    ON d.ProductID = p.ProductID
+                WHERE o.OrderID = @OrderID
+                  AND o.UserID = @UserID
+                ORDER BY d.OrderDetailID ASC;";
+
+                    var items = new List<object>();
+                    var skipped = new List<object>();
+
+                    using (SqlCommand command =
+                        new SqlCommand(productSql, connection))
+                    {
+                        command.Parameters.AddWithValue("@OrderID", orderId);
+                        command.Parameters.AddWithValue("@UserID", userId);
+
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                int productId =
+                                    Convert.ToInt32(reader["ProductID"]);
+
+                                string oldProductName =
+                                    Convert.ToString(reader["OldProductName"]);
+
+                                int quantity =
+                                    Convert.ToInt32(reader["Quantity"]);
+
+                                // Sản phẩm không còn tồn tại
+                                if (reader["ProductName"] == DBNull.Value)
+                                {
+                                    skipped.Add(new
+                                    {
+                                        name = oldProductName,
+                                        reason = "Sản phẩm không còn tồn tại."
+                                    });
+
+                                    continue;
+                                }
+
+                                string productName =
+                                    Convert.ToString(reader["ProductName"]);
+
+                                bool isActive =
+                                    Convert.ToBoolean(reader["IsActive"]);
+
+                                int stock =
+                                    Convert.ToInt32(reader["StockQuantity"]);
+
+                                // Sản phẩm ngừng kinh doanh
+                                if (!isActive)
+                                {
+                                    skipped.Add(new
+                                    {
+                                        name = productName,
+                                        reason = "Sản phẩm đã ngừng kinh doanh."
+                                    });
+
+                                    continue;
+                                }
+
+                                // Sản phẩm hết hàng
+                                if (stock <= 0)
+                                {
+                                    skipped.Add(new
+                                    {
+                                        name = productName,
+                                        reason = "Sản phẩm đã hết hàng."
+                                    });
+
+                                    continue;
+                                }
+
+                                // Số lượng không hợp lệ
+                                if (quantity <= 0)
+                                {
+                                    skipped.Add(new
+                                    {
+                                        name = productName,
+                                        reason = "Số lượng sản phẩm không hợp lệ."
+                                    });
+
+                                    continue;
+                                }
+
+                                items.Add(new
+                                {
+                                    id = productId,
+                                    name = productName,
+                                    price = Convert.ToDecimal(reader["Price"]),
+                                    image = reader["ImageUrl"] == DBNull.Value
+                                        ? ""
+                                        : Convert.ToString(reader["ImageUrl"]),
+                                    quantity = quantity,
+                                    stock = stock
+                                });
+                            }
+                        }
+                    }
+
+                    return Json(new
+                    {
+                        success = true,
+                        items = items,
+                        skipped = skipped,
+                        message = items.Count == 0
+                            ? "Không có sản phẩm nào còn đủ điều kiện để mua lại."
+                            : "Đã lấy danh sách sản phẩm từ đơn hàng."
+                    });
+                }
+            }
+            catch (SqlException)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Không thể truy xuất dữ liệu đơn hàng. Vui lòng thử lại."
+                });
+            }
+            catch (Exception)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Đã xảy ra lỗi khi xử lý yêu cầu mua lại."
+                });
+            }
+        }
+
         // GET: Account/Profile
         [HttpGet]
         public new ActionResult Profile()
         {
-            if (Session["UserID"] == null)
-            {
-                return RedirectToAction("Login");
-            }
+            int userId;
 
-            int userId = Convert.ToInt32(Session["UserID"]);
+            if (!TryGetCurrentCustomerId(out userId))
+                return DenyCustomerProfileAccess();
 
             try
             {
@@ -448,21 +686,12 @@ namespace web_sport_gear.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult UpdateProfile(UserProfileViewModel model)
         {
-            // 1. Kiem tra dang nhap
-            if (Session["UserID"] == null)
-            {
-                return RedirectToAction("Login");
-            }
-
+           
+            // Chi Customer moi duoc cap nhat ho so ca nhan
             int userId;
 
-            if (!int.TryParse(Session["UserID"].ToString(), out userId))
-            {
-                Session.Clear();
-                Session.Abandon();
-
-                return RedirectToAction("Login");
-            }
+            if (!TryGetCurrentCustomerId(out userId))
+                return DenyCustomerProfileAccess();
 
             if (model == null)
             {
@@ -487,10 +716,10 @@ namespace web_sport_gear.Controllers
                     // 3. Lay Avatar hien tai
                     // Khong lay Email de tranh ghi de Email moi
                     string profileSql = @"
-                SELECT Avatar
-                FROM dbo.Users
-                WHERE UserID = @UserID
-                  AND IsActive = 1;";
+    SELECT Avatar, Email
+    FROM dbo.Users
+    WHERE UserID = @UserID
+      AND IsActive = 1;";
 
                     using (SqlCommand profileCommand =
                         new SqlCommand(profileSql, connection))
@@ -756,12 +985,11 @@ namespace web_sport_gear.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult UploadAvatar(HttpPostedFileBase avatarFile)
         {
-            if (Session["UserID"] == null)
-            {
-                return RedirectToAction("Login");
-            }
+            // Chi Customer moi duoc cap nhat anh dai dien
+            int userId;
 
-            int userId = Convert.ToInt32(Session["UserID"]);
+            if (!TryGetCurrentCustomerId(out userId))
+                return DenyCustomerProfileAccess();
 
             if (avatarFile == null || avatarFile.ContentLength == 0)
             {
@@ -939,10 +1167,10 @@ namespace web_sport_gear.Controllers
         [HttpGet]
         public ActionResult ChangePassword()
         {
-            if (Session["UserID"] == null)
-            {
-                return RedirectToAction("Login");
-            }
+            int userId;
+
+            if (!TryGetCurrentCustomerId(out userId))
+                return DenyCustomerProfileAccess();
 
             return View(new ChangePasswordViewModel());
         }
@@ -952,12 +1180,11 @@ namespace web_sport_gear.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult ChangePassword(ChangePasswordViewModel model)
         {
-            if (Session["UserID"] == null)
-            {
-                return RedirectToAction("Login");
-            }
+            // Chi Customer moi duoc doi mat khau
+            int userId;
 
-            int userId = Convert.ToInt32(Session["UserID"]);
+            if (!TryGetCurrentCustomerId(out userId))
+                return DenyCustomerProfileAccess();
 
             if (!ModelState.IsValid)
             {

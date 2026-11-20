@@ -1,7 +1,7 @@
 ﻿
 @{
     ViewBag.Title = "Admin Dashboard";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
 <style>
@@ -171,6 +171,66 @@
                 Xin chào, <strong>@Session["FullName"]</strong>!
                 Chào mừng bạn đến với hệ thống quản lý cửa hàng.
             </p>
+        </div>
+
+        <!-- REVENUE STATISTICS -->
+        <h3 class="admin-section-title">
+            <i class="fa-solid fa-chart-line"></i>
+            Thống kê doanh thu
+        </h3>
+
+        <div class="row mb-4">
+
+            <!-- TOTAL REVENUE -->
+            <div class="col-lg-6 col-md-6 mb-4">
+                <div class="admin-card" style="min-height: 190px;">
+                    <div class="admin-icon icon-category">
+                        <i class="fa-solid fa-sack-dollar"></i>
+                    </div>
+
+                    <h4>Tổng doanh thu đã thanh toán</h4>
+
+                    <p style="font-size: 25px; font-weight: 800; color: #15966c; margin-bottom: 0;">
+                        @string.Format("{0:N0} ₫", ViewBag.TotalPaidRevenue)
+                    </p>
+
+                    <p style="margin-top: 8px;">
+                        Chỉ tính các đơn hàng đã thanh toán và chưa bị hủy.
+                    </p>
+                </div>
+            </div>
+
+            <!-- TOTAL PAID ORDERS -->
+            
+            <div class="col-lg-6 col-md-6 mb-4">
+                <a href="@Url.Action(
+        "OrderList",
+        "Orders",
+        new {
+            area = "Admin",
+            paymentStatus = "paid"
+        })"
+                   style="display:block; text-decoration:none; color:inherit; height:100%;">
+
+                    <div class="admin-card" style="min-height: 190px;">
+                        <div class="admin-icon icon-order">
+                            <i class="fa-solid fa-receipt"></i>
+                        </div>
+
+                        <h4>Tổng đơn hàng đã thanh toán</h4>
+
+                        <p style="font-size: 25px; font-weight: 800; color: #db8b17; margin-bottom: 0;">
+                            @ViewBag.TotalPaidOrders đơn
+                        </p>
+
+                        <p style="margin-top: 8px;">
+                            Nhấn để xem danh sách đơn hàng đã thanh toán.
+                        </p>
+                    </div>
+                </a>
+            </div>
+
+
         </div>
 
         <!-- MANAGEMENT -->

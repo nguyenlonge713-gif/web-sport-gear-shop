@@ -329,6 +329,39 @@
 
     /* PAYMENT */
 
+    /* BUY AGAIN BUTTON */
+
+    .gs-btn-buy-again {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 17px;
+        border: none;
+        border-radius: 8px;
+        background: #2563eb;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+        .gs-btn-buy-again:hover {
+            background: #174ea6;
+            transform: translateY(-2px);
+        }
+
+        .gs-btn-buy-again:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+    .gs-buy-again-wrapper {
+        margin-top: 12px;
+    }
+
     .gs-order-bottom {
         display: flex;
         justify-content: space-between;
@@ -482,7 +515,7 @@
         }
     }
 </style>
-
+@Html.AntiForgeryToken()
 <div class="gs-history-page">
     <div class="gs-history-container">
 
@@ -749,6 +782,17 @@
                                         @order.TotalAmount.ToString("N0") ₫
                                     </div>
 
+                                    <div class="gs-buy-again-wrapper">
+                                        <button type="button"
+                                                class="gs-btn-buy-again"
+                                                onclick="buyAgain(@order.OrderID, this)">
+
+                                            <i class="fa-solid fa-rotate-right"></i>
+                                            Mua lại
+
+                                        </button>
+                                    </div>
+
                                 </div>
 
                             </div>
@@ -852,4 +896,258 @@
                 visibleCount === 0 ? "block" : "none";
         }
     }
+    // ==========================================
+// GEAR SPORT - BUY AGAIN
+// ==========================================
+
+async function buyAgain(orderId, button) {
+
+    if (!confirm("Bạn có chắc chắn muốn mua lại đơn hàng #" + orderId + "?")) {
+        return;
+    }
+
+    // Kiểm tra các hàm quản lý giỏ hàng trong main.js
+    if (typeof getCartKey !== "function" ||
+        typeof getCart !== "function" ||
+        typeof saveCart !== "function" ||
+        typeof updateCartCount !== "function") {
+
+        alert("Không thể kết nối với giỏ hàng. Vui lòng tải lại trang.");
+        return;
+    }
+
+    // Kiểm tra giỏ hàng thuộc tài khoản Customer hiện tại
+    if (!getCartKey()) {
+
+        alert("Vui lòng đăng nhập bằng tài khoản khách hàng để mua lại.");
+
+        return;
+    }
+
+    var originalContent = button.innerHTML;
+
+    button.disabled = true;
+    button.innerHTML =
+        '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý...';
+
+    try {
+
+        // Lấy Anti-Forgery Token
+        var tokenElement = document.querySelector(
+            'input[name="__RequestVerificationToken"]'
+        );
+
+        if (!tokenElement) {
+            throw new Error("Không tìm thấy mã xác thực bảo mật.");
+        }
+
+        // Gửi yêu cầu lấy sản phẩm từ đơn hàng cũ
+        var formData = new URLSearchParams();
+
+        formData.append("orderId", orderId);
+        formData.append(
+            "__RequestVerificationToken",
+            tokenElement.value
+        );
+
+        var response = await fetch(
+            '@Url.Action("BuyAgain", "Account", new { area = "" })',
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+                },
+                body: formData.toString()
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Không thể xử lý yêu cầu. Mã lỗi: " + response.status);
+        }
+
+        var result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Không thể mua lại đơn hàng.");
+            return;
+        }
+
+        // Lấy giỏ hàng hiện tại, không tạo giỏ hàng mới thay thế
+        var cart = getCart();
+
+        if (!Array.isArray(cart)) {
+            cart = [];
+        }
+
+        var addedProducts = [];
+        var skippedProducts = [];
+
+        // Thêm từng sản phẩm từ đơn hàng cũ
+        (result.items || []).forEach(function (item) {
+
+            var productId = String(item.id);
+
+            var requestedQuantity = parseInt(item.quantity, 10);
+            var stock = parseInt(item.stock, 10);
+
+            if (isNaN(requestedQuantity) || requestedQuantity <= 0 ||
+                isNaN(stock) || stock <= 0) {
+
+                skippedProducts.push(
+                    item.name + ": Số lượng hoặc tồn kho không hợp lệ."
+                );
+
+                return;
+            }
+
+            // Kiểm tra sản phẩm đã tồn tại trong giỏ hàng chưa
+            var existingItem = cart.find(function (cartItem) {
+                return String(cartItem.id) === productId;
+            });
+
+            var currentQuantity = existingItem
+                ? parseInt(existingItem.quantity, 10) || 0
+                : 0;
+
+            // Số lượng tối đa có thể thêm
+            var availableQuantity = Math.max(
+                0,
+                stock - currentQuantity
+            );
+
+            var quantityToAdd = Math.min(
+                requestedQuantity,
+                availableQuantity
+            );
+
+            // Không thể thêm sản phẩm do đã đạt giới hạn tồn kho
+            if (quantityToAdd <= 0) {
+
+                skippedProducts.push(
+                    item.name + ": Giỏ hàng đã đạt giới hạn tồn kho."
+                );
+
+                return;
+            }
+
+            if (existingItem) {
+
+                // Cộng số lượng vào sản phẩm đã có
+                existingItem.quantity =
+                    currentQuantity + quantityToAdd;
+
+                // Cập nhật thông tin mới nhất từ database
+                existingItem.name = item.name;
+                existingItem.price = Number(item.price);
+                existingItem.stock = stock;
+
+                if (item.image) {
+                    existingItem.image = item.image;
+                }
+
+            } else {
+
+                // Thêm sản phẩm mới vào giỏ hàng
+                cart.push({
+                    id: item.id,
+                    name: item.name,
+                    price: Number(item.price),
+                    image: item.image || "",
+                    quantity: quantityToAdd,
+                    stock: stock
+                });
+
+            }
+
+            addedProducts.push(
+                item.name + ": +" + quantityToAdd
+            );
+
+            // Thông báo nếu chỉ thêm được một phần số lượng
+            if (quantityToAdd < requestedQuantity) {
+
+                skippedProducts.push(
+                    item.name +
+                    ": Chỉ thêm được " + quantityToAdd +
+                    "/" + requestedQuantity +
+                    " sản phẩm do giới hạn tồn kho."
+                );
+
+            }
+
+        });
+
+        // Gộp các sản phẩm không đủ điều kiện từ server
+        (result.skipped || []).forEach(function (item) {
+
+            skippedProducts.push(
+                item.name + ": " + item.reason
+            );
+
+        });
+
+        // Lưu giỏ hàng sau khi đã xử lý tất cả sản phẩm
+        if (addedProducts.length > 0) {
+
+            // Lưu giỏ hàng
+            var saveSuccess = saveCart(cart);
+
+            // Nếu lưu thất bại thì dừng xử lý
+            if (!saveSuccess) {
+                return;
+            }
+
+            // Cập nhật số lượng trên biểu tượng giỏ hàng
+            updateCartCount();
+
+        }
+
+        // Tạo nội dung thông báo
+        var message = "";
+
+        if (addedProducts.length > 0) {
+
+            message += "Đã thêm sản phẩm vào giỏ hàng:\n\n";
+            message += addedProducts.join("\n");
+
+        } else {
+
+            message += "Không có sản phẩm nào được thêm vào giỏ hàng.";
+
+        }
+
+        if (skippedProducts.length > 0) {
+
+            message += "\n\nCác sản phẩm bị bỏ qua hoặc giới hạn:\n\n";
+            message += skippedProducts.join("\n");
+
+        }
+
+        message += "\n\nBạn sẽ được chuyển đến giỏ hàng.";
+
+        alert(message);
+
+        // Chuyển đến trang giỏ hàng
+        window.location.href =
+            '@Url.Action("Cart", "Home", new { area = "" })';
+
+    }
+    catch (error) {
+
+        console.error("BuyAgain error:", error);
+
+        alert(
+            error.message ||
+            "Đã xảy ra lỗi khi mua lại đơn hàng. Vui lòng thử lại."
+        );
+
+    }
+    finally {
+
+        button.disabled = false;
+        button.innerHTML = originalContent;
+
+    }
+
+}
 </script>

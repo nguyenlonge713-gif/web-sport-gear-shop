@@ -14,7 +14,7 @@ namespace web_sport_gear.Areas.Admin.Controllers
         {
             base.OnActionExecuting(filterContext);
 
-            // 1. Chưa đăng nhập: chuyển đến trang đăng nhập.
+            // 1. Kiểm tra đăng nhập
             if (Session["UserID"] == null)
             {
                 filterContext.Result = RedirectToAction(
@@ -28,40 +28,74 @@ namespace web_sport_gear.Areas.Admin.Controllers
 
             try
             {
-                int userId = Convert.ToInt32(Session["UserID"]);
+                // 2. Kiểm tra UserID trong Session
+                int userId;
+
+                if (!int.TryParse(
+                    Convert.ToString(Session["UserID"]),
+                    out userId))
+                {
+                    ClearUserSession();
+
+                    filterContext.Result = RedirectToAction(
+                        "Login",
+                        "Account",
+                        new { area = "" }
+                    );
+
+                    return;
+                }
 
                 string connectionString =
                     ConfigurationManager
                     .ConnectionStrings["GearSportDB"]
                     .ConnectionString;
 
-                // 2. Kiểm tra quyền và trạng thái tài khoản trực tiếp từ database.
+                // 3. Kiểm tra quyền trực tiếp từ database
                 using (SqlConnection conn =
                     new SqlConnection(connectionString))
                 {
                     string sql = @"
                         SELECT Role, IsActive
                         FROM dbo.Users
-                        WHERE UserID = @UserID";
+                        WHERE UserID = @UserID;";
 
-                    using (SqlCommand cmd = new SqlCommand(sql, conn))
+                    using (SqlCommand cmd =
+                        new SqlCommand(sql, conn))
                     {
-                        cmd.Parameters.Add("@UserID", SqlDbType.Int)
-                            .Value = userId;
+                        cmd.Parameters.Add(
+                            "@UserID",
+                            SqlDbType.Int
+                        ).Value = userId;
 
                         conn.Open();
 
-                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        using (SqlDataReader reader =
+                            cmd.ExecuteReader())
                         {
-                            // Tài khoản không tồn tại hoặc đã bị vô hiệu hóa.
-                            if (!reader.Read() ||
+                            // Tài khoản không tồn tại
+                            if (!reader.Read())
+                            {
+                                ClearUserSession();
+
+                                filterContext.Result = RedirectToAction(
+                                    "Login",
+                                    "Account",
+                                    new { area = "" }
+                                );
+
+                                return;
+                            }
+
+                            // Tài khoản bị vô hiệu hóa
+                            if (reader["IsActive"] == DBNull.Value ||
                                 !Convert.ToBoolean(reader["IsActive"]))
                             {
                                 ClearUserSession();
 
                                 filterContext.Result = RedirectToAction(
-                                    "Index",
-                                    "Home",
+                                    "Login",
+                                    "Account",
                                     new { area = "" }
                                 );
 
@@ -71,7 +105,7 @@ namespace web_sport_gear.Areas.Admin.Controllers
                             string currentRole =
                                 Convert.ToString(reader["Role"]);
 
-                            // Tài khoản không còn quyền Admin.
+                            // Chỉ Admin mới được truy cập khu vực Admin
                             if (!string.Equals(
                                 currentRole,
                                 "Admin",
@@ -88,7 +122,7 @@ namespace web_sport_gear.Areas.Admin.Controllers
                                 return;
                             }
 
-                            // Đồng bộ lại quyền hiện tại vào Session.
+                            // Đồng bộ quyền hiện tại vào Session
                             Session["Role"] = currentRole;
                         }
                     }
@@ -96,8 +130,7 @@ namespace web_sport_gear.Areas.Admin.Controllers
             }
             catch
             {
-                // Nếu không xác minh được quyền từ database,
-                // mặc định từ chối truy cập Admin.
+                // Không xác minh được quyền thì từ chối truy cập
                 ClearUserSession();
 
                 filterContext.Result = RedirectToAction(
@@ -110,6 +143,7 @@ namespace web_sport_gear.Areas.Admin.Controllers
             }
         }
 
+        // Xóa thông tin đăng nhập
         private void ClearUserSession()
         {
             Session.Clear();

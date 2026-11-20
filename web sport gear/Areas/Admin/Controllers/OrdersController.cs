@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Web.Mvc;
 using web_sport_gear.Models;
 
@@ -12,44 +11,42 @@ namespace web_sport_gear.Areas.Admin.Controllers
 {
     public class OrdersController : AdminBaseController
     {
-        // Chuỗi kết nối database
         private string ConnectionString
         {
             get
             {
                 return ConfigurationManager
-                    .ConnectionStrings["GearSportDB"]
-                    .ConnectionString;
+                    .ConnectionStrings["GearSportDB"].ConnectionString;
             }
         }
 
-        // Kiểm tra quyền Admin
+        // ================= KIỂM TRA QUYỀN ADMIN =================
+
         private bool IsAdmin()
         {
             return Session["UserID"] != null &&
                    Session["Role"] != null &&
-                   Session["Role"].ToString() == "Admin";
+                   string.Equals(
+                       Session["Role"].ToString(),
+                       "Admin",
+                       StringComparison.OrdinalIgnoreCase);
         }
 
-        // Kiểm tra đăng nhập và quyền Admin
         private ActionResult CheckAdmin()
         {
-            if (Session["UserID"] == null)
-            {
-                return RedirectToAction(
-                    "Login", "Account", new { area = "" });
-            }
-
             if (!IsAdmin())
             {
                 return RedirectToAction(
-                    "Index", "Home", new { area = "" });
+                    "Login",
+                    "Account",
+                    new { area = "" });
             }
 
             return null;
         }
 
-        // Trang mặc định của Orders
+        // ================= TRANG MẶC ĐỊNH =================
+
         public ActionResult Index()
         {
             ActionResult check = CheckAdmin();
@@ -60,9 +57,9 @@ namespace web_sport_gear.Areas.Admin.Controllers
             return RedirectToAction("OrderList");
         }
 
-        // GET: Admin/Orders/OrderList
-        // Hiển thị danh sách tất cả đơn hàng
-        public ActionResult OrderList()
+        // ================= DANH SÁCH ĐƠN HÀNG =================
+
+        public ActionResult OrderList(string paymentStatus)
         {
             ActionResult check = CheckAdmin();
 
@@ -72,58 +69,107 @@ namespace web_sport_gear.Areas.Admin.Controllers
             List<OrderListViewModel> orders =
                 new List<OrderListViewModel>();
 
-            string sql = @"
-                SELECT
-                    o.OrderID,
-                    o.UserID,
-                    u.FullName AS CustomerName,
-                    o.ReceiverName,
-                    o.ReceiverPhone,
-                    o.ShippingAddress,
-                    o.TotalAmount,
-                    o.PaymentMethod,
-                    o.PaymentStatus,
-                    o.OrderStatus,
-                    o.CreatedAt
-                FROM dbo.Orders o
-                INNER JOIN dbo.Users u
-                    ON o.UserID = u.UserID
-                ORDER BY o.CreatedAt DESC";
+            bool filterPaidOrders =
+                string.Equals(
+                    paymentStatus,
+                    "paid",
+                    StringComparison.OrdinalIgnoreCase);
 
             using (SqlConnection connection =
                 new SqlConnection(ConnectionString))
-            using (SqlCommand command =
-                new SqlCommand(sql, connection))
             {
-                connection.Open();
+                string sql = @"
+                    SELECT
+                        o.OrderID,
+                        o.UserID,
+                        o.ReceiverName,
+                        o.ReceiverPhone,
+                        o.ShippingAddress,
+                        o.TotalAmount,
+                        o.PaymentMethod,
+                        o.PaymentStatus,
+                        o.OrderStatus,
+                        o.CreatedAt,
+                        u.FullName AS CustomerName
+                    FROM dbo.Orders o
+                    LEFT JOIN dbo.Users u
+                        ON o.UserID = u.UserID
+                    WHERE
+                    (
+                        @FilterPaid = 0
+                        OR
+                        (
+                            o.PaymentStatus = N'Đã thanh toán'
+                            AND ISNULL(o.OrderStatus, N'') <> N'Đã hủy'
+                        )
+                    )
+                    ORDER BY o.CreatedAt DESC";
 
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (SqlCommand command =
+                    new SqlCommand(sql, connection))
                 {
-                    while (reader.Read())
+                    command.Parameters.Add(
+                        "@FilterPaid",
+                        SqlDbType.Bit).Value = filterPaidOrders;
+
+                    connection.Open();
+
+                    using (SqlDataReader reader =
+                        command.ExecuteReader())
                     {
-                        orders.Add(new OrderListViewModel
+                        while (reader.Read())
                         {
-                            OrderID = Convert.ToInt32(reader["OrderID"]),
-                            UserID = Convert.ToInt32(reader["UserID"]),
-                            CustomerName = reader["CustomerName"].ToString(),
-                            ReceiverName = reader["ReceiverName"].ToString(),
-                            ReceiverPhone = reader["ReceiverPhone"].ToString(),
-                            ShippingAddress = reader["ShippingAddress"].ToString(),
-                            TotalAmount = Convert.ToDecimal(reader["TotalAmount"]),
-                            PaymentMethod = reader["PaymentMethod"].ToString(),
-                            PaymentStatus = reader["PaymentStatus"].ToString(),
-                            OrderStatus = reader["OrderStatus"].ToString(),
-                            CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
-                        });
+                            OrderListViewModel order =
+                                new OrderListViewModel();
+
+                            order.OrderID =
+                                Convert.ToInt32(reader["OrderID"]);
+
+                            order.UserID =
+                                Convert.ToInt32(reader["UserID"]);
+
+                            order.ReceiverName =
+                                reader["ReceiverName"].ToString();
+
+                            order.ReceiverPhone =
+                                reader["ReceiverPhone"].ToString();
+
+                            order.ShippingAddress =
+                                reader["ShippingAddress"].ToString();
+
+                            order.TotalAmount =
+                                Convert.ToDecimal(reader["TotalAmount"]);
+
+                            order.PaymentMethod =
+                                reader["PaymentMethod"].ToString();
+
+                            order.PaymentStatus =
+                                reader["PaymentStatus"].ToString();
+
+                            order.OrderStatus =
+                                reader["OrderStatus"].ToString();
+
+                            order.CreatedAt =
+                                Convert.ToDateTime(reader["CreatedAt"]);
+
+                            order.CustomerName =
+                                reader["CustomerName"] == DBNull.Value
+                                    ? ""
+                                    : reader["CustomerName"].ToString();
+
+                            orders.Add(order);
+                        }
                     }
                 }
             }
 
-            return View("OrderList", orders);
+            ViewBag.FilterPaidOrders = filterPaidOrders;
+
+            return View(orders);
         }
 
-        // GET: Admin/Orders/OrderDetails/1
-        // Xem chi tiết đơn hàng
+        // ================= CHI TIẾT ĐƠN HÀNG =================
+
         public ActionResult OrderDetails(int id)
         {
             ActionResult check = CheckAdmin();
@@ -133,106 +179,141 @@ namespace web_sport_gear.Areas.Admin.Controllers
 
             Order order = null;
 
-            string sqlOrder = @"
-                SELECT
-                    o.*,
-                    u.FullName AS CustomerName
-                FROM dbo.Orders o
-                INNER JOIN dbo.Users u
-                    ON o.UserID = u.UserID
-                WHERE o.OrderID = @OrderID";
-
             using (SqlConnection connection =
                 new SqlConnection(ConnectionString))
-            using (SqlCommand command =
-                new SqlCommand(sqlOrder, connection))
             {
-                command.Parameters.Add("@OrderID", SqlDbType.Int)
-                    .Value = id;
-
                 connection.Open();
 
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        order = new Order
-                        {
-                            OrderID = Convert.ToInt32(reader["OrderID"]),
-                            UserID = Convert.ToInt32(reader["UserID"]),
-                            ReceiverName = reader["ReceiverName"].ToString(),
-                            ReceiverPhone = reader["ReceiverPhone"].ToString(),
-                            ShippingAddress = reader["ShippingAddress"].ToString(),
-                            TotalAmount = Convert.ToDecimal(reader["TotalAmount"]),
-                            PaymentMethod = reader["PaymentMethod"].ToString(),
-                            PaymentStatus = reader["PaymentStatus"].ToString(),
-                            OrderStatus = reader["OrderStatus"].ToString(),
-                            Note = reader["Note"] == DBNull.Value
-                                ? ""
-                                : reader["Note"].ToString(),
-                            CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
-                        };
+                string sql = @"
+                    SELECT
+                        o.*,
+                        u.FullName AS CustomerName
+                    FROM dbo.Orders o
+                    LEFT JOIN dbo.Users u
+                        ON o.UserID = u.UserID
+                    WHERE o.OrderID = @OrderID";
 
-                        ViewBag.CustomerName =
-                            reader["CustomerName"].ToString();
+                using (SqlCommand command =
+                    new SqlCommand(sql, connection))
+                {
+                    command.Parameters.Add(
+                        "@OrderID",
+                        SqlDbType.Int).Value = id;
+
+                    using (SqlDataReader reader =
+                        command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            order = new Order();
+
+                            order.OrderID =
+                                Convert.ToInt32(reader["OrderID"]);
+
+                            order.UserID =
+                                Convert.ToInt32(reader["UserID"]);
+
+                            order.ReceiverName =
+                                reader["ReceiverName"].ToString();
+
+                            order.ReceiverPhone =
+                                reader["ReceiverPhone"].ToString();
+
+                            order.ShippingAddress =
+                                reader["ShippingAddress"].ToString();
+
+                            order.TotalAmount =
+                                Convert.ToDecimal(reader["TotalAmount"]);
+
+                            order.PaymentMethod =
+                                reader["PaymentMethod"].ToString();
+
+                            order.PaymentStatus =
+                                reader["PaymentStatus"].ToString();
+
+                            order.OrderStatus =
+                                reader["OrderStatus"].ToString();
+
+                            order.CreatedAt =
+                                Convert.ToDateTime(reader["CreatedAt"]);
+
+                            if (reader["Note"] != DBNull.Value)
+                            {
+                                order.Note =
+                                    reader["Note"].ToString();
+                            }
+
+                            if (reader["CustomerName"] != DBNull.Value)
+                            {
+                                order.CustomerName =
+                                    reader["CustomerName"].ToString();
+                            }
+                        }
+                    }
+                }
+
+                if (order == null)
+                {
+                    return HttpNotFound();
+                }
+
+                string detailSql = @"
+                    SELECT *
+                    FROM dbo.OrderDetails
+                    WHERE OrderID = @OrderID";
+
+                using (SqlCommand detailCommand =
+                    new SqlCommand(detailSql, connection))
+                {
+                    detailCommand.Parameters.Add(
+                        "@OrderID",
+                        SqlDbType.Int).Value = id;
+
+                    using (SqlDataReader reader =
+                        detailCommand.ExecuteReader())
+                    {
+                        order.OrderDetails =
+                            new List<OrderDetail>();
+
+                        while (reader.Read())
+                        {
+                            OrderDetail detail =
+                                new OrderDetail();
+
+                            detail.OrderDetailID =
+                                Convert.ToInt32(reader["OrderDetailID"]);
+
+                            detail.OrderID =
+                                Convert.ToInt32(reader["OrderID"]);
+
+                            detail.ProductID =
+                                Convert.ToInt32(reader["ProductID"]);
+
+                            detail.ProductName =
+                                reader["ProductName"].ToString();
+
+                            detail.Quantity =
+                                Convert.ToInt32(reader["Quantity"]);
+
+                            detail.UnitPrice =
+                                Convert.ToDecimal(reader["UnitPrice"]);
+
+                            order.OrderDetails.Add(detail);
+                        }
                     }
                 }
             }
 
-            if (order == null)
-            {
-                return HttpNotFound();
-            }
-
-            string sqlDetails = @"
-                SELECT
-                    OrderDetailID,
-                    OrderID,
-                    ProductID,
-                    ProductName,
-                    Quantity,
-                    UnitPrice
-                FROM dbo.OrderDetails
-                WHERE OrderID = @OrderID";
-
-            order.OrderDetails = new List<OrderDetail>();
-
-            using (SqlConnection connection =
-                new SqlConnection(ConnectionString))
-            using (SqlCommand command =
-                new SqlCommand(sqlDetails, connection))
-            {
-                command.Parameters.Add("@OrderID", SqlDbType.Int)
-                    .Value = id;
-
-                connection.Open();
-
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        order.OrderDetails.Add(new OrderDetail
-                        {
-                            OrderDetailID = Convert.ToInt32(reader["OrderDetailID"]),
-                            OrderID = Convert.ToInt32(reader["OrderID"]),
-                            ProductID = Convert.ToInt32(reader["ProductID"]),
-                            ProductName = reader["ProductName"].ToString(),
-                            Quantity = Convert.ToInt32(reader["Quantity"]),
-                            UnitPrice = Convert.ToDecimal(reader["UnitPrice"])
-                        });
-                    }
-                }
-            }
-
-            return View("OrderDetails", order);
+            return View(order);
         }
 
+        // ================= CẬP NHẬT TRẠNG THÁI ĐƠN HÀNG =================
 
-        // POST: Admin/Orders/UpdateOrderStatus
-        // Cập nhật trạng thái và tự động xử lý tồn kho
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult UpdateOrderStatus(int orderId, string orderStatus)
+        public ActionResult UpdateOrderStatus(
+            int orderId,
+            string orderStatus)
         {
             ActionResult check = CheckAdmin();
 
@@ -241,270 +322,274 @@ namespace web_sport_gear.Areas.Admin.Controllers
 
             string[] allowedStatuses =
             {
-        "Chờ xác nhận",
-        "Đang xử lý",
-        "Đang giao",
-        "Đã giao",
-        "Đã hủy"
-    };
+                "Chờ xác nhận",
+                "Đang xử lý",
+                "Đang giao",
+                "Đã giao",
+                "Đã hủy"
+            };
 
             if (string.IsNullOrWhiteSpace(orderStatus) ||
-                !allowedStatuses.Contains(orderStatus))
+                Array.IndexOf(allowedStatuses, orderStatus) < 0)
             {
                 TempData["ErrorMessage"] =
                     "Trạng thái đơn hàng không hợp lệ.";
 
-                return RedirectToAction("OrderDetails", new { id = orderId });
+                return RedirectToAction(
+                    "OrderDetails",
+                    new { id = orderId });
             }
 
-            using (SqlConnection connection = new SqlConnection(ConnectionString))
+            using (SqlConnection connection =
+                new SqlConnection(ConnectionString))
             {
                 connection.Open();
 
-                using (SqlTransaction transaction = connection.BeginTransaction())
+                using (SqlTransaction transaction =
+                    connection.BeginTransaction())
                 {
                     try
                     {
-                        // 1. Lấy trạng thái và tình trạng trừ kho hiện tại
-                        // UPDLOCK, HOLDLOCK giúp tránh xử lý đồng thời cùng một đơn.
-                        string checkSql = @"
-                    SELECT OrderStatus, StockDeducted
-                    FROM dbo.Orders WITH (UPDLOCK, HOLDLOCK)
-                    WHERE OrderID = @OrderID";
+                        string currentStatus;
+                        bool stockDeducted;
 
-                        string currentStatus = null;
-                        bool stockDeducted = false;
+                        // Khóa đơn hàng để tránh xử lý đồng thời.
+                        string checkSql = @"
+                            SELECT OrderStatus, StockDeducted
+                            FROM dbo.Orders WITH (UPDLOCK, HOLDLOCK)
+                            WHERE OrderID = @OrderID";
 
                         using (SqlCommand command =
-                            new SqlCommand(checkSql, connection, transaction))
+                            new SqlCommand(
+                                checkSql,
+                                connection,
+                                transaction))
                         {
-                            command.Parameters.Add("@OrderID", SqlDbType.Int)
-                                .Value = orderId;
+                            command.Parameters.Add(
+                                "@OrderID",
+                                SqlDbType.Int).Value = orderId;
 
-                            using (SqlDataReader reader = command.ExecuteReader())
+                            using (SqlDataReader reader =
+                                command.ExecuteReader())
                             {
-                                if (reader.Read())
-                                {
-                                    currentStatus = reader["OrderStatus"].ToString();
-
-                                    stockDeducted =
-                                        Convert.ToBoolean(reader["StockDeducted"]);
-                                }
-                            }
-                        }
-
-                        if (currentStatus == null)
-                        {
-                            throw new Exception("Không tìm thấy đơn hàng.");
-                        }
-
-                        // 2. Không cho phép thay đổi đơn đã hủy
-                        if (currentStatus == "Đã hủy" &&
-                            orderStatus != "Đã hủy")
-                        {
-                            throw new Exception(
-                                "Đơn hàng đã hủy, không thể thay đổi trạng thái.");
-                        }
-
-                        // 2.1. Không cho phép thay đổi đơn đã giao
-                        if (currentStatus == "Đã giao")
-                        {
-                            throw new Exception(
-                                "Đơn hàng đã giao, không thể thay đổi trạng thái.");
-                        }
-
-                        // 3. Khi chuyển sang ĐÃ GIAO: kiểm tra và trừ kho
-                        if (orderStatus == "Đã giao" && !stockDeducted)
-                        {
-                            // Kiểm tra đơn hàng có sản phẩm hay không
-                            string countSql = @"
-                        SELECT COUNT(*)
-                        FROM dbo.OrderDetails
-                        WHERE OrderID = @OrderID";
-
-                            using (SqlCommand command =
-                                new SqlCommand(countSql, connection, transaction))
-                            {
-                                command.Parameters.Add("@OrderID", SqlDbType.Int)
-                                    .Value = orderId;
-
-                                int detailCount = Convert.ToInt32(
-                                    command.ExecuteScalar());
-
-                                if (detailCount == 0)
+                                if (!reader.Read())
                                 {
                                     throw new Exception(
-                                        "Đơn hàng không có sản phẩm để trừ kho.");
+                                        "Không tìm thấy đơn hàng.");
                                 }
+
+                                currentStatus =
+                                    reader["OrderStatus"].ToString();
+
+                                stockDeducted =
+                                    reader["StockDeducted"] != DBNull.Value &&
+                                    Convert.ToBoolean(reader["StockDeducted"]);
                             }
-
-                            // Kiểm tra tồn kho của tất cả sản phẩm trong đơn
-                            string stockCheckSql = @"
-                        SELECT TOP 1
-                            p.ProductName,
-                            d.RequiredQuantity,
-                            p.StockQuantity
-                        FROM
-                        (
-                            SELECT
-                                ProductID,
-                                SUM(Quantity) AS RequiredQuantity
-                            FROM dbo.OrderDetails
-                            WHERE OrderID = @OrderID
-                            GROUP BY ProductID
-                        ) d
-                        INNER JOIN dbo.Products p
-                            WITH (UPDLOCK, HOLDLOCK)
-                            ON p.ProductID = d.ProductID
-                        WHERE p.StockQuantity < d.RequiredQuantity";
-
-                            using (SqlCommand command =
-                                new SqlCommand(stockCheckSql, connection, transaction))
-                            {
-                                command.Parameters.Add("@OrderID", SqlDbType.Int)
-                                    .Value = orderId;
-
-                                using (SqlDataReader reader = command.ExecuteReader())
-                                {
-                                    if (reader.Read())
-                                    {
-                                        string productName =
-                                            reader["ProductName"].ToString();
-
-                                        int required = Convert.ToInt32(
-                                            reader["RequiredQuantity"]);
-
-                                        int available = Convert.ToInt32(
-                                            reader["StockQuantity"]);
-
-                                        throw new Exception(
-                                            "Sản phẩm " + productName +
-                                            " không đủ tồn kho. Cần: " + required +
-                                            ", hiện còn: " + available + ".");
-                                    }
-                                }
-                            }
-
-                            // Trừ tồn kho từng sản phẩm
-                            string deductSql = @"
-                        UPDATE p
-                        SET p.StockQuantity =
-                            p.StockQuantity - d.RequiredQuantity
-                        FROM dbo.Products p
-                        INNER JOIN
-                        (
-                            SELECT
-                                ProductID,
-                                SUM(Quantity) AS RequiredQuantity
-                            FROM dbo.OrderDetails
-                            WHERE OrderID = @OrderID
-                            GROUP BY ProductID
-                        ) d
-                            ON p.ProductID = d.ProductID
-                        WHERE p.StockQuantity >= d.RequiredQuantity";
-
-                            using (SqlCommand command =
-                                new SqlCommand(deductSql, connection, transaction))
-                            {
-                                command.Parameters.Add("@OrderID", SqlDbType.Int)
-                                    .Value = orderId;
-
-                                command.ExecuteNonQuery();
-                            }
-
-                            // Đánh dấu đơn hàng đã trừ kho
-                            stockDeducted = true;
                         }
 
-                        // 4. Khi hủy đơn: chỉ hoàn kho nếu trước đó đã trừ kho
-                        if (currentStatus != "Đã hủy" &&
-                            orderStatus == "Đã hủy" &&
-                            stockDeducted)
+                        // Không cho phép thay đổi đơn đã kết thúc.
+                        if (currentStatus == "Đã hủy" ||
+                            currentStatus == "Đã giao")
+                        {
+                            throw new Exception(
+                                "Không thể thay đổi trạng thái đơn hàng đã kết thúc.");
+                        }
+
+                        // =============================================
+                        // HỦY ĐƠN VÀ HOÀN LẠI TỒN KHO
+                        // =============================================
+
+                        if (orderStatus == "Đã hủy" && stockDeducted)
                         {
                             string restoreSql = @"
-                        UPDATE p
-                        SET p.StockQuantity =
-                            p.StockQuantity + d.RequiredQuantity
-                        FROM dbo.Products p
-                        INNER JOIN
-                        (
-                            SELECT
-                                ProductID,
-                                SUM(Quantity) AS RequiredQuantity
-                            FROM dbo.OrderDetails
-                            WHERE OrderID = @OrderID
-                            GROUP BY ProductID
-                        ) d
-                            ON p.ProductID = d.ProductID";
+                                UPDATE p
+                                SET p.StockQuantity =
+                                    p.StockQuantity + d.TotalQuantity
+                                FROM dbo.Products p
+                                INNER JOIN
+                                (
+                                    SELECT
+                                        ProductID,
+                                        SUM(Quantity) AS TotalQuantity
+                                    FROM dbo.OrderDetails
+                                    WHERE OrderID = @OrderID
+                                    GROUP BY ProductID
+                                ) d
+                                    ON p.ProductID = d.ProductID";
 
-                            using (SqlCommand command =
-                                new SqlCommand(restoreSql, connection, transaction))
+                            using (SqlCommand restoreCommand =
+                                new SqlCommand(
+                                    restoreSql,
+                                    connection,
+                                    transaction))
                             {
-                                command.Parameters.Add("@OrderID", SqlDbType.Int)
-                                    .Value = orderId;
+                                restoreCommand.Parameters.Add(
+                                    "@OrderID",
+                                    SqlDbType.Int).Value = orderId;
 
-                                command.ExecuteNonQuery();
+                                restoreCommand.ExecuteNonQuery();
                             }
 
+                            // Đã hoàn kho, không được hoàn lần thứ hai.
                             stockDeducted = false;
                         }
 
-                        // 5. Cập nhật trạng thái và cờ StockDeducted
+                        // =============================================
+                        // CẬP NHẬT TRẠNG THÁI ĐƠN HÀNG
+                        // Không trừ kho khi Đã giao.
+                        // =============================================
+
                         string updateSql = @"
-                    UPDATE dbo.Orders
-                    SET
-                        OrderStatus = @OrderStatus,
-                        StockDeducted = @StockDeducted
-                    WHERE OrderID = @OrderID";
+                            UPDATE dbo.Orders
+                            SET
+                                OrderStatus = @OrderStatus,
+                                StockDeducted = @StockDeducted
+                            WHERE OrderID = @OrderID";
 
-                        using (SqlCommand command =
-                            new SqlCommand(updateSql, connection, transaction))
+                        using (SqlCommand updateCommand =
+                            new SqlCommand(
+                                updateSql,
+                                connection,
+                                transaction))
                         {
-                            command.Parameters.Add(
-                                "@OrderStatus", SqlDbType.NVarChar, 50)
-                                .Value = orderStatus;
+                            updateCommand.Parameters.Add(
+                                "@OrderStatus",
+                                SqlDbType.NVarChar).Value = orderStatus;
 
-                            command.Parameters.Add(
-                                "@StockDeducted", SqlDbType.Bit)
-                                .Value = stockDeducted;
+                            updateCommand.Parameters.Add(
+                                "@StockDeducted",
+                                SqlDbType.Bit).Value = stockDeducted;
 
-                            command.Parameters.Add(
-                                "@OrderID", SqlDbType.Int)
-                                .Value = orderId;
+                            updateCommand.Parameters.Add(
+                                "@OrderID",
+                                SqlDbType.Int).Value = orderId;
 
-                            command.ExecuteNonQuery();
+                            int affectedRows =
+                                updateCommand.ExecuteNonQuery();
+
+                            if (affectedRows != 1)
+                            {
+                                throw new Exception(
+                                    "Không thể cập nhật trạng thái đơn hàng.");
+                            }
                         }
 
-                        // 6. Hoàn tất toàn bộ giao dịch
                         transaction.Commit();
 
-                        if (orderStatus == "Đã giao" && stockDeducted)
-                        {
-                            TempData["SuccessMessage"] =
-                                "Cập nhật đơn hàng thành Đã giao và trừ tồn kho thành công!";
-                        }
-                        else if (orderStatus == "Đã hủy")
-                        {
-                            TempData["SuccessMessage"] =
-                                "Hủy đơn hàng và xử lý hoàn kho thành công!";
-                        }
-                        else
-                        {
-                            TempData["SuccessMessage"] =
-                                "Cập nhật trạng thái đơn hàng thành công!";
-                        }
+                        TempData["SuccessMessage"] =
+                            orderStatus == "Đã hủy" && !stockDeducted
+                                ? "Cập nhật trạng thái đơn hàng thành công!"
+                                : "Cập nhật trạng thái đơn hàng thành công!";
                     }
                     catch (Exception ex)
                     {
-                        transaction.Rollback();
+                        try
+                        {
+                            transaction.Rollback();
+                        }
+                        catch
+                        {
+                            // Bỏ qua lỗi rollback phụ.
+                        }
 
                         TempData["ErrorMessage"] = ex.Message;
                     }
                 }
             }
 
-            return RedirectToAction("OrderDetails", new { id = orderId });
+            return RedirectToAction(
+                "OrderDetails",
+                new { id = orderId });
         }
 
+        // ================= ADMIN XÁC NHẬN THANH TOÁN =================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ConfirmPayment(int orderId)
+        {
+            ActionResult check = CheckAdmin();
+
+            if (check != null)
+                return check;
+
+            using (SqlConnection connection =
+                new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+
+                string sql = @"
+                    UPDATE dbo.Orders
+                    SET PaymentStatus = N'Đã thanh toán'
+                    WHERE OrderID = @OrderID
+                      AND PaymentStatus = N'Chưa thanh toán'
+                      AND OrderStatus <> N'Đã hủy'";
+
+                using (SqlCommand command =
+                    new SqlCommand(sql, connection))
+                {
+                    command.Parameters.Add(
+                        "@OrderID",
+                        SqlDbType.Int).Value = orderId;
+
+                    int rowsAffected =
+                        command.ExecuteNonQuery();
+
+                    if (rowsAffected > 0)
+                    {
+                        TempData["SuccessMessage"] =
+                            "Xác nhận thanh toán thành công!";
+                    }
+                    else
+                    {
+                        string checkSql = @"
+                            SELECT PaymentStatus, OrderStatus
+                            FROM dbo.Orders
+                            WHERE OrderID = @OrderID";
+
+                        using (SqlCommand checkCommand =
+                            new SqlCommand(checkSql, connection))
+                        {
+                            checkCommand.Parameters.Add(
+                                "@OrderID",
+                                SqlDbType.Int).Value = orderId;
+
+                            using (SqlDataReader reader =
+                                checkCommand.ExecuteReader())
+                            {
+                                if (!reader.Read())
+                                {
+                                    TempData["ErrorMessage"] =
+                                        "Không tìm thấy đơn hàng.";
+                                }
+                                else if (
+                                    reader["OrderStatus"].ToString()
+                                    == "Đã hủy")
+                                {
+                                    TempData["ErrorMessage"] =
+                                        "Không thể xác nhận thanh toán cho đơn hàng đã hủy.";
+                                }
+                                else if (
+                                    reader["PaymentStatus"].ToString()
+                                    == "Đã thanh toán")
+                                {
+                                    TempData["ErrorMessage"] =
+                                        "Đơn hàng này đã được thanh toán trước đó.";
+                                }
+                                else
+                                {
+                                    TempData["ErrorMessage"] =
+                                        "Không thể cập nhật trạng thái thanh toán.";
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return RedirectToAction(
+                "OrderDetails",
+                new { id = orderId });
+        }
     }
 }
