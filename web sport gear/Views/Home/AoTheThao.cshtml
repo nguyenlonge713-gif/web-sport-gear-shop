@@ -224,6 +224,55 @@
     .product-img {
         cursor: pointer;
     }
+
+    /* 8. Phân trang sản phẩm */
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 40px 0 20px;
+    }
+
+        .pagination-container a {
+            min-width: 42px;
+            height: 42px;
+            padding: 0 14px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #cbd5e1;
+            border-radius: 5px;
+            color: #1e293b;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+            .pagination-container a:hover {
+                background: #ff5722;
+                color: #fff;
+                border-color: #ff5722;
+            }
+
+            .pagination-container a.active {
+                background: #ff5722;
+                color: #fff;
+                border-color: #ff5722;
+            }
+
+            .pagination-container a.disabled {
+                pointer-events: none;
+                opacity: 0.4;
+            }
+
+    .pagination-info {
+        text-align: center;
+        color: #64748b;
+        font-size: 14px;
+        margin-top: 12px;
+    }
 </style>
 
 <!-- 1. HERO CAMPAIGN BANNER -->
@@ -290,9 +339,16 @@
 <!-- 3. KHU VỰC HIỂN THỊ SẢN PHẨM -->
 <div class="adidas-catalog-container">
 
+
+    @{
+        int currentPage = ViewBag.CurrentPage;
+        int totalPages = ViewBag.TotalPages;
+        int totalProducts = ViewBag.TotalProducts;
+    }
+
     <div class="adidas-toolbar">
         <span class="adidas-count">
-            Hiển thị @Model.Count() sản phẩm chính hãng
+            Tổng cộng @totalProducts sản phẩm chính hãng
         </span>
 
         <div class="adidas-sort">
@@ -303,6 +359,7 @@
             </select>
         </div>
     </div>
+
 
     <section class="featured-products">
         <div class="product-container product-grid">
@@ -375,9 +432,53 @@
             }
 
         </div>
+
     </section>
+
+    @if (totalPages > 1)
+    {
+        <div class="pagination-container">
+
+            @* Trang trước *@
+            <a href="@Url.Action("AOTHETHAO", "Product", new {
+                    page = currentPage - 1,
+                    subCategory = selectedSubCategory
+                })"
+               class="@(currentPage == 1 ? "disabled" : "")">
+                &laquo; Trước
+            </a>
+
+            @* Các số trang *@
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <a href="@Url.Action("AOTHETHAO", "Product", new {
+                        page = i,
+                        subCategory = selectedSubCategory
+                    })"
+                   class="@(i == currentPage ? "active" : "")">
+                    @i
+                </a>
+            }
+
+            @* Trang sau *@
+            <a href="@Url.Action("AOTHETHAO", "Product", new {
+                    page = currentPage + 1,
+                    subCategory = selectedSubCategory
+                })"
+               class="@(currentPage == totalPages ? "disabled" : "")">
+                Sau &raquo;
+            </a>
+
+        </div>
+
+        <div class="pagination-info">
+            Trang @currentPage / @totalPages
+        </div>
+    }
 </div>
-<script>document.addEventListener("DOMContentLoaded", function () {
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
 
         const sortSelect = document.getElementById("sortSelect");
 

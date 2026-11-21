@@ -4,6 +4,12 @@
 @{
     ViewBag.Title = "Giày Đá Bóng & Thể Thao - Gear Sport";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string selectedSubCategory = ViewBag.SelectedSubCategory as string;
+
+    int currentPage = ViewBag.CurrentPage;
+    int totalPages = ViewBag.TotalPages;
+    int totalProducts = ViewBag.TotalProducts;
 }
 
 <style>
@@ -11,7 +17,7 @@
        GEAR SPORT - FOOTBALL & SHOES CAMPAIGN STYLE
        ========================================== */
 
-    /* 1. Hero Campaign Banner Tràn Viền */
+    /* 1. Hero Campaign Banner */
     .shoes-hero-campaign {
         position: relative;
         width: 100vw;
@@ -211,6 +217,7 @@
         }
     }
 
+    /* 7. Liên kết chi tiết */
     .product-detail-link {
         color: inherit;
         text-decoration: none;
@@ -224,16 +231,67 @@
     .product-img {
         cursor: pointer;
     }
+
+    /* 8. Phân trang */
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 40px 0 20px;
+    }
+
+        .pagination-container a {
+            min-width: 42px;
+            height: 42px;
+            padding: 0 14px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #cbd5e1;
+            border-radius: 5px;
+            color: #1e293b;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+            .pagination-container a:hover {
+                background: #ff5722;
+                color: #fff;
+                border-color: #ff5722;
+            }
+
+            .pagination-container a.active {
+                background: #ff5722;
+                color: #fff;
+                border-color: #ff5722;
+            }
+
+            .pagination-container a.disabled {
+                pointer-events: none;
+                opacity: 0.4;
+            }
+
+    .pagination-info {
+        text-align: center;
+        color: #64748b;
+        font-size: 14px;
+        margin-top: 12px;
+    }
 </style>
 
 <!-- 1. HERO CAMPAIGN BANNER -->
 <div class="shoes-hero-campaign">
+
     <img src="https://plus.unsplash.com/premium_photo-1663133611323-69d98d17de90?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
          alt="Football Shoes Campaign" />
 
     <div class="shoes-hero-overlay"></div>
 
     <div class="shoes-hero-content">
+
         <div class="shoes-breadcrumb">
             Trang chủ / Giày Đá Bóng & Thể Thao
         </div>
@@ -245,58 +303,62 @@
         <p class="shoes-hero-desc">
             Bứt phá tốc độ, làm chủ sân cỏ và chinh phục mọi giới hạn cùng các dòng giày chuyên nghiệp chính hãng.
         </p>
+
     </div>
 </div>
 
 <!-- 2. THANH CHUYỂN NHANH DANH MỤC PHỤ -->
-
-@{
-    string selectedSubCategory = ViewBag.SelectedSubCategory as string;
-}
-
 <div class="sub-categories-bar">
 
     <!-- Tất cả giày -->
     <a href="@Url.Action("GiayDaBong", "Product")"
        class="sub-cat-card @(string.IsNullOrEmpty(selectedSubCategory) ? "active" : "")">
+
         <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400"
              alt="Tất cả giày" />
+
         <span>Tất cả giày</span>
     </a>
 
     <!-- Giày Đá Banh -->
     <a href="@Url.Action("GiayDaBong", "Product", new { subCategory = "Giày Đá Banh" })"
        class="sub-cat-card @(selectedSubCategory == "Giày Đá Banh" ? "active" : "")">
+
         <img src="https://images.unsplash.com/photo-1511886929837-354d827aae26?w=400"
              alt="Giày Đá Banh" />
+
         <span>Giày Đá Banh</span>
     </a>
 
     <!-- Giày Chạy Bộ -->
     <a href="@Url.Action("GiayDaBong", "Product", new { subCategory = "Giày Chạy Bộ" })"
        class="sub-cat-card @(selectedSubCategory == "Giày Chạy Bộ" ? "active" : "")">
+
         <img src="https://images.unsplash.com/photo-1562183241-b937e95585b6?w=400"
              alt="Giày Chạy Bộ" />
+
         <span>Giày Chạy Bộ</span>
     </a>
 
     <!-- Giày Bóng Rổ -->
     <a href="@Url.Action("GiayDaBong", "Product", new { subCategory = "Giày Bóng Rổ" })"
        class="sub-cat-card @(selectedSubCategory == "Giày Bóng Rổ" ? "active" : "")">
+
         <img src="https://images.unsplash.com/photo-1579338559194-a162d19bf842?w=400"
              alt="Giày Bóng Rổ" />
+
         <span>Giày Bóng Rổ</span>
     </a>
 
 </div>
 
-
 <!-- 3. KHU VỰC HIỂN THỊ SẢN PHẨM -->
 <div class="shoes-catalog-container">
 
     <div class="shoes-toolbar">
+
         <span class="shoes-count">
-            Hiển thị <strong>@Model.Count()</strong> sản phẩm chính hãng
+            Tổng cộng <strong>@totalProducts</strong> sản phẩm chính hãng
         </span>
 
         <div class="shoes-sort">
@@ -306,70 +368,142 @@
                 <option value="price-desc">Giá: Cao xuống thấp</option>
             </select>
         </div>
+
     </div>
 
     <section class="featured-products">
+
         <div class="product-container product-grid">
 
-            @foreach (var product in Model)
+            @if (Model != null && Model.Any())
             {
-                <div class="product-item product-card"
-                     data-id="@product.ProductID"
-                     data-price="@product.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                foreach (var product in Model)
+                {
+                    <div class="product-item product-card"
+                         data-id="@product.ProductID"
+                         data-price="@product.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)">
 
-                    <a href="@Url.Action("Details", "Home", new { id = product.ProductID })"
-                       class="product-detail-link">
-                        <img src="@product.ImageUrl"
-                             alt="@product.ProductName"
-                             class="product-img" />
-                    </a>
+                        <a href="@Url.Action("Details", "Home", new { id = product.ProductID })"
+                           class="product-detail-link">
 
-                    <div class="product-info">
+                            <img src="@product.ImageUrl"
+                                 alt="@product.ProductName"
+                                 class="product-img" />
 
-                        <h3 class="product-title">
-                            <a href="@Url.Action("Details", "Home", new { id = product.ProductID })"
-                               class="product-detail-link">
-                                @product.ProductName
-                            </a>
-                        </h3>
+                        </a>
 
-                        <p class="product-price">
-                            @product.Price.ToString("N0") đ
-                        </p>
+                        <div class="product-info">
 
-                        @if (product.StockQuantity > 0)
-                        {
-                            <p class="product-stock">
-                                Còn hàng: @product.StockQuantity sản phẩm
+                            <h3 class="product-title">
+
+                                <a href="@Url.Action("Details", "Home", new { id = product.ProductID })"
+                                   class="product-detail-link">
+                                    @product.ProductName
+                                </a>
+
+                            </h3>
+
+                            <p class="product-price">
+                                @product.Price.ToString("N0") đ
                             </p>
-                        }
-                        else
-                        {
-                            <p class="product-stock out-of-stock">
-                                Hết hàng
-                            </p>
-                        }
 
-                        <button class="btn add-to-cart-btn"
-                                data-id="@product.ProductID"
-                                data-name="@product.ProductName"
-                                data-price="@product.Price"
-                                data-image="@product.ImageUrl"
-                                data-stock="@product.StockQuantity"
-                                disabled="@(product.StockQuantity <= 0)">
-                            @(product.StockQuantity > 0
-                                ? "Thêm vào giỏ"
-                                : "Hết hàng")
-                        </button>
+                            @if (product.StockQuantity > 0)
+                            {
+                                <p class="product-stock">
+                                    Còn hàng: @product.StockQuantity sản phẩm
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="product-stock out-of-stock">
+                                    Hết hàng
+                                </p>
+                            }
 
+                            @if (product.StockQuantity > 0)
+                            {
+                                <button class="btn add-to-cart-btn"
+                                        data-id="@product.ProductID"
+                                        data-name="@product.ProductName"
+                                        data-price="@product.Price"
+                                        data-image="@product.ImageUrl"
+                                        data-stock="@product.StockQuantity">
+                                    Thêm vào giỏ
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn add-to-cart-btn"
+                                        data-id="@product.ProductID"
+                                        data-name="@product.ProductName"
+                                        data-price="@product.Price"
+                                        data-image="@product.ImageUrl"
+                                        data-stock="0"
+                                        disabled>
+                                    Hết hàng
+                                </button>
+                            }
+
+                        </div>
                     </div>
-                </div>
+                }
+            }
+            else
+            {
+                <p>Hiện chưa có sản phẩm nào trong danh mục này.</p>
             }
 
         </div>
+
     </section>
+
+    <!-- 4. THANH PHÂN TRANG -->
+    @if (totalPages > 1)
+    {
+        <div class="pagination-container">
+
+            <!-- Trang trước -->
+            <a href="@Url.Action("GiayDaBong", "Product", new {
+                    page = currentPage - 1,
+                    subCategory = selectedSubCategory
+                })"
+               class="@(currentPage == 1 ? "disabled" : "")">
+                &laquo; Trước
+            </a>
+
+            <!-- Các số trang -->
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <a href="@Url.Action("GiayDaBong", "Product", new {
+                        page = i,
+                        subCategory = selectedSubCategory
+                    })"
+                   class="@(i == currentPage ? "active" : "")">
+                    @i
+                </a>
+            }
+
+            <!-- Trang sau -->
+            <a href="@Url.Action("GiayDaBong", "Product", new {
+                    page = currentPage + 1,
+                    subCategory = selectedSubCategory
+                })"
+               class="@(currentPage == totalPages ? "disabled" : "")">
+                Sau &raquo;
+            </a>
+
+        </div>
+
+        <div class="pagination-info">
+            Trang @currentPage / @totalPages
+        </div>
+    }
+
 </div>
-<script>document.addEventListener("DOMContentLoaded", function () {
+
+<!-- 5. JAVASCRIPT SẮP XẾP SẢN PHẨM -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
 
         const sortSelect = document.getElementById("sortSelect");
 
@@ -405,7 +539,6 @@
                     return priceB - priceA;
                 }
 
-                // Mới nhất: ProductID lớn hơn hiển thị trước
                 return idB - idA;
             });
 
@@ -414,10 +547,9 @@
             });
         }
 
-        // Sắp xếp khi người dùng thay đổi lựa chọn
         sortSelect.addEventListener("change", sortProducts);
 
-        // Sắp xếp ngay khi tải trang
         sortProducts();
 
-    });</script>
+    });
+</script>
