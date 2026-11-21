@@ -1,22 +1,63 @@
 ﻿@model IEnumerable<web_sport_gear.Models.Product>
 
 @using System.Linq
+@using System.Collections.Generic
+@using System.Web.Mvc
 
 @{
     ViewBag.Title = "Quản lý sản phẩm";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 
-    int totalProducts = Model == null ? 0 : Model.Count();
+    var productList = Model ?? Enumerable.Empty<web_sport_gear.Models.Product>();
 
-    int activeProducts = Model == null ? 0 : Model.Count(x => x.IsActive);
+    // Thống kê trên trang hiện tại
+    int totalProducts = productList.Count();
+    int activeProducts = productList.Count(x => x.IsActive);
+    int hiddenProducts = productList.Count(x => !x.IsActive);
 
-    int hiddenProducts = Model == null ? 0 : Model.Count(x => !x.IsActive);
+    int lowStockProducts = productList.Count(
+        x => x.StockQuantity > 0 && x.StockQuantity <= 5
+    );
 
-    int lowStockProducts = Model == null ? 0 :
-        Model.Count(x => x.StockQuantity > 0 && x.StockQuantity <= 5);
+    int outOfStockProducts = productList.Count(
+        x => x.StockQuantity <= 0
+    );
 
-    int outOfStockProducts = Model == null ? 0 :
-        Model.Count(x => x.StockQuantity <= 0);
+    // Dữ liệu tìm kiếm và lọc
+    string search = ViewBag.Search as string ?? "";
+    string status = ViewBag.Status as string ?? "";
+    string stockStatus = ViewBag.StockStatus as string ?? "";
+
+    int? categoryId = ViewBag.CategoryId as int?;
+
+    int currentPage = ViewBag.CurrentPage == null
+        ? 1 : (int)ViewBag.CurrentPage;
+
+    int pageSize = ViewBag.PageSize == null
+        ? 10 : (int)ViewBag.PageSize;
+
+    int totalPages = ViewBag.TotalPages == null
+        ? 1 : (int)ViewBag.TotalPages;
+
+    int totalFilteredProducts = ViewBag.TotalProducts == null
+        ? 0 : (int)ViewBag.TotalProducts;
+
+    var categories = ViewBag.Categories as IEnumerable<SelectListItem>
+        ?? new List<SelectListItem>();
+
+    int startProduct = totalFilteredProducts == 0
+        ? 0 : (currentPage - 1) * pageSize + 1;
+
+    int endProduct = Math.Min(
+        currentPage * pageSize,
+        totalFilteredProducts
+    );
+
+    bool hasFilter =
+        !string.IsNullOrWhiteSpace(search) ||
+        categoryId.HasValue ||
+        !string.IsNullOrWhiteSpace(status) ||
+        !string.IsNullOrWhiteSpace(stockStatus);
 }
 
 <style>
@@ -540,7 +581,172 @@
             color: #1d4ed8;
             font-size: 15px;
         }
+    /* SEARCH AND FILTER */
 
+    .product-filter-card {
+        background: #fff;
+        border: 1px solid #e8edf5;
+        border-radius: 14px;
+        padding: 22px;
+        margin-bottom: 22px;
+        box-shadow: 0 5px 20px rgba(15, 23, 42, 0.045);
+    }
+
+    .product-filter-title {
+        color: #172554;
+        font-size: 16px;
+        font-weight: 850;
+        margin-bottom: 17px;
+    }
+
+    .product-filter-grid {
+        display: grid;
+        grid-template-columns: 2fr 1.3fr 1.3fr 1.3fr;
+        gap: 13px;
+        align-items: end;
+    }
+
+    .product-filter-group label {
+        display: block;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 750;
+        margin-bottom: 7px;
+    }
+
+    .product-filter-control {
+        width: 100%;
+        height: 43px;
+        border: 1px solid #dbe3ef;
+        border-radius: 8px;
+        padding: 0 12px;
+        color: #334155;
+        background: #fff;
+        outline: none;
+        font-size: 13px;
+    }
+
+        .product-filter-control:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+    .product-filter-actions {
+        display: flex;
+        gap: 9px;
+        margin-top: 17px;
+        flex-wrap: wrap;
+    }
+
+    .product-filter-submit {
+        background: #1d4ed8;
+        color: white;
+        cursor: pointer;
+    }
+
+        .product-filter-submit:hover {
+            background: #1e40af;
+            color: white;
+        }
+
+    .product-filter-reset {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+        .product-filter-reset:hover {
+            background: #e2e8f0;
+            color: #172554;
+        }
+
+    /* PAGINATION */
+
+    .product-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+
+    .product-page-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 11px;
+        border: 1px solid #dbe3ef;
+        border-radius: 8px;
+        background: white;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 750;
+        text-decoration: none !important;
+        transition: .2s;
+    }
+
+        .product-page-link:hover {
+            background: #eff6ff;
+            border-color: #2563eb;
+            color: #1d4ed8;
+        }
+
+        .product-page-link.current {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+            color: white;
+            pointer-events: none;
+        }
+
+        .product-page-link.disabled {
+            opacity: .4;
+            pointer-events: none;
+        }
+
+    .product-page-size {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 12px;
+        color: #64748b;
+    }
+
+        .product-page-size select {
+            height: 35px;
+            border: 1px solid #dbe3ef;
+            border-radius: 7px;
+            padding: 0 8px;
+            background: white;
+            color: #334155;
+        }
+
+    .product-pagination-info {
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    @@media (max-width: 992px) {
+        .product-filter-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .product-filter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .product-filter-card {
+            padding: 16px;
+        }
+
+        .product-table-footer {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
     /* RESPONSIVE */
 
     @@media (max-width: 992px) {
@@ -733,7 +939,123 @@
         </div>
 
     </div>
+    <!-- SEARCH AND FILTER -->
+    <div class="product-filter-card">
 
+        <div class="product-filter-title">
+            <i class="glyphicon glyphicon-search"></i>
+            Tìm kiếm và lọc sản phẩm
+        </div>
+
+        @using (Html.BeginForm(
+            "ProductList",
+            "Products",
+            new { area = "Admin" },
+            FormMethod.Get,
+            new { id = "productFilterForm" }))
+        {
+            <div class="product-filter-grid">
+
+                <!-- TÌM KIẾM -->
+                <div class="product-filter-group">
+                    <label>Tên sản phẩm</label>
+
+                    <input type="text"
+                           name="search"
+                           value="@search"
+                           class="product-filter-control"
+                           placeholder="Nhập tên sản phẩm..." />
+                </div>
+
+                <!-- DANH MỤC -->
+                <div class="product-filter-group">
+                    <label>Danh mục</label>
+
+                    <select name="categoryId"
+                            class="product-filter-control">
+
+                        <option value="">Tất cả danh mục</option>
+
+                        @foreach (var category in categories)
+                        {
+                            <option value="@category.Value"
+                                    @(categoryId.HasValue && category.Value == categoryId.Value.ToString() ? "selected" : "")>
+                                @category.Text
+                            </option>
+                        }
+
+                    </select>
+                </div>
+
+                <!-- TRẠNG THÁI -->
+                <div class="product-filter-group">
+                    <label>Trạng thái kinh doanh</label>
+
+                    <select name="status"
+                            class="product-filter-control">
+
+                        <option value="">Tất cả trạng thái</option>
+
+                        <option value="active"
+                                @(status == "active" ? "selected" : "")>
+                            Đang hiển thị
+                        </option>
+
+                        <option value="inactive"
+                                @(status == "inactive" ? "selected" : "")>
+                            Đã ẩn
+                        </option>
+
+                    </select>
+                </div>
+
+                <!-- TỒN KHO -->
+                <div class="product-filter-group">
+                    <label>Tình trạng tồn kho</label>
+
+                    <select name="stockStatus"
+                            class="product-filter-control">
+
+                        <option value="">Tất cả tồn kho</option>
+
+                        <option value="in"
+                                @(stockStatus == "in" ? "selected" : "")>
+                            Còn hàng
+                        </option>
+
+                        <option value="out"
+                                @(stockStatus == "out" ? "selected" : "")>
+                            Hết hàng
+                        </option>
+
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="product-filter-actions">
+
+                <button type="submit"
+                        class="product-btn product-filter-submit">
+
+                    <i class="glyphicon glyphicon-search"></i>
+                    Tìm kiếm và lọc
+
+                </button>
+
+                <a href="@Url.Action("ProductList", "Products",
+                new { area = "Admin" })"
+                   class="product-btn product-filter-reset">
+
+                    <i class="glyphicon glyphicon-refresh"></i>
+                    Đặt lại
+
+                </a>
+
+            </div>
+        }
+
+    </div>
     <!-- PRODUCT TABLE -->
     <div class="product-table-card">
 
@@ -745,7 +1067,7 @@
             </h4>
 
             <span class="product-count">
-                @totalProducts sản phẩm
+                @totalFilteredProducts sản phẩm tìm thấy
             </span>
 
         </div>
@@ -952,12 +1274,36 @@
                             <td colspan="8" class="product-empty">
 
                                 <div class="product-empty-icon">
-                                    <i class="glyphicon glyphicon-shopping-cart"></i>
+                                    <i class="glyphicon glyphicon-search"></i>
                                 </div>
 
-                                <strong>Chưa có sản phẩm nào</strong>
+                                @if (hasFilter)
+                                {
+                                    <strong>Không tìm thấy sản phẩm phù hợp</strong>
 
-                                Hãy thêm sản phẩm mới để bắt đầu quản lý cửa hàng.
+                                    <span>
+                                        Không có sản phẩm nào đáp ứng điều kiện tìm kiếm hoặc bộ lọc hiện tại.
+                                    </span>
+
+                                    <div style="margin-top:15px;">
+                                        <a href="@Url.Action("ProductList", "Products",
+                        new { area = "Admin" })"
+                                           class="product-btn product-filter-reset">
+
+                                            <i class="glyphicon glyphicon-refresh"></i>
+                                            Xóa bộ lọc
+
+                                        </a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <strong>Chưa có sản phẩm nào</strong>
+
+                                    <span>
+                                        Hãy thêm sản phẩm mới để bắt đầu quản lý cửa hàng.
+                                    </span>
+                                }
 
                             </td>
                         </tr>
@@ -969,23 +1315,169 @@
 
         </div>
 
+        
         <!-- FOOTER -->
         <div class="product-table-footer">
 
-            <span>
-                Tổng số sản phẩm:
-                <strong>@totalProducts</strong>
-            </span>
+            <div>
+                Hiển thị
+                <strong>@startProduct - @endProduct</strong>
+                trong tổng số
+                <strong>@totalFilteredProducts</strong>
+                sản phẩm
+            </div>
 
-            <span>
-                Đang hiển thị:
-                <strong>@activeProducts</strong>
-                &nbsp;|&nbsp;
-                Đã ẩn:
-                <strong>@hiddenProducts</strong>
-            </span>
+            <div>
+                Số sản phẩm trên trang:
+                <strong>@pageSize</strong>
+            </div>
 
         </div>
+
+        <!-- PAGINATION -->
+        @if (totalFilteredProducts > 0)
+        {
+            <div style="padding: 15px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px;">
+
+                <!-- CHỌN SỐ SẢN PHẨM -->
+                <div class="product-page-size">
+
+                    <span>Hiển thị mỗi trang:</span>
+
+                    @using (Html.BeginForm(
+                        "ProductList",
+                        "Products",
+                        new { area = "Admin" },
+                        FormMethod.Get,
+                        new { id = "pageSizeForm" }))
+                    {
+                        @Html.Hidden("search", search)
+                        @Html.Hidden("categoryId", categoryId)
+                        @Html.Hidden("status", status)
+                        @Html.Hidden("stockStatus", stockStatus)
+                        @Html.Hidden("page", 1)
+
+                        <select name="pageSize"
+                                onchange="document.getElementById('pageSizeForm').submit();">
+
+                            <option value="10" @(pageSize == 10 ? "selected" : "")>
+                                10
+                            </option>
+
+                            <option value="20" @(pageSize == 20 ? "selected" : "")>
+                                20
+                            </option>
+
+                            <option value="50" @(pageSize == 50 ? "selected" : "")>
+                                50
+                            </option>
+
+                        </select>
+                    }
+
+                </div>
+
+                <!-- THÔNG TIN TRANG -->
+                <div class="product-pagination-info">
+                    Trang <strong>@currentPage</strong>
+                    / <strong>@totalPages</strong>
+                </div>
+
+                <!-- CÁC NÚT PHÂN TRANG -->
+                <div class="product-pagination">
+
+                    <!-- TRANG ĐẦU -->
+                    <a class="product-page-link @(currentPage <= 1 ? "disabled" : "")"
+                       href="@Url.Action("ProductList", "Products", new {
+                   area = "Admin",
+                   search = search,
+                   categoryId = categoryId,
+                   status = status,
+                   stockStatus = stockStatus,
+                   page = 1,
+                   pageSize = pageSize
+               })">
+
+                        <i class="glyphicon glyphicon-fast-backward"></i>
+
+                    </a>
+
+                    <!-- TRANG TRƯỚC -->
+                    <a class="product-page-link @(currentPage <= 1 ? "disabled" : "")"
+                       href="@Url.Action("ProductList", "Products", new {
+                   area = "Admin",
+                   search = search,
+                   categoryId = categoryId,
+                   status = status,
+                   stockStatus = stockStatus,
+                   page = currentPage - 1,
+                   pageSize = pageSize
+               })">
+
+                        <i class="glyphicon glyphicon-chevron-left"></i>
+
+                    </a>
+
+                    <!-- CÁC SỐ TRANG -->
+                    @{
+                        int startPage = Math.Max(1, currentPage - 2);
+                        int endPage = Math.Min(totalPages, currentPage + 2);
+                    }
+
+                    @for (int i = startPage; i <= endPage; i++)
+                    {
+                        <a class="product-page-link @(i == currentPage ? "current" : "")"
+                           href="@Url.Action("ProductList", "Products", new {
+                       area = "Admin",
+                       search = search,
+                       categoryId = categoryId,
+                       status = status,
+                       stockStatus = stockStatus,
+                       page = i,
+                       pageSize = pageSize
+                   })">
+
+                            @i
+
+                        </a>
+                    }
+
+                    <!-- TRANG SAU -->
+                    <a class="product-page-link @(currentPage >= totalPages ? "disabled" : "")"
+                       href="@Url.Action("ProductList", "Products", new {
+                   area = "Admin",
+                   search = search,
+                   categoryId = categoryId,
+                   status = status,
+                   stockStatus = stockStatus,
+                   page = currentPage + 1,
+                   pageSize = pageSize
+               })">
+
+                        <i class="glyphicon glyphicon-chevron-right"></i>
+
+                    </a>
+
+                    <!-- TRANG CUỐI -->
+                    <a class="product-page-link @(currentPage >= totalPages ? "disabled" : "")"
+                       href="@Url.Action("ProductList", "Products", new {
+                   area = "Admin",
+                   search = search,
+                   categoryId = categoryId,
+                   status = status,
+                   stockStatus = stockStatus,
+                   page = totalPages,
+                   pageSize = pageSize
+               })">
+
+                        <i class="glyphicon glyphicon-fast-forward"></i>
+
+                    </a>
+
+                </div>
+
+            </div>
+        }
 
     </div>
 

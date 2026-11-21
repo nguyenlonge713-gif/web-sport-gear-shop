@@ -6,7 +6,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Web.Mvc;
 using web_sport_gear.Models;
-
+using System.Text;
 namespace web_sport_gear.Areas.Admin.Controllers
 {
     public class ProductsController : AdminBaseController
@@ -123,86 +123,259 @@ namespace web_sport_gear.Areas.Admin.Controllers
             return RedirectToAction("ProductList");
         }
 
-        // Danh sách sản phẩm
-        public ActionResult ProductList()
+        // Danh sách sản phẩm: tìm kiếm, lọc và phân trang
+        public ActionResult ProductList(
+            string search,
+            int? categoryId,
+            string status,
+            string stockStatus,
+            int page = 1,
+            int pageSize = 10)
         {
             ActionResult check = CheckAdmin();
 
             if (check != null)
                 return check;
 
+            // Chuẩn hóa dữ liệu đầu vào
+            search = string.IsNullOrWhiteSpace(search)
+                ? ""
+                : search.Trim();
+
+            if (categoryId.HasValue && categoryId.Value <= 0)
+                categoryId = null;
+
+            // Chỉ cho phép các giá trị hợp lệ
+            if (status != "active" && status != "inactive")
+                status = "";
+
+            if (stockStatus != "in" && stockStatus != "out")
+                stockStatus = "";
+
+            // Giới hạn số sản phẩm mỗi trang
+            if (pageSize != 10 && pageSize != 20 && pageSize != 50)
+                pageSize = 10;
+
+            if (page < 1)
+                page = 1;
+
+            // Xây dựng điều kiện lọc SQL
+            StringBuilder where = new StringBuilder(
+                " WHERE 1 = 1 "
+            );
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                where.Append(
+                    " AND p.ProductName LIKE @Search "
+                );
+            }
+
+            if (categoryId.HasValue)
+            {
+                where.Append(
+                    " AND p.CategoryID = @CategoryID "
+                );
+            }
+
+            if (status == "active")
+            {
+                where.Append(
+                    " AND p.IsActive = 1 "
+                );
+            }
+            else if (status == "inactive")
+            {
+                where.Append(
+                    " AND p.IsActive = 0 "
+                );
+            }
+
+            if (stockStatus == "in")
+            {
+                where.Append(
+                    " AND p.StockQuantity > 0 "
+                );
+            }
+            else if (stockStatus == "out")
+            {
+                where.Append(
+                    " AND p.StockQuantity = 0 "
+                );
+            }
+
             List<Product> products = new List<Product>();
 
-            string sql = @"
-                SELECT
-                    p.ProductID,
-                    p.ProductName,
-                    p.Price,
-                    p.ImageUrl,
-                    p.CategoryID,
-                    p.Description,
-                    p.IsActive,
-                    p.StockQuantity,
-                    c.CategoryName
-                FROM dbo.Products p
-                INNER JOIN dbo.Categories c
-                    ON p.CategoryID = c.CategoryID
-                ORDER BY p.ProductID DESC";
+            int totalProducts = 0;
+            int totalPages = 0;
 
             using (SqlConnection connection =
                 new SqlConnection(ConnectionString))
-            using (SqlCommand command =
-                new SqlCommand(sql, connection))
             {
                 connection.Open();
 
-                using (SqlDataReader reader =
-                    command.ExecuteReader())
+                // 1. Đếm tổng số sản phẩm sau khi áp dụng bộ lọc
+                string countSql = @"
+            SELECT COUNT(*)
+            FROM dbo.Products p
+            INNER JOIN dbo.Categories c
+                ON p.CategoryID = c.CategoryID
+        " + where.ToString();
+
+                using (SqlCommand countCommand =
+                    new SqlCommand(countSql, connection))
                 {
-                    while (reader.Read())
+                    AddProductFilterParameters(
+                        countCommand,
+                        search,
+                        categoryId
+                    );
+
+                    totalProducts = Convert.ToInt32(
+                        countCommand.ExecuteScalar()
+                    );
+                }
+
+                // 2. Tính tổng số trang
+                totalPages = (int)Math.Ceiling(
+                    (double)totalProducts / pageSize
+                );
+
+                // Nếu không có sản phẩm, vẫn giữ trang hiện tại là 1
+                if (totalPages == 0)
+                    totalPages = 1;
+
+                // Nếu trang đang chọn vượt quá tổng số trang
+                if (page > totalPages)
+                    page = totalPages;
+
+                int offset = (page - 1) * pageSize;
+
+                // 3. Lấy sản phẩm của trang hiện tại
+                string sql = @"
+            SELECT
+                p.ProductID,
+                p.ProductName,
+                p.Price,
+                p.ImageUrl,
+                p.CategoryID,
+                p.Description,
+                p.IsActive,
+                p.StockQuantity,
+                c.CategoryName
+            FROM dbo.Products p
+            INNER JOIN dbo.Categories c
+                ON p.CategoryID = c.CategoryID
+        " + where.ToString() + @"
+            ORDER BY p.ProductID DESC
+            OFFSET @Offset ROWS
+            FETCH NEXT @PageSize ROWS ONLY";
+
+                using (SqlCommand command =
+                    new SqlCommand(sql, connection))
+                {
+                    AddProductFilterParameters(
+                        command,
+                        search,
+                        categoryId
+                    );
+
+                    command.Parameters.Add(
+                        "@Offset",
+                        SqlDbType.Int
+                    ).Value = offset;
+
+                    command.Parameters.Add(
+                        "@PageSize",
+                        SqlDbType.Int
+                    ).Value = pageSize;
+
+                    using (SqlDataReader reader =
+                        command.ExecuteReader())
                     {
-                        products.Add(new Product
+                        while (reader.Read())
                         {
-                            ProductID = Convert.ToInt32(
-                                reader["ProductID"]
-                            ),
+                            products.Add(new Product
+                            {
+                                ProductID = Convert.ToInt32(
+                                    reader["ProductID"]
+                                ),
 
-                            ProductName = reader["ProductName"].ToString(),
+                                ProductName = reader["ProductName"].ToString(),
 
-                            Price = Convert.ToDecimal(
-                                reader["Price"]
-                            ),
+                                Price = Convert.ToDecimal(
+                                    reader["Price"]
+                                ),
 
-                            ImageUrl = reader["ImageUrl"] == DBNull.Value
-                                ? null
-                                : reader["ImageUrl"].ToString(),
+                                ImageUrl = reader["ImageUrl"] == DBNull.Value
+                                    ? null
+                                    : reader["ImageUrl"].ToString(),
 
-                            CategoryID = Convert.ToInt32(
-                                reader["CategoryID"]
-                            ),
+                                CategoryID = Convert.ToInt32(
+                                    reader["CategoryID"]
+                                ),
 
-                            Description = reader["Description"] == DBNull.Value
-                                ? null
-                                : reader["Description"].ToString(),
+                                Description = reader["Description"] == DBNull.Value
+                                    ? null
+                                    : reader["Description"].ToString(),
 
-                            IsActive = Convert.ToBoolean(
-                                reader["IsActive"]
-                            ),
+                                IsActive = Convert.ToBoolean(
+                                    reader["IsActive"]
+                                ),
 
-                            StockQuantity = Convert.ToInt32(
-                                reader["StockQuantity"]
-                            ),
+                                StockQuantity = Convert.ToInt32(
+                                    reader["StockQuantity"]
+                                ),
 
-                            CategoryName = reader["CategoryName"].ToString()
-                        });
+                                CategoryName = reader["CategoryName"].ToString()
+                            });
+                        }
                     }
                 }
             }
+
+            // 4. Nạp danh mục cho bộ lọc
+            LoadCategories();
+
+            // 5. Truyền dữ liệu phân trang và bộ lọc sang View
+            ViewBag.Search = search;
+            ViewBag.CategoryId = categoryId;
+            ViewBag.Status = status;
+            ViewBag.StockStatus = stockStatus;
+
+            ViewBag.CurrentPage = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalProducts = totalProducts;
+            ViewBag.TotalPages = totalPages;
 
             return View(
                 "~/Areas/Admin/Views/Products/ProductList.cshtml",
                 products
             );
+        }
+
+        // Thêm tham số tìm kiếm và lọc vào câu lệnh SQL
+        private void AddProductFilterParameters(
+            SqlCommand command,
+            string search,
+            int? categoryId)
+        {
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                command.Parameters.Add(
+                    "@Search",
+                    SqlDbType.NVarChar,
+                    255
+                ).Value = "%" + search + "%";
+            }
+
+            if (categoryId.HasValue)
+            {
+                command.Parameters.Add(
+                    "@CategoryID",
+                    SqlDbType.Int
+                ).Value = categoryId.Value;
+            }
         }
 
         // Lấy danh sách danh mục cho dropdown
